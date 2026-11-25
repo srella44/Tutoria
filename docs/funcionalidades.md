@@ -4,12 +4,14 @@ Estado actual: **Fase 0 · Prototipo navegable** con alumnado ficticio. Los dato
 
 ## Secciones
 
-Menú: **Inici · Alumnat · + · Reunions · Seguiment** (barra inferior en iPhone, lateral en iPad/ordenador).
+Al abrir la app se ve **Inici**: pantalla de botones grandes (Registre nau, Uei, Alumnat, Reunions, Seguiment) con un resumen en cada uno, sin barra inferior.
+Al entrar en una sección aparece la barra **Inici · Alumnat · + · Reunions · Seguiment** (en iPad/ordenador, barra lateral siempre visible).
 Ajustes (idioma) en el engranaje de arriba a la derecha, en todas las secciones.
 
 | Sección | Ruta | Qué hace hoy |
 | --- | --- | --- |
-| Inici / Inicio | `/` | Página principal con tres bloques: hoy y mañana (reuniones y acuerdos que vencen o han vencido), pendientes (actas sin firmar, incidencias y Te escoti abiertos), alumnos sin observaciones en 14 días |
+| Inici / Inicio | `/` | Botones grandes con resumen: reuniones de hoy y pendientes, alumnos, próximas reuniones, acuerdos abiertos; punto rojo si hay acuerdos vencidos |
+| Uei / Hoy | `/uei` | Tres bloques: hoy y mañana (reuniones y acuerdos que vencen o han vencido), pendientes (actas sin firmar, incidencias y Te escoti abiertos), alumnos sin observaciones en 14 días |
 | Alumnat / Alumnado | `/alumnado` | Cuadrícula o lista del grupo, búsqueda por nombre |
 | Ficha | `/alumnado/:id` | Cabecera con grupo, nacimiento e información relevante; botones llamar, escribir y registrar; pestañas Cronología (filtrable, con acuerdos), Contactos y Evaluación |
 | Reunions / Reuniones | `/reuniones` | Próximas y pasadas; «Reunion naua» crea una reunión (tipo, fecha, hora, alumnos); botón .ics desactivado |
@@ -20,7 +22,7 @@ Ajustes (idioma) en el engranaje de arriba a la derecha, en todas las secciones.
 
 Botón `+` (central en iPhone, lateral en iPad/ordenador, y en cada ficha con el alumno preseleccionado):
 elegir uno o varios alumnos, tipo (observación, incidencia, comunicación), frases frecuentes y texto libre.
-El registro aparece al instante en la cronología y, si es incidencia, en «Hoy» y «Seguimiento».
+El registro aparece al instante en la cronología y, si es incidencia, en «Uei» y «Seguimiento».
 
 ## Otros
 

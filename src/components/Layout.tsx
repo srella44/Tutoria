@@ -1,13 +1,15 @@
 import clsx from 'clsx'
-import { House, ListChecks, Plus, Users, Handshake } from 'lucide-react'
+import { Handshake, House, ListChecks, Plus, Sun, Users } from 'lucide-react'
 import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useI18n } from '../lib/i18n'
 import { QuickCapture } from './QuickCapture'
 
 export function Layout() {
   const { t } = useI18n()
   const [captureOpen, setCaptureOpen] = useState(false)
+  // En la pantalla de inicio no hay barra inferior: los botones grandes hacen de menú.
+  const enInicio = useLocation().pathname === '/'
 
   const items = [
     { to: '/', label: t.inicio, icon: House, end: true },
@@ -34,7 +36,7 @@ export function Layout() {
           <Plus size={18} /> {t.nuevoRegistro}
         </button>
         <nav className="flex flex-col gap-1">
-          {items.map(({ to, label, icon: Icon, end }) => (
+          {[items[0], { to: '/uei', label: t.hoy, icon: Sun, end: false }, ...items.slice(1)].map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
@@ -53,12 +55,12 @@ export function Layout() {
         <p className="mt-auto px-2 text-xs text-muted">{t.prototipo}</p>
       </aside>
 
-      <main className="min-w-0 flex-1 overflow-y-auto pb-28 md:pb-8">
-        <Outlet />
+      <main className={clsx('min-w-0 flex-1 overflow-y-auto md:pb-8', enInicio ? 'pb-8' : 'pb-28')}>
+        <Outlet context={{ abrirCaptura: () => setCaptureOpen(true) }} />
       </main>
 
       {/* iPhone: barra inferior con el + central */}
-      <nav className="pb-safe fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur md:hidden">
+      <nav hidden={enInicio} className="pb-safe fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur md:hidden">
         <div className="mx-auto grid h-16 max-w-md grid-cols-5 items-center">
           {items.slice(0, 2).map((it) => (
             <TabItem key={it.to} {...it} />

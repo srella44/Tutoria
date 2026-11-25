@@ -8,6 +8,12 @@ export type Lang = 'oc' | 'es'
 
 const oc = {
   inicio: 'Inici',
+  bonDia: 'Bon dia',
+  reunionesHoyN: 'Reunions',
+  pendientesN: 'Pendents',
+  alumnosN: 'Alumnes',
+  proximasN: 'Pròximes',
+  acuerdosAbiertosN: 'Acòrds dubèrts',
   reuniones: 'Reunions',
   nuevaReunion: 'Reunion naua',
   pasadas: 'Passades',
@@ -89,6 +95,12 @@ type Dict = typeof oc
 
 const es: Dict = {
   inicio: 'Inicio',
+  bonDia: 'Buenos días',
+  reunionesHoyN: 'Reuniones',
+  pendientesN: 'Pendientes',
+  alumnosN: 'Alumnos',
+  proximasN: 'Próximas',
+  acuerdosAbiertosN: 'Acuerdos abiertos',
   reuniones: 'Reuniones',
   nuevaReunion: 'Nueva reunión',
   pasadas: 'Pasadas',

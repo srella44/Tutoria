@@ -5,6 +5,7 @@ import { I18nProvider } from './lib/i18n'
 import { AlumnoFicha } from './pages/AlumnoFicha'
 import { Alumnado } from './pages/Alumnado'
 import { Hoy } from './pages/Hoy'
+import { Inicio } from './pages/Inicio'
 import { Reunion } from './pages/Reunion'
 import { Reuniones } from './pages/Reuniones'
 import { Seguimiento } from './pages/Seguimiento'
@@ -19,7 +20,8 @@ export default function App() {
         <Router>
           <Routes>
             <Route element={<Layout />}>
-              <Route index element={<Hoy />} />
+              <Route index element={<Inicio />} />
+              <Route path="uei" element={<Hoy />} />
               <Route path="alumnado" element={<Alumnado />} />
               <Route path="alumnado/:id" element={<AlumnoFicha />} />
               <Route path="reuniones" element={<Reuniones />} />

@@ -48,7 +48,7 @@ PWA para un solo usuario, en `tutoria.pretzhet.app`, sin cuotas.
 src/
   App.tsx              rutas
   components/          Layout (barra inferior / lateral), Ajustes, QuickCapture, RegistroItem, ui
-  pages/               Hoy (Inici), Alumnado, AlumnoFicha, Reuniones, Seguimiento, Reunion (modo reunión)
+  pages/               Inicio (botones), Hoy (Uei), Alumnado, AlumnoFicha, Reuniones, Seguimiento, Reunion (modo reunión)
   data/types.ts        modelo de datos
   data/demo.ts         alumnado ficticio (fechas relativas a hoy)
   data/store.tsx       estado (Fase 0: en memoria)
@@ -74,4 +74,4 @@ npm run preview   # sirve dist/
 
 iPhone 17 como referencia táctil. Sobrio, un color de acento (`--color-accent`), zonas táctiles ≥ 44 px,
 modo oscuro automático. Menú: Inici · Alumnat · + · Reunions · Seguiment (ver `docs/decisiones/0003`).
-iPhone: barra inferior con `+` central. iPad/ordenador: barra lateral. Ajustes siempre en el engranaje arriba a la derecha.
+Inici es una pantalla de botones grandes sin barra; dentro de las secciones, barra inferior con `+` central. iPad/ordenador: barra lateral. Ajustes siempre en el engranaje arriba a la derecha.

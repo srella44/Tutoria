@@ -4,7 +4,7 @@
 
 Todos los textos en aranés del prototipo son **provisionales** y deben revisarse según la normativa del IEA:
 
-- [ ] Etiquetas de interfaz en `src/lib/i18n.tsx` (objeto `oc`), en especial: «Enregistrar» (guardar), «Registre nau», «Donades», «Tipe», «Escríuer», «Trucar», «Neishement», «Pròximes reunions», «Daurir reunion», «Toti», «Inici», «Reunion naua», «Passades», «Pendents», «Ajustaments», «Data», «Ora», «vençut».
+- [ ] Etiquetas de interfaz en `src/lib/i18n.tsx` (objeto `oc`), en especial: «Enregistrar» (guardar), «Registre nau», «Donades», «Tipe», «Escríuer», «Trucar», «Neishement», «Pròximes reunions», «Daurir reunion», «Toti», «Inici», «Reunion naua», «Passades», «Pendents», «Ajustaments», «Data», «Ora», «vençut», «Bon dia», «Acòrds dubèrts».
 - [ ] Nombres de tipos de registro (`tipoLabel.oc`).
 - [ ] Días de la semana en `src/lib/fechas.ts`.
 - [ ] Frases frecuentes de ejemplo en `src/data/demo.ts` (sustituir por las validadas del banco de expresiones).

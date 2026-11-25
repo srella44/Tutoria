@@ -1,4 +1,4 @@
-// «Inici»: la página principal. Tres bloques: hoy y mañana, pendientes, alumnos sin observar.
+// «Uei»: lo de hoy. Tres bloques: hoy y mañana, pendientes, alumnos sin observar.
 import clsx from 'clsx'
 import { ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -39,7 +39,7 @@ export function Hoy() {
   return (
     <>
       <PageHeader
-        title={t.inicio}
+        title={t.hoy}
         right={<span className="text-sm text-muted">{fechaCorta(new Date().toISOString(), lang)}</span>}
       />
       <div className="mx-auto max-w-3xl px-4">
