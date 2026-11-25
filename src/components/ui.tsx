@@ -2,6 +2,7 @@
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
 import type { TipoRegistro, Visibilidad } from '../data/types'
+import { Ajustes } from './Ajustes'
 
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
   return (
@@ -25,7 +26,10 @@ export function PageHeader({ title, right }: { title: ReactNode; right?: ReactNo
     <header className="pt-safe sticky top-0 z-10 border-b border-line bg-bg/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
         <h1 className="text-xl font-bold tracking-tight">{title}</h1>
-        {right}
+        <div className="flex items-center gap-1">
+          {right}
+          <Ajustes />
+        </div>
       </div>
     </header>
   )

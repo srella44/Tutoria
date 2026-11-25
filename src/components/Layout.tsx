@@ -1,18 +1,18 @@
 import clsx from 'clsx'
-import { CalendarDays, ListChecks, Plus, Sun, Users } from 'lucide-react'
+import { House, ListChecks, Plus, Users, Handshake } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useI18n } from '../lib/i18n'
 import { QuickCapture } from './QuickCapture'
 
 export function Layout() {
-  const { t, toggle } = useI18n()
+  const { t } = useI18n()
   const [captureOpen, setCaptureOpen] = useState(false)
 
   const items = [
-    { to: '/', label: t.hoy, icon: Sun, end: true },
+    { to: '/', label: t.inicio, icon: House, end: true },
     { to: '/alumnado', label: t.alumnado, icon: Users },
-    { to: '/agenda', label: t.agenda, icon: CalendarDays },
+    { to: '/reuniones', label: t.reuniones, icon: Handshake },
     { to: '/seguimiento', label: t.seguimiento, icon: ListChecks },
   ]
 
@@ -50,12 +50,7 @@ export function Layout() {
             </NavLink>
           ))}
         </nav>
-        <div className="mt-auto space-y-2 px-2 text-xs text-muted">
-          <button onClick={toggle} className="underline">
-            {t.idioma}
-          </button>
-          <p>{t.prototipo}</p>
-        </div>
+        <p className="mt-auto px-2 text-xs text-muted">{t.prototipo}</p>
       </aside>
 
       <main className="min-w-0 flex-1 overflow-y-auto pb-28 md:pb-8">
@@ -88,7 +83,7 @@ export function Layout() {
   )
 }
 
-function TabItem({ to, label, icon: Icon, end }: { to: string; label: string; icon: typeof Sun; end?: boolean }) {
+function TabItem({ to, label, icon: Icon, end }: { to: string; label: string; icon: typeof House; end?: boolean }) {
   return (
     <NavLink
       to={to}

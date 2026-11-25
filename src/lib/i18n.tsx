@@ -7,6 +7,17 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  inicio: 'Inici',
+  reuniones: 'Reunions',
+  nuevaReunion: 'Reunion naua',
+  pasadas: 'Passades',
+  pendientes: 'Pendents',
+  hoyYManana: 'Uei e deman',
+  ajustes: 'Ajustaments',
+  fechaLbl: 'Data',
+  horaLbl: 'Ora',
+  crear: 'Crear',
+  vencido: 'vençut',
   hoy: 'Uei',
   alumnado: 'Alumnat',
   agenda: 'Agenda',
@@ -77,6 +88,17 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  inicio: 'Inicio',
+  reuniones: 'Reuniones',
+  nuevaReunion: 'Nueva reunión',
+  pasadas: 'Pasadas',
+  pendientes: 'Pendientes',
+  hoyYManana: 'Hoy y mañana',
+  ajustes: 'Ajustes',
+  fechaLbl: 'Fecha',
+  horaLbl: 'Hora',
+  crear: 'Crear',
+  vencido: 'vencido',
   hoy: 'Hoy',
   alumnado: 'Alumnado',
   agenda: 'Agenda',

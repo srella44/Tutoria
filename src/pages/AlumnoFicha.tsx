@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { ChevronLeft, Mail, Phone, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { Ajustes } from '../components/Ajustes'
 import { QuickCapture } from '../components/QuickCapture'
 import { RegistroItem } from '../components/RegistroItem'
 import { Avatar, Card, Empty } from '../components/ui'
@@ -10,7 +11,7 @@ import type { TipoRegistro } from '../data/types'
 import { fechaCorta } from '../lib/fechas'
 import { useI18n } from '../lib/i18n'
 
-type Tab = 'cronologia' | 'datos' | 'contactos' | 'documentos' | 'evaluacion'
+type Tab = 'cronologia' | 'contactos' | 'evaluacion'
 
 export function AlumnoFicha() {
   const { id } = useParams()
@@ -33,9 +34,7 @@ export function AlumnoFicha() {
 
   const tabs: [Tab, string][] = [
     ['cronologia', t.cronologia],
-    ['datos', t.datos],
     ['contactos', t.contactos],
-    ['documentos', t.documentos],
     ['evaluacion', t.evaluacion],
   ]
 
@@ -43,16 +42,20 @@ export function AlumnoFicha() {
     <>
       <header className="pt-safe border-b border-line bg-surface">
         <div className="mx-auto max-w-3xl px-4 pb-3">
-          <Link to="/alumnado" className="flex h-12 items-center gap-1 text-accent md:hidden">
-            <ChevronLeft size={20} /> {t.alumnado}
-          </Link>
-          <div className="flex items-center gap-4 md:pt-5">
+          <div className="flex h-12 items-center justify-between">
+            <Link to="/alumnado" className="flex items-center gap-1 text-accent">
+              <ChevronLeft size={20} /> {t.alumnado}
+            </Link>
+            <Ajustes />
+          </div>
+          <div className="flex items-center gap-4">
             <Avatar nombre={a.nombre} apellidos={a.apellidos} size={64} />
             <div className="min-w-0 flex-1">
               <h1 className="text-2xl font-bold leading-tight">{a.nombre}</h1>
               <p className="text-muted">
-                {a.apellidos} · {a.grupo}
+                {a.apellidos} · {a.grupo} · {a.fechaNacimiento.split('-').reverse().join('/')}
               </p>
+              {a.infoRelevante && <p className="mt-1 text-sm">{a.infoRelevante}</p>}
             </div>
           </div>
           <div className="mt-3 flex gap-2">
@@ -71,13 +74,13 @@ export function AlumnoFicha() {
             </button>
           </div>
         </div>
-        <nav className="mx-auto flex max-w-3xl gap-1 overflow-x-auto px-2">
+        <nav className="mx-auto flex max-w-3xl px-2">
           {tabs.map(([k, label]) => (
             <button
               key={k}
               onClick={() => setTab(k)}
               className={clsx(
-                'shrink-0 border-b-2 px-3 py-2.5 text-sm',
+                'flex-1 border-b-2 px-3 py-2.5 text-sm',
                 tab === k ? 'border-accent font-semibold text-accent' : 'border-transparent text-muted',
               )}
             >
@@ -135,16 +138,6 @@ export function AlumnoFicha() {
           </>
         )}
 
-        {tab === 'datos' && (
-          <Card>
-            <dl className="divide-y divide-line">
-              <Row k={t.nacimiento} v={a.fechaNacimiento.split('-').reverse().join('/')} />
-              <Row k={t.grupo} v={a.grupo} />
-              <Row k={t.info} v={a.infoRelevante ?? '—'} />
-            </dl>
-          </Card>
-        )}
-
         {tab === 'contactos' && (
           <div className="space-y-3">
             {familia.map((c) => (
@@ -180,9 +173,9 @@ export function AlumnoFicha() {
           </div>
         )}
 
-        {(tab === 'documentos' || tab === 'evaluacion') && (
+        {tab === 'evaluacion' && (
           <Card>
-            {tab === 'evaluacion' && propios.some((r) => r.tipo === 'evaluacion') ? (
+            {propios.some((r) => r.tipo === 'evaluacion') ? (
               <ul>
                 {propios
                   .filter((r) => r.tipo === 'evaluacion')
@@ -199,14 +192,5 @@ export function AlumnoFicha() {
 
       {capture && <QuickCapture preset={[a.id]} onClose={() => setCapture(false)} />}
     </>
-  )
-}
-
-function Row({ k, v }: { k: string; v: string }) {
-  return (
-    <div className="flex gap-4 px-4 py-3">
-      <dt className="w-36 shrink-0 text-sm text-muted">{k}</dt>
-      <dd className="text-[15px]">{v}</dd>
-    </div>
   )
 }
