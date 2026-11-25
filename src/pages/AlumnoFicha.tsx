@@ -66,7 +66,7 @@ export function AlumnoFicha() {
                 </a>
               </>
             )}
-            <button onClick={() => setCapture(true)} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent py-2 text-sm font-medium text-white dark:text-black">
+            <button onClick={() => setCapture(true)} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent py-2 text-sm font-medium text-on-accent">
               <Plus size={16} /> {t.capturar}
             </button>
           </div>
@@ -97,7 +97,7 @@ export function AlumnoFicha() {
                   onClick={() => setFiltro(k)}
                   className={clsx(
                     'shrink-0 rounded-full border px-3 py-1 text-sm',
-                    filtro === k ? 'border-accent bg-accent text-white dark:text-black' : 'border-line',
+                    filtro === k ? 'border-accent bg-accent text-on-accent' : 'border-line',
                   )}
                 >
                   {k === 'todos' ? t.todos : tipo[k]}

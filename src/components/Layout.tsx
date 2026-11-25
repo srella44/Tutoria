@@ -21,12 +21,15 @@ export function Layout() {
       {/* iPad y ordenador: barra lateral */}
       <aside className="hidden w-60 shrink-0 flex-col border-r border-line bg-surface p-3 md:flex">
         <div className="mb-4 flex items-center gap-2 px-2 pt-2">
-          <img src="/favicon.svg" alt="" className="h-7 w-7" />
+          <svg viewBox="0 0 64 64" className="h-7 w-7" aria-hidden>
+            <rect width="64" height="64" rx="14" fill="#0f5c4d" />
+            <path d="M18 20h28M32 20v26" stroke="#fff" strokeWidth="6" strokeLinecap="round" />
+          </svg>
           <span className="text-lg font-bold">Tutoria</span>
         </div>
         <button
           onClick={() => setCaptureOpen(true)}
-          className="mb-4 flex items-center justify-center gap-2 rounded-xl bg-accent px-3 py-2.5 font-semibold text-white dark:text-black"
+          className="mb-4 flex items-center justify-center gap-2 rounded-xl bg-accent px-3 py-2.5 font-semibold text-on-accent"
         >
           <Plus size={18} /> {t.nuevoRegistro}
         </button>
@@ -69,7 +72,7 @@ export function Layout() {
             <button
               aria-label={t.nuevoRegistro}
               onClick={() => setCaptureOpen(true)}
-              className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-white shadow-lg active:scale-95 dark:text-black"
+              className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-on-accent shadow-lg active:scale-95"
             >
               <Plus size={28} />
             </button>

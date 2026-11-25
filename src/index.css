@@ -2,6 +2,7 @@
 
 @theme {
   --color-accent: #0f5c4d;
+  --color-on-accent: #ffffff;
   --color-accent-soft: #e3efec;
   --color-bg: #f7f7f5;
   --color-surface: #ffffff;
@@ -15,9 +16,11 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Tema oscuro: sigue al sistema salvo que el contenedor fije data-theme. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --color-accent: #5cc2aa;
+    --color-on-accent: #0b1714;
     --color-accent-soft: #17302b;
     --color-bg: #111213;
     --color-surface: #1b1c1e;
@@ -29,6 +32,20 @@
     --color-danger: #f08a8c;
     --color-danger-soft: #361d1e;
   }
+}
+:root[data-theme='dark'] {
+    --color-accent: #5cc2aa;
+    --color-on-accent: #0b1714;
+    --color-accent-soft: #17302b;
+    --color-bg: #111213;
+    --color-surface: #1b1c1e;
+    --color-ink: #ececea;
+    --color-muted: #9a9ea5;
+    --color-line: #2c2e31;
+    --color-warn: #f0a663;
+    --color-warn-soft: #33251a;
+    --color-danger: #f08a8c;
+    --color-danger-soft: #361d1e;
 }
 
 html,

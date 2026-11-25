@@ -54,7 +54,7 @@ export function QuickCapture({ onClose, preset }: { onClose: () => void; preset?
           <button
             onClick={guardar}
             disabled={!puedeGuardar}
-            className="rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-40 dark:text-black"
+            className="rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-on-accent disabled:opacity-40"
           >
             {t.guardar}
           </button>
@@ -72,7 +72,7 @@ export function QuickCapture({ onClose, preset }: { onClose: () => void; preset?
                   onClick={() => toggle(a.id)}
                   className={clsx(
                     'min-h-10 rounded-full border px-3.5 text-[15px]',
-                    sel.includes(a.id) ? 'border-accent bg-accent text-white dark:text-black' : 'border-line',
+                    sel.includes(a.id) ? 'border-accent bg-accent text-on-accent' : 'border-line',
                   )}
                 >
                   {a.nombre}

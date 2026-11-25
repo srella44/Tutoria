@@ -36,7 +36,7 @@ export function Seguimiento() {
               onClick={() => setEstado(k)}
               className={clsx(
                 'rounded-full border px-3 py-1 text-sm',
-                estado === k ? 'border-accent bg-accent text-white dark:text-black' : 'border-line',
+                estado === k ? 'border-accent bg-accent text-on-accent' : 'border-line',
               )}
             >
               {k === 'todos' ? t.todos : estadoLabel[k]}

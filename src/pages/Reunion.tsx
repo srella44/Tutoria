@@ -139,7 +139,7 @@ export function Reunion() {
           <button
             disabled={paso === pasos.length - 1}
             onClick={() => setPaso((p) => p + 1)}
-            className="flex-1 rounded-xl bg-accent py-3 font-semibold text-white disabled:opacity-40 dark:text-black"
+            className="flex-1 rounded-xl bg-accent py-3 font-semibold text-on-accent disabled:opacity-40"
           >
             {t.siguiente}
           </button>
