@@ -7,6 +7,11 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  cerrar: 'Barrar',
+  reabrir: 'Tornar a daurir',
+  cerrada: 'Barrada',
+  estado: 'Estat',
+  protegidoNoEditable: 'Es registres protegits se poderàn editar damb eth desblocatge (fasa 2).',
   importar: 'Importar',
   importarTitulo: 'Importar alumnat',
   importarAyuda: 'Tria un fichèr Excel (.xlsx) o CSV damb ua fila per alumne. Eth fichèr non surt d’aguest dispositiu.',
@@ -261,6 +266,11 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  cerrar: 'Cerrar',
+  reabrir: 'Reabrir',
+  cerrada: 'Cerrada',
+  estado: 'Estado',
+  protegidoNoEditable: 'Los registros protegidos se podrán editar con el desbloqueo (fase 2).',
   importar: 'Importar',
   importarTitulo: 'Importar alumnado',
   importarAyuda: 'Elige un archivo Excel (.xlsx) o CSV con una fila por alumno. El archivo no sale de este dispositivo.',

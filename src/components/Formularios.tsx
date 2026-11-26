@@ -1,7 +1,7 @@
 // Altas y edición de alumnado, contactos familiares y profesionales.
 import { useState } from 'react'
 import { useStore } from '../data/store'
-import type { Alumno, ContactoFamiliar, Profesional } from '../data/types'
+import type { Acuerdo, Aher, Alumno, ContactoFamiliar, EstadoAcuerdo, Profesional, Registro } from '../data/types'
 import { nombreLengua, useI18n } from '../lib/i18n'
 import { Campo, claseInput, claseTextarea, Hoja } from './Hoja'
 
@@ -208,6 +208,162 @@ export function FormProfesional({ profesional, onClose }: { profesional?: Profes
           <input value={contacto} onChange={(e) => setContacto(e.target.value)} className={claseInput} />
         </Campo>
       </div>
+    </Hoja>
+  )
+}
+
+const tiposEditables = ['observacion', 'incidencia', 'comunicacion'] as const
+const aLocal = (iso: string) => {
+  const d = new Date(iso)
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
+/** Editar un registro de la cronología (observación, incidencia, comunicación…). */
+export function FormRegistro({ registro, onClose }: { registro: Registro; onClose: () => void }) {
+  const { t, tipo: tipoLabel } = useI18n()
+  const { alumnosActivos, alumnos, guardarRegistro, borrarRegistro } = useStore()
+  const [tipo, setTipo] = useState(registro.tipo)
+  const [texto, setTexto] = useState(registro.texto)
+  const [fecha, setFecha] = useState(aLocal(registro.fecha))
+  const [sel, setSel] = useState(registro.alumnoIds)
+  const [estado, setEstado] = useState(registro.estado)
+  // Los alumnos ya vinculados se muestran aunque estén archivados.
+  const elegibles = [...alumnosActivos, ...alumnos.filter((a) => sel.includes(a.id) && !alumnosActivos.includes(a))]
+  const ok = texto.trim() !== '' && sel.length > 0 && fecha !== ''
+  const conmutar = (id: string) => setSel((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
+
+  return (
+    <Hoja
+      titulo={t.editar}
+      onClose={onClose}
+      puedeGuardar={ok}
+      onGuardar={() => {
+        guardarRegistro({
+          ...registro,
+          tipo,
+          texto: texto.trim(),
+          fecha: new Date(fecha).toISOString(),
+          alumnoIds: sel,
+          estado: tipo === 'incidencia' ? (estado ?? 'abierto') : registro.tipo === 'incidencia' ? undefined : estado,
+        })
+        onClose()
+      }}
+      pie={<BotonConfirmar peligro texto={t.borrar} onConfirmar={() => { borrarRegistro(registro.id); onClose() }} />}
+    >
+      {(tiposEditables as readonly string[]).includes(registro.tipo) && (
+        <div className="grid grid-cols-3 gap-2">
+          {tiposEditables.map((tp) => (
+            <button
+              key={tp}
+              type="button"
+              onClick={() => setTipo(tp)}
+              className={`min-h-11 rounded-xl border px-2 text-sm ${tipo === tp ? 'border-accent bg-accent-soft font-semibold text-accent' : 'border-line'}`}
+            >
+              {tipoLabel[tp]}
+            </button>
+          ))}
+        </div>
+      )}
+      <Campo label={t.texto}>
+        <textarea autoFocus rows={4} value={texto} onChange={(e) => setTexto(e.target.value)} className={claseTextarea} />
+      </Campo>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Campo label={t.fechaYHora}>
+          <input type="datetime-local" value={fecha} onChange={(e) => setFecha(e.target.value)} className={claseInput} />
+        </Campo>
+        {tipo === 'incidencia' && (
+          <Campo label={t.estado}>
+            <select value={estado ?? 'abierto'} onChange={(e) => setEstado(e.target.value as Registro['estado'])} className={claseInput}>
+              <option value="abierto">{t.abierto}</option>
+              <option value="cerrado">{t.cerrada}</option>
+            </select>
+          </Campo>
+        )}
+      </div>
+      <fieldset>
+        <legend className="mb-2 text-xs font-semibold uppercase text-muted">{t.elegirAlumnos} · {sel.length}</legend>
+        <div className="flex flex-wrap gap-2">
+          {elegibles.map((a) => (
+            <button
+              key={a.id}
+              type="button"
+              onClick={() => conmutar(a.id)}
+              className={`min-h-10 rounded-full border px-3.5 text-[15px] ${sel.includes(a.id) ? 'border-accent bg-accent text-on-accent' : 'border-line'}`}
+            >
+              {a.nombre}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+    </Hoja>
+  )
+}
+
+/** Editar un acuerdo (texto, responsable, revisión y estado). */
+export function FormAcuerdo({ acuerdo, onClose }: { acuerdo: Acuerdo; onClose: () => void }) {
+  const { t } = useI18n()
+  const { guardarAcuerdo, borrarAcuerdo } = useStore()
+  const [texto, setTexto] = useState(acuerdo.texto)
+  const [responsable, setResponsable] = useState(acuerdo.responsable)
+  const [fecha, setFecha] = useState(acuerdo.fechaRevision)
+  const [estado, setEstado] = useState(acuerdo.estado)
+  const etiquetas: Record<EstadoAcuerdo, string> = { pendiente: t.pendiente, seguimiento: t.enSeguimiento, completado: t.completado }
+  return (
+    <Hoja
+      titulo={t.editar}
+      onClose={onClose}
+      puedeGuardar={texto.trim() !== ''}
+      onGuardar={() => {
+        guardarAcuerdo({ ...acuerdo, texto: texto.trim(), responsable: responsable.trim(), fechaRevision: fecha, estado })
+        onClose()
+      }}
+      pie={<BotonConfirmar peligro texto={t.borrar} onConfirmar={() => { borrarAcuerdo(acuerdo.id); onClose() }} />}
+    >
+      <Campo label={t.texto}>
+        <textarea autoFocus rows={3} value={texto} onChange={(e) => setTexto(e.target.value)} className={claseTextarea} />
+      </Campo>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Campo label={t.responsable}>
+          <input list="responsables" value={responsable} onChange={(e) => setResponsable(e.target.value)} className={claseInput} />
+          <datalist id="responsables">{['Tutor', 'Familha', 'EAP'].map((r) => <option key={r} value={r} />)}</datalist>
+        </Campo>
+        <Campo label={t.revision}>
+          <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={claseInput} />
+        </Campo>
+        <Campo label={t.estado}>
+          <select value={estado} onChange={(e) => setEstado(e.target.value as EstadoAcuerdo)} className={claseInput}>
+            {(Object.keys(etiquetas) as EstadoAcuerdo[]).map((k) => <option key={k} value={k}>{etiquetas[k]}</option>)}
+          </select>
+        </Campo>
+      </div>
+    </Hoja>
+  )
+}
+
+/** Editar un Ahèr (tarea personal o delegada). */
+export function FormAher({ aher, onClose }: { aher: Aher; onClose: () => void }) {
+  const { t } = useI18n()
+  const { guardarAher, borrarAher } = useStore()
+  const [texto, setTexto] = useState(aher.texto)
+  const [fecha, setFecha] = useState(aher.fecha ?? '')
+  return (
+    <Hoja
+      titulo={t.editar}
+      onClose={onClose}
+      puedeGuardar={texto.trim() !== ''}
+      onGuardar={() => {
+        guardarAher({ ...aher, texto: texto.trim(), fecha: fecha || undefined })
+        onClose()
+      }}
+      pie={<BotonConfirmar peligro texto={t.borrar} onConfirmar={() => { borrarAher(aher.id); onClose() }} />}
+    >
+      <Campo label={t.texto}>
+        <textarea autoFocus rows={3} value={texto} onChange={(e) => setTexto(e.target.value)} className={claseTextarea} />
+      </Campo>
+      <Campo label={t.fechaTarea}>
+        <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={claseInput} />
+      </Campo>
     </Hoja>
   )
 }

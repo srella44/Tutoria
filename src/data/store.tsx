@@ -27,6 +27,12 @@ interface Store {
   borrarProfesional: (id: string) => void
   /** Alta en bloque (importación): añade alumnos y contactos y los grupos nuevos al curso. */
   importarAlumnado: (alumnos: Alumno[], contactos: ContactoFamiliar[]) => void
+  guardarRegistro: (r: Registro) => void
+  borrarRegistro: (id: string) => void
+  guardarAcuerdo: (a: Acuerdo) => void
+  borrarAcuerdo: (id: string) => void
+  guardarAher: (a: Aher) => void
+  borrarAher: (id: string) => void
   documentosClaustre: File[]
   addDocumentosClaustre: (archivos: File[]) => void
   registros: Registro[]
@@ -197,6 +203,24 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
       ? { ...a, estado: tarea.completado ? 'pendiente' : 'completado' } : a))
   }
   const acuerdos = acuerdosGuardados
+  const guardarRegistro = (r: Registro) => setRegistros((items) => upsert(items, r))
+  const borrarRegistro = (id: string) => setRegistros((items) => items.filter((r) => r.id !== id))
+  // Acuerdo y Ahèr comparten id cuando el acuerdo es del tutor: se mantienen iguales.
+  const guardarAcuerdo = (a: Acuerdo) => {
+    setAcuerdos((items) => upsert(items, a))
+    setAhers((items) => items.map((x) => x.id === a.id
+      ? { ...x, texto: a.texto, fecha: a.fechaRevision, completado: a.estado === 'completado' } : x))
+  }
+  const borrarAcuerdo = (id: string) => {
+    setAcuerdos((items) => items.filter((a) => a.id !== id))
+    setAhers((items) => items.filter((a) => a.id !== id))
+  }
+  const guardarAher = (a: Aher) => {
+    setAhers((items) => upsert(items, a))
+    setAcuerdos((items) => items.map((x) => x.id === a.id
+      ? { ...x, texto: a.texto, fechaRevision: a.fecha ?? x.fechaRevision, estado: a.completado ? 'completado' : x.estado === 'completado' ? 'pendiente' : x.estado } : x))
+  }
+  const borrarAher = (id: string) => borrarAcuerdo(id)
   const setTextoRegistro = (id: string, texto: string) => setRegistros((items) =>
     items.map((r) => r.id === id && r.visibilidad !== 'protegido' ? { ...r, texto } : r))
   const toggleCita = (id: string) => setRegistros((items) =>
@@ -234,6 +258,12 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         guardarProfesional,
         borrarProfesional,
         importarAlumnado,
+        guardarRegistro,
+        borrarRegistro,
+        guardarAcuerdo,
+        borrarAcuerdo,
+        guardarAher,
+        borrarAher,
         documentosClaustre,
         addDocumentosClaustre,
         registros,

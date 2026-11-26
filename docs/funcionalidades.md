@@ -47,6 +47,12 @@ La ficha del alumno enlaza a su historial de informes en el banco de la edición
 
 Desde las notas de un punto de Claustre o Cicle se puede crear un Ahèr con responsable y fecha. Los propios aparecen en Seguiment y Aué. Los delegados aparecen en el grupo de otros responsables de Seguiment.
 
+## Edición
+
+- Registros de la cronología (observación, incidencia, comunicación…): lápiz para editar texto, tipo, fecha y hora y alumnos, o borrarlo. Las incidencias tienen botón **Barrar / Tornar a daurir** y se marcan como cerradas. Las citas se editan desde su ficha y los registros protegidos esperan al desbloqueo (fase 2).
+- Acuerdos (ficha del alumno y Seguiment › otros responsables): texto, responsable, fecha de revisión y estado, o borrarlo.
+- Ahèrs (Seguiment): lápiz para cambiar el texto y la fecha, o borrarlo. Un Ahèr que viene de un acuerdo del tutor se mantiene sincronizado con él.
+
 ## Captura rápida
 
 Botón `+` (central en iPhone, lateral en iPad/ordenador, y en cada ficha con el alumno preseleccionado):

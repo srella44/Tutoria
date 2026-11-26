@@ -3,13 +3,13 @@ import { Archive, ChevronLeft, Mail, Pencil, Phone, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { BorradorEvaluacion } from '../components/BorradorEvaluacion'
-import { FormAlumno, FormContacto } from '../components/Formularios'
+import { FormAcuerdo, FormAlumno, FormContacto } from '../components/Formularios'
 import { Ajustes } from '../components/Ajustes'
 import { QuickCapture } from '../components/QuickCapture'
 import { RegistroItem } from '../components/RegistroItem'
 import { Avatar, Card, Empty } from '../components/ui'
 import { useStore } from '../data/store'
-import type { ContactoFamiliar, TipoRegistro } from '../data/types'
+import type { Acuerdo, ContactoFamiliar, TipoRegistro } from '../data/types'
 import { fechaCorta } from '../lib/fechas'
 import { nombreLengua, useI18n } from '../lib/i18n'
 
@@ -23,6 +23,7 @@ export function AlumnoFicha() {
   const [filtro, setFiltro] = useState<TipoRegistro | 'todos'>('todos')
   const [capture, setCapture] = useState(false)
   const [editar, setEditar] = useState(false)
+  const [acuerdoEditando, setAcuerdoEditando] = useState<Acuerdo>()
   const [contacto, setContacto] = useState<ContactoFamiliar | 'nuevo'>()
   const a = alumnos.find((x) => x.id === id)
   if (!a) return <Empty>404</Empty>
@@ -145,11 +146,16 @@ export function AlumnoFicha() {
                 <Card>
                   <ul>
                     {susAcuerdos.map((x) => (
-                      <li key={x.id} className="border-b border-line px-4 py-3 last:border-0">
-                        <div>{x.texto}</div>
-                        <div className="text-xs text-muted">
-                          {x.responsable} · {t.revision} {fechaCorta(x.fechaRevision, lang)}
-                        </div>
+                      <li key={x.id} className="border-b border-line last:border-0">
+                        <button onClick={() => setAcuerdoEditando(x)} className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-bg">
+                          <span className="min-w-0 flex-1">
+                            <span className={x.estado === 'completado' ? 'text-muted line-through' : undefined}>{x.texto}</span>
+                            <span className="block text-xs text-muted">
+                              {x.responsable} · {t.revision} {fechaCorta(x.fechaRevision, lang)}
+                            </span>
+                          </span>
+                          <Pencil size={15} className="mt-1 text-muted" aria-hidden />
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -233,6 +239,7 @@ export function AlumnoFicha() {
 
       {capture && <QuickCapture preset={[a.id]} onClose={() => setCapture(false)} />}
       {editar && <FormAlumno alumno={a} onClose={() => setEditar(false)} />}
+      {acuerdoEditando && <FormAcuerdo acuerdo={acuerdoEditando} onClose={() => setAcuerdoEditando(undefined)} />}
       {contacto && (
         <FormContacto alumnoId={a.id} contacto={contacto === 'nuevo' ? undefined : contacto} onClose={() => setContacto(undefined)} />
       )}

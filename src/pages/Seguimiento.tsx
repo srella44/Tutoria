@@ -1,9 +1,11 @@
-import { ChevronDown, ListChecks, Plus } from 'lucide-react'
+import { ChevronDown, ListChecks, Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { FormAcuerdo, FormAher } from '../components/Formularios'
 import { RegistroItem } from '../components/RegistroItem'
 import { Card, Empty, PageHeader, SectionTitle } from '../components/ui'
 import { useStore } from '../data/store'
+import type { Acuerdo, Aher } from '../data/types'
 import { diasDesdeHoy, fechaCorta } from '../lib/fechas'
 import { useI18n } from '../lib/i18n'
 
@@ -12,6 +14,8 @@ export function Seguimiento() {
   const { ahers, addAher, toggleAher, acuerdos, registros } = useStore()
   const [texto, setTexto] = useState('')
   const [fecha, setFecha] = useState('')
+  const [aherEditando, setAherEditando] = useState<Aher>()
+  const [acuerdoEditando, setAcuerdoEditando] = useState<Acuerdo>()
   const pendientes = ahers.filter((a) => !a.completado && !a.responsable).sort((a, b) => {
     if (a.fecha && b.fecha) return a.fecha.localeCompare(b.fecha)
     return Number(Boolean(b.fecha)) - Number(Boolean(a.fecha))
@@ -26,8 +30,8 @@ export function Seguimiento() {
   ]
 
   const tarea = (a: (typeof ahers)[number]) => (
-    <li key={a.id} className="border-b border-line last:border-0">
-      <label className="flex min-h-12 cursor-pointer items-start gap-3 px-4 py-3 hover:bg-bg">
+    <li key={a.id} className="flex items-start border-b border-line last:border-0">
+      <label className="flex min-h-12 flex-1 cursor-pointer items-start gap-3 py-3 pl-4 hover:bg-bg">
         <input type="checkbox" checked={a.completado} onChange={() => toggleAher(a.id)} className="mt-0.5 size-5 shrink-0 accent-accent" />
         <span className="min-w-0 flex-1">
           <span className={a.completado ? 'text-muted line-through' : undefined}>{a.texto}</span>
@@ -38,6 +42,9 @@ export function Seguimiento() {
           )}
         </span>
       </label>
+      <button onClick={() => setAherEditando(a)} aria-label={t.editar} className="m-2 rounded-lg p-2 text-muted hover:bg-bg">
+        <Pencil size={15} />
+      </button>
     </li>
   )
 
@@ -108,9 +115,14 @@ export function Seguimiento() {
               <ul className="border-t border-line">
                 {delegadas.map(tarea)}
                 {otrasTareas.map((a) => (
-                  <li key={a.id} className="border-b border-line px-4 py-3 last:border-0">
-                    {a.texto}
-                    <p className="text-xs text-muted">{a.responsable} · {fechaCorta(a.fechaRevision, lang)}</p>
+                  <li key={a.id} className="border-b border-line last:border-0">
+                    <button onClick={() => setAcuerdoEditando(a)} className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-bg">
+                      <span className="min-w-0 flex-1">
+                        {a.texto}
+                        <span className="block text-xs text-muted">{a.responsable} · {fechaCorta(a.fechaRevision, lang)}</span>
+                      </span>
+                      <Pencil size={15} className="mt-1 text-muted" aria-hidden />
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -118,6 +130,8 @@ export function Seguimiento() {
           )}
         </div>
       </div>
+      {aherEditando && <FormAher aher={aherEditando} onClose={() => setAherEditando(undefined)} />}
+      {acuerdoEditando && <FormAcuerdo acuerdo={acuerdoEditando} onClose={() => setAcuerdoEditando(undefined)} />}
     </>
   )
 }
