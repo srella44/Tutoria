@@ -1,5 +1,5 @@
 # Cloudflare Pages: la app (dist/) y la API de sincronización (functions/), con una base D1.
-# El id de la base se rellena al crearla: npx wrangler d1 create tutoria
+# Base D1 «tutoria» creada en el panel de Cloudflare (docs/despliegue.md).
 name = "tutoria"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-11-01"
@@ -7,5 +7,5 @@ compatibility_date = "2026-11-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "tutoria"
-database_id = "PENDIENTE"
+database_id = "850dd845-a45b-4521-ada6-e3f13d7dbc59"
 migrations_dir = "migrations"
