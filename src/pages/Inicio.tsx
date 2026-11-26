@@ -66,7 +66,7 @@ export function Inicio() {
       })),
     ...misAhers
       .filter((a) => a.fecha && diasDesdeHoy(a.fecha) === 0)
-      .map((a) => ({ id: a.id, titulo: a.texto, detalle: t.acuerdos, origen: 'aher' as const, to: '/seguimiento' })),
+      .map((a) => ({ id: a.id, hora: a.hora, titulo: a.texto, detalle: t.acuerdos, origen: 'aher' as const, to: '/seguimiento' })),
   ]
   items.sort((a, b) => (a.hora ?? '').localeCompare(b.hora ?? ''))
 

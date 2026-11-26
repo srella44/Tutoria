@@ -52,7 +52,7 @@ interface Store {
   setBorrador: (cita: Registro, datos?: BorradorOficial) => void
   acuerdos: Acuerdo[]
   ahers: Aher[]
-  addAher: (texto: string, fecha?: string, detalle?: Pick<Aher, 'responsable' | 'origen'>) => void
+  addAher: (texto: string, fecha?: string, detalle?: Pick<Aher, 'responsable' | 'origen' | 'hora'>) => void
   toggleAher: (id: string) => void
   toggleCita: (id: string) => void
   addPuntoCita: (id: string, texto: string) => void

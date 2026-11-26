@@ -347,13 +347,14 @@ export function FormAher({ aher, onClose }: { aher: Aher; onClose: () => void })
   const { guardarAher, borrarAher } = useStore()
   const [texto, setTexto] = useState(aher.texto)
   const [fecha, setFecha] = useState(aher.fecha ?? '')
+  const [hora, setHora] = useState(aher.hora ?? '')
   return (
     <Hoja
       titulo={t.editar}
       onClose={onClose}
       puedeGuardar={texto.trim() !== ''}
       onGuardar={() => {
-        guardarAher({ ...aher, texto: texto.trim(), fecha: fecha || undefined })
+        guardarAher({ ...aher, texto: texto.trim(), fecha: fecha || undefined, hora: fecha && hora ? hora : undefined })
         onClose()
       }}
       pie={<BotonConfirmar peligro texto={t.borrar} onConfirmar={() => { borrarAher(aher.id); onClose() }} />}
@@ -361,9 +362,14 @@ export function FormAher({ aher, onClose }: { aher: Aher; onClose: () => void })
       <Campo label={t.texto}>
         <textarea autoFocus rows={3} value={texto} onChange={(e) => setTexto(e.target.value)} className={claseTextarea} />
       </Campo>
-      <Campo label={t.fechaTarea}>
-        <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={claseInput} />
-      </Campo>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Campo label={t.fechaTarea}>
+          <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={claseInput} />
+        </Campo>
+        <Campo label={t.horaOpcional}>
+          <input type="time" value={hora} disabled={!fecha} onChange={(e) => setHora(e.target.value)} className={`${claseInput} disabled:opacity-40`} />
+        </Campo>
+      </div>
     </Hoja>
   )
 }

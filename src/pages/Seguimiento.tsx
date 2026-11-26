@@ -14,10 +14,11 @@ export function Seguimiento() {
   const { ahers, addAher, toggleAher, acuerdos, registros } = useStore()
   const [texto, setTexto] = useState('')
   const [fecha, setFecha] = useState('')
+  const [horaNueva, setHoraNueva] = useState('')
   const [aherEditando, setAherEditando] = useState<Aher>()
   const [acuerdoEditando, setAcuerdoEditando] = useState<Acuerdo>()
   const pendientes = ahers.filter((a) => !a.completado && !a.responsable).sort((a, b) => {
-    if (a.fecha && b.fecha) return a.fecha.localeCompare(b.fecha)
+    if (a.fecha && b.fecha) return a.fecha.localeCompare(b.fecha) || (a.hora ?? '').localeCompare(b.hora ?? '')
     return Number(Boolean(b.fecha)) - Number(Boolean(a.fecha))
   })
   const completadas = ahers.filter((a) => a.completado && !a.responsable)
@@ -37,7 +38,7 @@ export function Seguimiento() {
           <span className={a.completado ? 'text-muted line-through' : undefined}>{a.texto}</span>
           {(a.fecha || a.responsable) && (
             <span className={`block text-xs ${!a.completado && a.fecha && diasDesdeHoy(a.fecha) < 0 ? 'text-danger' : 'text-muted'}`}>
-              {[a.responsable, a.fecha && fechaCorta(a.fecha, lang)].filter(Boolean).join(' · ')}
+              {[a.responsable, a.fecha && fechaCorta(a.fecha, lang), a.fecha && a.hora].filter(Boolean).join(' · ')}
             </span>
           )}
         </span>
@@ -59,9 +60,10 @@ export function Seguimiento() {
               event.preventDefault()
               const contenido = texto.trim()
               if (!contenido) return
-              addAher(contenido, fecha || undefined)
+              addAher(contenido, fecha || undefined, fecha && horaNueva ? { hora: horaNueva } : undefined)
               setTexto('')
               setFecha('')
+              setHoraNueva('')
             }}
             className="flex flex-wrap items-end gap-2 border-b border-line p-3"
           >
@@ -72,6 +74,10 @@ export function Seguimiento() {
             <label className="shrink-0">
               <span className="block text-xs font-semibold text-muted">{t.fechaTarea}</span>
               <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="mt-1 h-11 rounded-xl border border-line bg-bg px-2" />
+            </label>
+            <label className="shrink-0">
+              <span className="block text-xs font-semibold text-muted">{t.horaOpcional}</span>
+              <input type="time" value={horaNueva} disabled={!fecha} onChange={(e) => setHoraNueva(e.target.value)} className="mt-1 h-11 rounded-xl border border-line bg-bg px-2 disabled:opacity-40" />
             </label>
             <button type="submit" disabled={!texto.trim()} className="grid size-11 place-items-center rounded-xl bg-accent text-on-accent disabled:opacity-40" aria-label={t.nuevoAher}>
               <Plus size={20} />

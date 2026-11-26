@@ -53,7 +53,7 @@ Desde las notas de un punto de Claustre o Cicle se puede crear un Ahèr con resp
 
 - Registros de la cronología (observación, incidencia, comunicación…): lápiz para editar texto, tipo, fecha y hora y alumnos, o borrarlo. Las incidencias tienen botón **Barrar / Tornar a daurir** y se marcan como cerradas. Las citas se editan desde su ficha y los registros protegidos esperan al desbloqueo (fase 2).
 - Acuerdos (ficha del alumno y Seguiment › otros responsables): texto, responsable, fecha de revisión y estado, o borrarlo.
-- Ahèrs (Seguiment): lápiz para cambiar el texto y la fecha, o borrarlo. Un Ahèr que viene de un acuerdo del tutor se mantiene sincronizado con él.
+- Ahèrs (Seguiment): fecha y **hora opcionales** al crearlos y al editarlos (lápiz), o borrarlos. La hora ordena los Ahèrs del día y aparece en Seguiment, en la tira Aué de Inicio y en el calendario. Un Ahèr que viene de un acuerdo del tutor se mantiene sincronizado con él.
 
 ## Captura rápida
 

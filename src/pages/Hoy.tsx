@@ -53,7 +53,7 @@ export function Hoy() {
   const totalDias = new Date(mes.getFullYear(), mes.getMonth() + 1, 0).getDate()
   const tareas = ahers.filter((a) => !a.completado && !a.responsable)
   const entradas = registros.filter((r) => diaLocal(r.fecha) === seleccion).sort((a, b) => a.fecha.localeCompare(b.fecha))
-  const tareasDia = tareas.filter((a) => a.fecha === seleccion)
+  const tareasDia = tareas.filter((a) => a.fecha === seleccion).sort((a, b) => (a.hora ?? '').localeCompare(b.hora ?? ''))
   const marcas = [
     { id: 'citas', label: t.reuniones },
     { id: 'notas', label: t.calNotas },
@@ -198,7 +198,7 @@ export function Hoy() {
                       <Link to="/seguimiento" className="cal-fila hover:bg-bg">
                         <span data-marca="tareas" className="cal-icono-fila"><ListChecks size={19} aria-hidden /></span>
                         <span className="min-w-0 flex-1">
-                          <span className="block text-xs text-muted">{t.acuerdos}</span>
+                          <span className="block text-xs text-muted">{t.acuerdos}{a.hora && ` · ${a.hora}`}</span>
                           <span className="block font-semibold">{a.texto}</span>
                         </span>
                         <ChevronRight size={17} className="shrink-0 text-muted" aria-hidden />

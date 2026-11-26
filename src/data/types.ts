@@ -116,6 +116,8 @@ export interface Aher {
   id: Id
   texto: string
   fecha?: IsoDate
+  /** Hora opcional (HH:MM) dentro del día de la fecha. */
+  hora?: string
   completado: boolean
   responsable?: string
   origen?: { citaId: Id; puntoId: Id }

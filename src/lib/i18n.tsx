@@ -7,6 +7,7 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  horaOpcional: 'Ora (opcionau)',
   ordenar: 'Ordenar',
   hecho: 'Fet',
   ordenarPor: 'Ordenar per',
@@ -287,6 +288,7 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  horaOpcional: 'Hora (opcional)',
   ordenar: 'Ordenar',
   hecho: 'Hecho',
   ordenarPor: 'Ordenar por',
