@@ -7,6 +7,7 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  volverAEntrar: 'Tornar a entrar',
   errorServidor: 'Non s’a pogut contactar damb eth servidor.',
   sincronizacion: 'Sincronizacion',
   syncDesactivada: 'Desactivada en aguest dispositiu',
@@ -325,6 +326,7 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  volverAEntrar: 'Volver a entrar',
   errorServidor: 'No se ha podido contactar con el servidor.',
   sincronizacion: 'Sincronización',
   syncDesactivada: 'Desactivada en este dispositivo',

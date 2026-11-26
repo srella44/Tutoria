@@ -20,8 +20,18 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        // La API de sincronización nunca se sirve desde la caché.
-        workbox: { navigateFallbackDenylist: [/^\/api\//] },
+        // Las páginas se piden primero a la red: así Cloudflare Access puede pedir el inicio de sesión.
+        // Solo sin conexión se usa la copia guardada. La API nunca se sirve desde la caché.
+        workbox: {
+          navigateFallback: null,
+          runtimeCaching: [
+            {
+              urlPattern: ({ request, url }) => request.mode === 'navigate' && !url.pathname.startsWith('/api/'),
+              handler: 'NetworkFirst',
+              options: { cacheName: 'paginas', networkTimeoutSeconds: 4, cacheableResponse: { statuses: [200] } },
+            },
+          ],
+        },
         includeAssets: ['favicon.svg'],
         manifest: {
           name: 'TUTOR-ia',

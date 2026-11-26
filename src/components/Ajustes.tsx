@@ -89,6 +89,12 @@ export function Ajustes() {
                     <RefreshCw size={16} className="text-muted" aria-hidden /> {t.sincronizarAhora}
                   </button>
                 )}
+                {(sync.estado === 'error' || errorActivar) && (
+                  // Suele ser que la sesión de Cloudflare Access ha caducado: al recargar, Access pide entrar.
+                  <button onClick={() => window.location.reload()} className="mx-3 mb-1 min-h-9 rounded-lg border border-line px-3 text-sm">
+                    {t.volverAEntrar}
+                  </button>
+                )}
                 <p className="px-3 pb-1 text-[11px] text-muted">{t.syncAyuda}</p>
               </>
             )}
