@@ -7,6 +7,18 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  errorServidor: 'Non s’a pogut contactar damb eth servidor.',
+  sincronizacion: 'Sincronizacion',
+  syncDesactivada: 'Desactivada en aguest dispositiu',
+  activarSync: 'Activar era sincronizacion',
+  syncAyuda: 'Es donades viatgen cifrades: eth servidor non les pòt liéger.',
+  sincronizarAhora: 'Sincronizar ara',
+  ultimaSync: 'Darrèra sincronizacion',
+  syncError: 'Non s’a pogut sincronizar. Se tornarà a ensajar.',
+  sincronizando: 'Sincronizant…',
+  otroDispositivo: 'Ja utilizi TUTOR-ia en un aute dispositiu',
+  unirseAyuda: 'Escriu era clau de recuperacion e crea un PIN entad aguest dispositiu. Es donades se descarguen cifrades.',
+  descargando: 'Descargant es donades…',
   crearPin: 'Crea eth tèn PIN',
   crearPinAyuda: 'Eth PIN protegís es donades d’aguest dispositiu: se guarden cifrades. De 4 a 8 chifres.',
   pin: 'PIN',
@@ -313,6 +325,18 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  errorServidor: 'No se ha podido contactar con el servidor.',
+  sincronizacion: 'Sincronización',
+  syncDesactivada: 'Desactivada en este dispositivo',
+  activarSync: 'Activar la sincronización',
+  syncAyuda: 'Los datos viajan cifrados: el servidor no los puede leer.',
+  sincronizarAhora: 'Sincronizar ahora',
+  ultimaSync: 'Última sincronización',
+  syncError: 'No se ha podido sincronizar. Se volverá a intentar.',
+  sincronizando: 'Sincronizando…',
+  otroDispositivo: 'Ya uso TUTOR-ia en otro dispositivo',
+  unirseAyuda: 'Escribe la clave de recuperación y crea un PIN para este dispositivo. Los datos se descargan cifrados.',
+  descargando: 'Descargando los datos…',
   crearPin: 'Crea tu PIN',
   crearPinAyuda: 'El PIN protege los datos de este dispositivo: se guardan cifrados. De 4 a 8 cifras.',
   pin: 'PIN',

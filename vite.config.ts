@@ -20,6 +20,8 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
+        // La API de sincronización nunca se sirve desde la caché.
+        workbox: { navigateFallbackDenylist: [/^\/api\//] },
         includeAssets: ['favicon.svg'],
         manifest: {
           name: 'TUTOR-ia',

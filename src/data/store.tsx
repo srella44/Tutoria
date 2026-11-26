@@ -3,7 +3,7 @@
 // Los borradores oficiales tienen su propio almacén cifrado.
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { guardarBorradorOficial, leerBorradoresOficiales, type BorradorOficial } from './borradoresOficiales'
-import { cargarDatos, datosDemo, datosVacios, reiniciarDatos, sincronizar, type Coleccion, type Datos } from './db'
+import { activarSync, alCambiarLocal, cargarDatos, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, servidorDisponible, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
 import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro } from './types'
 
 interface Store {
@@ -89,22 +89,103 @@ function usePersistir<T extends { id: string }>(coleccion: Coleccion, items: T[]
   }, [coleccion, items, activo])
 }
 
+// ── Sincronización ──
+export interface Sincronizacion {
+  /** Hay servidor (la app publicada en Cloudflare; la vista previa no lo tiene). */
+  disponible: boolean
+  estado: 'desactivada' | 'sincronizando' | 'ok' | 'error'
+  ultima?: number
+  activar: () => Promise<void>
+  sincronizar: () => Promise<void>
+}
+const SyncCtx = createContext<Sincronizacion>({ disponible: false, estado: 'desactivada', activar: async () => {}, sincronizar: async () => {} })
+export const useSincronizacion = () => useContext(SyncCtx)
+
+type Inicio = { datos: Datos; modo: 'demo' | 'propio'; almacenamiento: Store['almacenamiento']; revision: number }
+
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [inicio, setInicio] = useState<{ datos: Datos; modo: 'demo' | 'propio'; almacenamiento: Store['almacenamiento'] }>()
+  const [inicio, setInicio] = useState<Inicio>()
+  const [sync, setSync] = useState<Pick<Sincronizacion, 'disponible' | 'estado' | 'ultima'>>({ disponible: false, estado: 'desactivada' })
   useEffect(() => {
     cargarDatos()
-      .then(({ datos, modo }) => setInicio({ datos, modo, almacenamiento: 'guardado' }))
-      .catch(() => setInicio({ datos: datosDemo(), modo: 'demo', almacenamiento: 'memoria' }))
+      .then(({ datos, modo }) => setInicio({ datos, modo, almacenamiento: 'guardado', revision: 0 }))
+      .catch(() => setInicio({ datos: datosDemo(), modo: 'demo', almacenamiento: 'memoria', revision: 0 }))
   }, [])
+
+  // Sube y baja cambios: al abrir, cada minuto, al volver a la app y unos segundos después de cada cambio local.
+  const guardado = inicio?.almacenamiento === 'guardado'
+  const ciclo = useRef<() => Promise<void>>(async () => {})
+  useEffect(() => {
+    if (!guardado) return
+    let vivo = true
+    ciclo.current = async () => {
+      const estado = await estadoSync()
+      if (!estado.activa) {
+        const disponible = await servidorDisponible()
+        if (vivo) setSync({ disponible, estado: 'desactivada' })
+        return
+      }
+      setSync((s) => ({ ...s, disponible: true, estado: 'sincronizando' }))
+      try {
+        const cambios = await sincronizarAhora()
+        if (cambios && vivo) {
+          const { datos, modo } = await cargarDatos()
+          setInicio((i) => i && { ...i, datos, modo, revision: i.revision + 1 })
+        }
+        if (vivo) setSync({ disponible: true, estado: 'ok', ultima: Date.now() })
+      } catch {
+        if (vivo) setSync((s) => ({ ...s, estado: 'error' }))
+      }
+    }
+    void ciclo.current()
+    const reloj = window.setInterval(() => void ciclo.current(), 60_000)
+    const visible = () => { if (document.visibilityState === 'visible') void ciclo.current() }
+    document.addEventListener('visibilitychange', visible)
+    let espera: number | undefined
+    const quitar = alCambiarLocal(() => {
+      window.clearTimeout(espera)
+      espera = window.setTimeout(() => void ciclo.current(), 3000)
+    })
+    return () => {
+      vivo = false
+      window.clearInterval(reloj)
+      window.clearTimeout(espera)
+      document.removeEventListener('visibilitychange', visible)
+      quitar()
+    }
+  }, [guardado])
+
+  const sincronizacion: Sincronizacion = {
+    ...sync,
+    sincronizar: () => ciclo.current(),
+    activar: async () => {
+      const candado = await leerCandado()
+      if (!candado) throw new Error('sin candado')
+      setSync((s) => ({ ...s, estado: 'sincronizando' }))
+      await activarSync(candado)
+      await ciclo.current()
+    },
+  }
+
   if (!inicio) return <div className="grid h-full place-items-center text-muted">…</div>
-  return <StoreCargado key={inicio.modo + inicio.datos.cursos[0]?.id} {...inicio} onReiniciar={setInicio}>{children}</StoreCargado>
+  return (
+    <SyncCtx.Provider value={sincronizacion}>
+      <StoreCargado
+        key={`${inicio.modo}-${inicio.datos.cursos[0]?.id}-${inicio.revision}`}
+        {...inicio}
+        onReiniciar={(n) => setInicio((i) => ({ ...n, revision: (i?.revision ?? 0) + 1 }))}
+      >
+        {children}
+      </StoreCargado>
+    </SyncCtx.Provider>
+  )
 }
 
 function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   datos: Datos
   modo: 'demo' | 'propio'
   almacenamiento: Store['almacenamiento']
-  onReiniciar: (inicio: { datos: Datos; modo: 'demo' | 'propio'; almacenamiento: Store['almacenamiento'] }) => void
+  onReiniciar: (inicio: Omit<Inicio, 'revision'>) => void
   children: ReactNode
 }) {
   const guardar = almacenamiento === 'guardado'

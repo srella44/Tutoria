@@ -1,8 +1,9 @@
 // Botón de ajustes: siempre arriba a la derecha, en todas las secciones y dispositivos.
-import { CalendarRange, KeyRound, Lock, MessageSquareQuote, Settings, ShieldCheck } from 'lucide-react'
+import { CalendarRange, CloudUpload, KeyRound, Lock, MessageSquareQuote, RefreshCw, Settings, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useStore } from '../data/store'
+import { useSincronizacion, useStore } from '../data/store'
+import { hora } from '../lib/fechas'
 import { useCerradura } from './Cerradura'
 import { Campo, Hoja } from './Hoja'
 import { useI18n } from '../lib/i18n'
@@ -13,6 +14,8 @@ export function Ajustes() {
   const [open, setOpen] = useState(false)
   const [pendiente, setPendiente] = useState<'demo' | 'propio'>()
   const cerradura = useCerradura()
+  const sync = useSincronizacion()
+  const [errorActivar, setErrorActivar] = useState(false)
   const [cambiandoPin, setCambiandoPin] = useState(false)
   const cerrar = () => {
     setOpen(false)
@@ -60,6 +63,33 @@ export function Ajustes() {
                 <button onClick={() => setCambiandoPin(true)} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
                   <KeyRound size={16} className="text-muted" aria-hidden /> {t.cambiarPin}
                 </button>
+              </>
+            )}
+            {sync.disponible && cerradura.activa && (
+              <>
+                <p className="mt-2 border-t border-line px-3 pb-1 pt-3 text-xs font-semibold uppercase text-muted">{t.sincronizacion}</p>
+                <p className={`px-3 text-xs ${sync.estado === 'error' || errorActivar ? 'text-danger' : 'text-muted'}`}>
+                  {sync.estado === 'desactivada' ? t.syncDesactivada
+                    : sync.estado === 'sincronizando' ? t.sincronizando
+                    : sync.estado === 'error' ? t.syncError
+                    : `${t.ultimaSync}: ${sync.ultima ? hora(new Date(sync.ultima).toISOString()) : '—'}`}
+                </p>
+                {sync.estado === 'desactivada' ? (
+                  <button
+                    onClick={async () => {
+                      setErrorActivar(false)
+                      try { await sync.activar() } catch { setErrorActivar(true) }
+                    }}
+                    className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg"
+                  >
+                    <CloudUpload size={16} className="text-muted" aria-hidden /> {t.activarSync}
+                  </button>
+                ) : (
+                  <button onClick={() => void sync.sincronizar()} disabled={sync.estado === 'sincronizando'} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg disabled:opacity-50">
+                    <RefreshCw size={16} className="text-muted" aria-hidden /> {t.sincronizarAhora}
+                  </button>
+                )}
+                <p className="px-3 pb-1 text-[11px] text-muted">{t.syncAyuda}</p>
               </>
             )}
             <p className="mt-2 border-t border-line px-3 pb-1 pt-3 text-xs font-semibold uppercase text-muted">{t.datos}</p>

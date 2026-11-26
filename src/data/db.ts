@@ -28,6 +28,8 @@ class TutoriaDB extends Dexie {
   ahers!: Table<Aher, string>
   frases!: Table<FraseFrecuente, string>
   meta!: Table<{ clave: string; valor: unknown }, string>
+  /** Cambios pendientes de subir al servidor (solo con la sincronización activa). */
+  cola!: Table<Pendiente, string>
 
   constructor() {
     super('tutoria')
@@ -42,7 +44,18 @@ class TutoriaDB extends Dexie {
       frases: 'id',
       meta: 'clave',
     })
+    this.version(2).stores({ cola: 'clave' })
   }
+}
+
+export interface Pendiente {
+  clave: string // `${tabla}:${id}`
+  tabla: Coleccion
+  id: string
+  iv: string // base64
+  c: string // base64
+  t: number
+  borrado: 0 | 1
 }
 
 export const db = new TutoriaDB()
@@ -136,8 +149,15 @@ export async function borrarDispositivo() {
 
 async function escribirTodo(datos: Datos, modo: 'demo' | 'propio') {
   const filas = await Promise.all(colecciones.map((c) => preparar(c, datos[c] as { id: string }[])))
-  await db.transaction('rw', [...colecciones.map((c) => db[c]), db.meta], async () => {
+  const sync = await syncActiva()
+  await db.transaction('rw', [...colecciones.map((c) => db[c]), db.meta, db.cola], async () => {
     for (const [i, c] of colecciones.entries()) {
+      if (sync) {
+        // Con sincronización: lo que desaparece se borra también en el servidor.
+        const nuevos = new Set(filas[i].map((f) => f.id))
+        const viejos = (await db[c].toCollection().primaryKeys()) as string[]
+        await encolar(c, filas[i], viejos.filter((id) => !nuevos.has(id)))
+      }
       await db[c].clear()
       await (db[c] as unknown as Table<Fila, string>).bulkPut(filas[i])
     }
@@ -176,10 +196,151 @@ export async function sincronizar<T extends { id: string }>(coleccion: Coleccion
   if (!cambiados.length && !borrados.length) return
   const tabla = db[coleccion] as unknown as Table<Fila, string>
   const filas = await preparar(coleccion, cambiados) // se cifra antes de abrir la transacción
-  await db.transaction('rw', tabla, async () => {
+  const sync = await syncActiva()
+  await db.transaction('rw', tabla, db.cola, async () => {
     if (filas.length) await tabla.bulkPut(filas)
     if (borrados.length) await tabla.bulkDelete(borrados)
+    if (sync) await encolar(coleccion, filas, borrados)
   })
+  if (sync) avisarCambioLocal()
+}
+
+// ── Sincronización (Fase 2, decisión 0010) ───────────────────────────────
+// Solo viajan filas cifradas. El servidor (Cloudflare Pages + D1) no tiene la llave.
+
+function aB64(b: ArrayBuffer | Uint8Array) {
+  const bytes = b instanceof Uint8Array ? b : new Uint8Array(b)
+  let texto = ''
+  for (let i = 0; i < bytes.length; i += 0x8000) texto += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+  return btoa(texto)
+}
+const deB64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0))
+
+async function encolar(tabla: Coleccion, filas: Fila[], borrados: string[]) {
+  const t = Date.now()
+  const pendientes: Pendiente[] = [
+    ...filas.filter((f) => f.iv && f.c).map((f) => ({ clave: `${tabla}:${f.id}`, tabla, id: f.id, iv: aB64(f.iv!), c: aB64(f.c!), t, borrado: 0 as const })),
+    ...borrados.map((id) => ({ clave: `${tabla}:${id}`, tabla, id, iv: '', c: '', t, borrado: 1 as const })),
+  ]
+  if (pendientes.length) await db.cola.bulkPut(pendientes)
+}
+
+const oyentesLocales = new Set<() => void>()
+function avisarCambioLocal() {
+  oyentesLocales.forEach((f) => f())
+}
+export function alCambiarLocal(f: () => void) {
+  oyentesLocales.add(f)
+  return () => { oyentesLocales.delete(f) }
+}
+
+interface EstadoSync { activa: boolean; version: number; ultima?: number }
+export async function estadoSync(): Promise<EstadoSync> {
+  return ((await db.meta.get('sync'))?.valor as EstadoSync | undefined) ?? { activa: false, version: 0 }
+}
+export async function syncActiva() {
+  return (await estadoSync()).activa
+}
+async function guardarEstadoSync(e: EstadoSync) {
+  await db.meta.put({ clave: 'sync', valor: e })
+}
+
+/** ¿Hay servidor? (la vista previa publicada no lo tiene). */
+export async function servidorDisponible() {
+  try {
+    const r = await fetch('/api/sync?desde=0', { method: 'GET', headers: { accept: 'application/json' } })
+    return r.ok && (r.headers.get('content-type') ?? '').includes('json')
+  } catch {
+    return false
+  }
+}
+
+/** Activa la sincronización en este dispositivo: sube la copia de recuperación y todos los datos. */
+export async function activarSync(candado: Candado) {
+  const r = await fetch('/api/recuperacion', {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ salt: aB64(candado.saltRecuperacion), iv: aB64(candado.ivRecuperacion), dek: aB64(candado.dekRecuperacion) }),
+  })
+  if (!r.ok) throw new Error(`recuperacion ${r.status}`)
+  for (const c of colecciones) {
+    const filas = (await db[c].toArray()) as Fila[]
+    await encolar(c, filas.filter((f) => f.c), [])
+  }
+  await guardarEstadoSync({ activa: true, version: 0 })
+  return sincronizarAhora()
+}
+
+/** Descarga del servidor la copia de recuperación (para unir un dispositivo nuevo). */
+export async function descargarRecuperacion() {
+  const r = await fetch('/api/recuperacion')
+  if (!r.ok) return null
+  const d = (await r.json()) as { salt: string; iv: string; dek: string }
+  return { saltRecuperacion: deB64(d.salt), ivRecuperacion: deB64(d.iv), dekRecuperacion: deB64(d.dek).buffer }
+}
+
+/** Prepara un dispositivo nuevo unido a la cuenta: sin ejemplo, con sincronización activa. */
+export async function prepararDispositivoUnido() {
+  await db.meta.put({ clave: 'modo', valor: 'propio' })
+  await guardarEstadoSync({ activa: true, version: 0 })
+}
+
+let enCurso: Promise<boolean> | null = null
+/** Sube lo pendiente y baja lo nuevo. Devuelve true si llegaron cambios de otro dispositivo. */
+export function sincronizarAhora(): Promise<boolean> {
+  enCurso ??= (async () => {
+    try {
+      const estado = await estadoSync()
+      if (!estado.activa) return false
+      // Subir
+      for (;;) {
+        const lote = await db.cola.limit(200).toArray()
+        if (!lote.length) break
+        const r = await fetch('/api/sync', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ filas: lote.map(({ tabla, id, iv, c, t, borrado }) => ({ tabla, id, iv, c, t, borrado })) }),
+        })
+        if (!r.ok) throw new Error(`sync POST ${r.status}`)
+        // Solo se quita de la cola si no ha cambiado mientras se subía.
+        await db.transaction('rw', db.cola, async () => {
+          for (const p of lote) {
+            const actual = await db.cola.get(p.clave)
+            if (actual && actual.t === p.t) await db.cola.delete(p.clave)
+          }
+        })
+      }
+      // Bajar
+      let version = estado.version
+      let cambios = false
+      for (;;) {
+        const r = await fetch(`/api/sync?desde=${version}`)
+        if (!r.ok) throw new Error(`sync GET ${r.status}`)
+        const { filas, mas } = (await r.json()) as { filas: (Omit<Pendiente, 'clave'> & { version: number })[]; mas: boolean }
+        for (const f of filas) {
+          version = Math.max(version, f.version)
+          if (!colecciones.includes(f.tabla)) continue
+          // Si aquí hay un cambio más reciente sin subir, gana el local.
+          const local = await db.cola.get(`${f.tabla}:${f.id}`)
+          if (local && local.t > f.t) continue
+          const tabla = db[f.tabla] as unknown as Table<Fila, string>
+          const existente = (await tabla.get(f.id)) as Fila | undefined
+          if (f.borrado) {
+            if (existente) { await tabla.delete(f.id); cambios = true }
+          } else if (!existente?.c || aB64(existente.c) !== f.c) {
+            await tabla.put({ id: f.id, iv: deB64(f.iv), c: deB64(f.c).buffer })
+            cambios = true
+          }
+        }
+        if (!mas) break
+      }
+      await guardarEstadoSync({ activa: true, version, ultima: Date.now() })
+      return cambios
+    } finally {
+      enCurso = null
+    }
+  })()
+  return enCurso
 }
 
 /**

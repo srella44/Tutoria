@@ -1,8 +1,8 @@
 // Cerradura de la app (Fase 2): crear el PIN, desbloquear, recuperar con la clave y bloqueo automático.
 // Mientras está bloqueada, los datos descifrados no existen en memoria: el store ni siquiera se monta.
-import { KeyRound, Lock, ShieldCheck } from 'lucide-react'
+import { CloudDownload, KeyRound, Lock, ShieldCheck } from 'lucide-react'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { borrarDispositivo, cifrarTodo, guardarCandado, leerCandado, llaveDispositivo, usarLlave } from '../data/db'
+import { borrarDispositivo, cifrarTodo, descargarRecuperacion, guardarCandado, leerCandado, llaveDispositivo, prepararDispositivoUnido, sincronizarAhora, usarLlave } from '../data/db'
 import { abrirConPin, cambiarPin as recambiarPin, crearCandado, MAX_INTENTOS, recuperar, type Candado } from '../lib/cripto'
 import { useI18n } from '../lib/i18n'
 import { MarcaTutoria } from './MarcaTutoria'
@@ -24,6 +24,7 @@ type Estado =
   | { fase: 'cargando' }
   | { fase: 'sin-almacenamiento' }
   | { fase: 'crear' }
+  | { fase: 'unirse' }
   | { fase: 'clave'; clave: string; dek: CryptoKey }
   | { fase: 'pin'; candado: Candado }
   | { fase: 'recuperar'; candado: Candado }
@@ -82,7 +83,12 @@ export function Cerradura({ children }: { children: ReactNode }) {
       <div className="w-full max-w-sm">
         <MarcaTutoria className="mx-auto mb-8 h-10 w-auto text-ink" />
         {estado.fase === 'cargando' && <p className="text-center text-muted">…</p>}
-        {estado.fase === 'crear' && <CrearPin onListo={(clave, dek) => setEstado({ fase: 'clave', clave, dek })} />}
+        {estado.fase === 'crear' && (
+          <CrearPin onListo={(clave, dek) => setEstado({ fase: 'clave', clave, dek })} onUnirse={() => setEstado({ fase: 'unirse' })} />
+        )}
+        {estado.fase === 'unirse' && (
+          <Unirse onAbierta={(dek) => setEstado({ fase: 'abierta', dek })} onVolver={() => setEstado({ fase: 'crear' })} />
+        )}
         {estado.fase === 'clave' && <MostrarClave clave={estado.clave} onContinuar={() => setEstado({ fase: 'abierta', dek: estado.dek })} />}
         {estado.fase === 'pin' && (
           <PedirPin
@@ -133,8 +139,11 @@ function Boton({ children, ocupado, disabled }: { children: ReactNode; ocupado?:
   )
 }
 
-function CrearPin({ onListo }: { onListo: (clave: string, dek: CryptoKey) => void }) {
+function CrearPin({ onListo, onUnirse }: { onListo: (clave: string, dek: CryptoKey) => void; onUnirse: () => void }) {
   const { t } = useI18n()
+  // Si el servidor ya tiene una cuenta, se ofrece unir este dispositivo.
+  const [hayCuenta, setHayCuenta] = useState(false)
+  useEffect(() => { descargarRecuperacion().then((r) => setHayCuenta(Boolean(r))).catch(() => {}) }, [])
   const [pin, setPin] = useState('')
   const [repetido, setRepetido] = useState('')
   const [error, setError] = useState<string>()
@@ -161,6 +170,67 @@ function CrearPin({ onListo }: { onListo: (clave: string, dek: CryptoKey) => voi
       <CampoPin label={t.repetirPin} value={repetido} onChange={setRepetido} />
       {error && <p className="text-center text-sm text-danger">{error}</p>}
       <Boton ocupado={ocupado} disabled={!pin || !repetido}>{ocupado ? t.cifrando : t.continuar}</Boton>
+      {hayCuenta && (
+        <button type="button" onClick={onUnirse} className="flex w-full items-center justify-center gap-2 text-sm text-accent underline">
+          <CloudDownload size={16} aria-hidden /> {t.otroDispositivo}
+        </button>
+      )}
+    </form>
+  )
+}
+
+/** Unir este dispositivo a la cuenta: la clave de recuperación abre la llave guardada (cifrada) en el servidor. */
+function Unirse({ onAbierta, onVolver }: { onAbierta: (dek: CryptoKey) => void; onVolver: () => void }) {
+  const { t } = useI18n()
+  const [clave, setClave] = useState('')
+  const [pin, setPin] = useState('')
+  const [repetido, setRepetido] = useState('')
+  const [error, setError] = useState<string>()
+  const [ocupado, setOcupado] = useState(false)
+  const enviar = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!pinValido(pin)) return setError(t.pinCorto)
+    if (pin !== repetido) return setError(t.pinNoCoincide)
+    setOcupado(true)
+    setError(undefined)
+    try {
+      const remota = await descargarRecuperacion()
+      if (!remota) throw new Error('sin cuenta')
+      const base: Candado = { version: 1, ...remota, saltPin: new Uint8Array(16), ivPin: new Uint8Array(12), ivDispositivo: new Uint8Array(12), intentos: 0 }
+      const r = await recuperar(base, clave, pin, await llaveDispositivo())
+      if (!r) {
+        setError(t.claveIncorrecta)
+        setOcupado(false)
+        return
+      }
+      await guardarCandado(r.candado)
+      usarLlave(r.dek)
+      await prepararDispositivoUnido()
+      await sincronizarAhora()
+      onAbierta(r.dek)
+    } catch {
+      setError(t.errorServidor)
+      setOcupado(false)
+    }
+  }
+  return (
+    <form onSubmit={enviar} className="space-y-4">
+      <div className="text-center">
+        <CloudDownload size={32} className="mx-auto text-accent" aria-hidden />
+        <h1 className="mt-2 text-xl font-bold">{t.otroDispositivo}</h1>
+        <p className="mt-1 text-muted">{t.unirseAyuda}</p>
+      </div>
+      <label className="block">
+        <span className="mb-1 block text-sm font-medium text-muted">{t.claveRecuperacion}</span>
+        <input autoFocus autoCapitalize="characters" autoComplete="off" value={clave} onChange={(e) => setClave(e.target.value)}
+          placeholder="XXXX-XXXX-XXXX-XXXX-XXXX"
+          className="h-14 w-full rounded-2xl border border-line bg-surface px-4 text-center font-mono text-lg outline-none focus:border-accent" />
+      </label>
+      <CampoPin label={t.pinNuevo} value={pin} onChange={setPin} />
+      <CampoPin label={t.repetirPin} value={repetido} onChange={setRepetido} />
+      {error && <p className="text-center text-sm text-danger">{error}</p>}
+      <Boton ocupado={ocupado} disabled={!clave || !pin || !repetido}>{ocupado ? t.descargando : t.continuar}</Boton>
+      <button type="button" onClick={onVolver} className="w-full text-center text-sm text-accent underline">{t.volver}</button>
     </form>
   )
 }

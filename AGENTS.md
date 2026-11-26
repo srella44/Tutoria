@@ -39,7 +39,7 @@ PWA para un solo usuario, en `tutoria.pretzhet.app`, sin cuotas.
 | Rutas | `react-router-dom` |
 | Iconos | `lucide-react` |
 | Datos locales | IndexedDB con Dexie; cada fila cifrada con AES-GCM (`src/lib/cripto.ts`, PIN y clave de recuperación, decisión 0009) |
-| Sincronización | Cloudflare Worker + D1 (Fase 2) |
+| Sincronización | Pages Functions (`functions/api/`) + D1 (`migrations/`), solo filas cifradas (decisión 0010) |
 | Acceso | Cloudflare Access + passkey (Fase 2) |
 | Firma / PDF | `signature_pad`, `pdf-lib` o `pdfmake` (Fase 3) |
 
@@ -69,6 +69,7 @@ npm run dev       # desarrollo
 npm run build     # comprobación de tipos + build
 npm run lint      # oxlint
 npm run preview   # sirve dist/
+npx wrangler pages dev dist --binding MODO_DESARROLLO=1   # app + API con D1 local (ver docs/despliegue.md)
 ```
 
 ## Diseño

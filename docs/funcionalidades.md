@@ -56,6 +56,7 @@ Desde las notas de un punto de Claustre o Cicle se puede crear un Ahèr con resp
 - Cada vez que se abre, la app pide el PIN. Tras 5 fallos, solo se entra con la clave de recuperación (y se crea un PIN nuevo). Sin PIN ni clave, solo queda borrar los datos del dispositivo.
 - Se bloquea sola a los 5 minutos sin uso y desde Ajustes › **Blocar ara**. **Cambiar eth PIN** pide el actual.
 - Detalles técnicos: `docs/decisiones/0009`.
+- **Sincronización** (app publicada en Cloudflare; no en la vista previa): Ajustes › Activar era sincronizacion. Los cambios viajan cifrados entre dispositivos (a los 3 s, al abrir, cada minuto). Un dispositivo nuevo se une con la clave de recuperación. Ver `docs/decisiones/0010` y `docs/despliegue.md`.
 
 ## Edición
 
