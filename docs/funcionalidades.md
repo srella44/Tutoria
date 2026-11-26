@@ -6,7 +6,7 @@ Estado actual: **Fase 0 · Prototipo navegable** con alumnado ficticio. Los regi
 
 ## Identidad visual
 
-Siempre tema claro: barra lateral y cabeceras blancas, coral para las acciones principales y tarjetas de color en Inicio. El logo representa un cuaderno abierto con montañas y un marcapáginas coral. El logo de la barra lateral y de la barra inferior conduce a Inicio. También se usa como icono del navegador y de la PWA.
+Siempre tema claro: barra lateral y cabeceras blancas, un color de acento y coral para las acciones principales. Logo TUTOR-ia con la «O» como reloj coral (`docs/marca/`); el reloj solo es el icono del navegador y de la PWA. El logo de la barra lateral conduce a Inicio; en la barra inferior, la casa.
 
 ## Secciones
 
