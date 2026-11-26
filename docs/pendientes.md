@@ -44,7 +44,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Orden propio del alumnado (modo Ordenar en Alumnat).
 - [ ] Documentos del alumno (actas firmadas, adjuntos) dentro de la ficha; hoy no hay pestaña propia.
 - [x] Importación del alumnado desde Excel (.xlsx) o CSV, con vista previa (`src/lib/importar.ts`, `src/pages/Importar.tsx`).
-- [ ] Incorporar shadcn/ui para formularios y diálogos (ver `docs/decisiones/0002`).
+- [x] Formularios y diálogos con componentes propios (`src/components/Hoja.tsx`); shadcn/ui no ha hecho falta (ver `docs/decisiones/0002`).
 - [x] Editar y cerrar incidencias; editar y borrar registros, acuerdos y Ahèrs.
 - [ ] Configurar el cliente OAuth del centro y verificar el acceso real a Google Calendar con una cuenta autorizada.
 - [ ] Automatizar el envío ante cambios locales, una vez que existan edición y persistencia de citas.
