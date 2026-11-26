@@ -1,5 +1,6 @@
 import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
+import { Cerradura } from './components/Cerradura'
 import { StoreProvider } from './data/store'
 import { GoogleCalendarProvider } from './lib/GoogleCalendarProvider'
 import { I18nProvider } from './lib/i18n'
@@ -23,7 +24,8 @@ export default function App() {
   return (
     <I18nProvider>
       <GoogleCalendarProvider>
-        <StoreProvider>
+        <Cerradura>
+      <StoreProvider>
           <Router>
             <Routes>
               <Route element={<Layout />}>
@@ -44,6 +46,7 @@ export default function App() {
             </Routes>
           </Router>
         </StoreProvider>
+      </Cerradura>
       </GoogleCalendarProvider>
     </I18nProvider>
   )

@@ -49,6 +49,14 @@ La ficha del alumno enlaza a su historial de informes en el banco de la edición
 
 Desde las notas de un punto de Claustre o Cicle se puede crear un Ahèr con responsable y fecha. Los propios aparecen en Seguiment y Aué. Los delegados aparecen en el grupo de otros responsables de Seguiment.
 
+## Seguridad (Fase 2)
+
+- Al abrir la app por primera vez se crea un **PIN** de 4 a 8 cifras y se muestra la **clave de recuperación** para apuntarla en papel. Lo que ya hubiera guardado se cifra en ese momento.
+- Los datos se guardan cifrados (AES-GCM) en el dispositivo; solo el id de cada fila queda a la vista.
+- Cada vez que se abre, la app pide el PIN. Tras 5 fallos, solo se entra con la clave de recuperación (y se crea un PIN nuevo). Sin PIN ni clave, solo queda borrar los datos del dispositivo.
+- Se bloquea sola a los 5 minutos sin uso y desde Ajustes › **Blocar ara**. **Cambiar eth PIN** pide el actual.
+- Detalles técnicos: `docs/decisiones/0009`.
+
 ## Edición
 
 - Registros de la cronología (observación, incidencia, comunicación…): lápiz para editar texto, tipo, fecha y hora y alumnos, o borrarlo. Las incidencias tienen botón **Barrar / Tornar a daurir** y se marcan como cerradas. Las citas se editan desde su ficha y los registros protegidos esperan al desbloqueo (fase 2).

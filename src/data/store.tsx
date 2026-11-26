@@ -3,7 +3,7 @@
 // Los borradores oficiales tienen su propio almacén cifrado.
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { guardarBorradorOficial, leerBorradoresOficiales, type BorradorOficial } from './borradoresOficiales'
-import { cargarDatos, datosDemo, reiniciarDatos, sincronizar, type Coleccion, type Datos } from './db'
+import { cargarDatos, datosDemo, datosVacios, reiniciarDatos, sincronizar, type Coleccion, type Datos } from './db'
 import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro } from './types'
 
 interface Store {
@@ -108,7 +108,8 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   children: ReactNode
 }) {
   const guardar = almacenamiento === 'guardado'
-  const [cursos, setCursos] = useState(datos.cursos)
+  // Siempre hay al menos un curso (si la base no tiene ninguno, se crea uno vacío).
+  const [cursos, setCursos] = useState(() => (datos.cursos.length ? datos.cursos : datosVacios().cursos))
   const [alumnos, setAlumnos] = useState(datos.alumnos)
   const [contactos, setContactos] = useState(datos.contactos)
   const [profesionales, setProfesionales] = useState(datos.profesionales)

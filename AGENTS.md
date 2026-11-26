@@ -24,6 +24,7 @@ PWA para un solo usuario, en `tutoria.pretzhet.app`, sin cuotas.
 
 - **Nunca datos reales.** Solo alumnado ficticio (`src/data/demo.ts`). No añadas nombres, fotos ni textos reales al repo.
 - **Textos de interfaz** solo en `src/lib/i18n.tsx`, con su versión `oc` (aranés) y `es`. No inventes aranés nuevo sin marcarlo en `docs/pendientes.md` para validación.
+- **Cifrado:** todo lo que se guarde en IndexedDB pasa por `src/data/db.ts` (`preparar`/`leer`), que cifra con la llave de datos. No escribas en IndexedDB por otra vía ni guardes datos personales en `localStorage`.
 - **Registros protegidos** (Te escoti, temas delicados) nunca muestran su texto sin desbloqueo.
 - **Nada sale del dispositivo** sin pasar por la capa de anonimización (Fase 5). A servicios lingüísticos solo palabras sueltas.
 - Cada decisión de arquitectura relevante → un fichero nuevo en `docs/decisiones/` (formato ADR corto).
@@ -37,7 +38,7 @@ PWA para un solo usuario, en `tutoria.pretzhet.app`, sin cuotas.
 | Interfaz | React 19 + TypeScript + Vite, Tailwind CSS 4; PWA (`vite-plugin-pwa`) |
 | Rutas | `react-router-dom` |
 | Iconos | `lucide-react` |
-| Datos locales | IndexedDB con Dexie, cifrado con WebCrypto (Fase 1–2) |
+| Datos locales | IndexedDB con Dexie; cada fila cifrada con AES-GCM (`src/lib/cripto.ts`, PIN y clave de recuperación, decisión 0009) |
 | Sincronización | Cloudflare Worker + D1 (Fase 2) |
 | Acceso | Cloudflare Access + passkey (Fase 2) |
 | Firma / PDF | `signature_pad`, `pdf-lib` o `pdfmake` (Fase 3) |

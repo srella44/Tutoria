@@ -1,6 +1,7 @@
 // Hoja inferior (iPhone) o diálogo centrado (iPad/ordenador) para formularios.
 import { X } from 'lucide-react'
 import { useEffect, type FormEvent, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { useI18n } from '../lib/i18n'
 
 export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children, pie }: {
@@ -22,7 +23,8 @@ export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children
     e.preventDefault()
     if (puedeGuardar) onGuardar()
   }
-  return (
+  // Se monta en <body>: dentro de una cabecera con desenfoque, «fixed» quedaría atrapado en ella.
+  return createPortal(
     <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 md:items-center" onClick={onClose}>
       <form
         role="dialog"
@@ -47,7 +49,8 @@ export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children
         <div className="space-y-4 p-4">{children}</div>
         {pie && <div className="flex flex-wrap gap-2 border-t border-line px-4 py-3">{pie}</div>}
       </form>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

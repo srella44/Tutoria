@@ -35,6 +35,15 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Publicar en Cloudflare Pages (`tutoria.pretzhet.app`) detrás de Cloudflare Access.
 - [ ] Icono PNG 180×180 para `apple-touch-icon` (iOS no usa el SVG del manifiesto).
 
+## Fase 2 · Seguridad y sincronización (en curso)
+
+- [x] Cifrado AES-GCM de todos los datos en el dispositivo, PIN, bloqueo automático y clave de recuperación (decisión 0009).
+- [ ] Passkey con Face ID / Touch ID (WebAuthn PRF).
+- [ ] Sincronización cifrada con Cloudflare (Worker + D1) y vinculación de dispositivos por QR. Necesita la cuenta de Cloudflare de Sergio.
+- [ ] Copia de seguridad cifrada mensual y prueba de restauración.
+- [ ] Unificar los borradores oficiales con la llave de datos.
+- [ ] Validar los textos de la cerradura: «Crea eth tèn PIN», «Repetís eth PIN», «Desblocar», «Clau de recuperacion», «L’è apuntada en paper», «Contunhar», «Massa intents…», «Utilizar era clau de recuperacion», «Blocar ara», «Cambiar eth PIN», «Cifrant es donades…», «Borrar tot e començar de nau».
+
 ## Fase 1 · Núcleo local (completada)
 
 - [x] Persistencia en IndexedDB con Dexie (`src/data/db.ts`): registros, acuerdos y Ahèrs se guardan al cambiar; alumnado, contactos, profesionales, cursos y frases se cargan de la base (su edición llega con las altas).

@@ -1,8 +1,10 @@
 // Botón de ajustes: siempre arriba a la derecha, en todas las secciones y dispositivos.
-import { CalendarRange, MessageSquareQuote, Settings } from 'lucide-react'
+import { CalendarRange, KeyRound, Lock, MessageSquareQuote, Settings, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStore } from '../data/store'
+import { useCerradura } from './Cerradura'
+import { Campo, Hoja } from './Hoja'
 import { useI18n } from '../lib/i18n'
 
 export function Ajustes() {
@@ -10,6 +12,8 @@ export function Ajustes() {
   const { almacenamiento, modo, reiniciar } = useStore()
   const [open, setOpen] = useState(false)
   const [pendiente, setPendiente] = useState<'demo' | 'propio'>()
+  const cerradura = useCerradura()
+  const [cambiandoPin, setCambiandoPin] = useState(false)
   const cerrar = () => {
     setOpen(false)
     setPendiente(undefined)
@@ -45,6 +49,19 @@ export function Ajustes() {
               <MessageSquareQuote size={16} className="text-muted" aria-hidden /> {t.frases}
             </Link>
 
+            {cerradura.activa && (
+              <>
+                <p className="mt-2 flex items-center gap-1.5 border-t border-line px-3 pt-3 text-xs text-accent">
+                  <ShieldCheck size={14} aria-hidden /> {t.cifradoActivo}
+                </p>
+                <button onClick={() => { cerrar(); cerradura.bloquear() }} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
+                  <Lock size={16} className="text-muted" aria-hidden /> {t.bloquearAhora}
+                </button>
+                <button onClick={() => setCambiandoPin(true)} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
+                  <KeyRound size={16} className="text-muted" aria-hidden /> {t.cambiarPin}
+                </button>
+              </>
+            )}
             <p className="mt-2 border-t border-line px-3 pb-1 pt-3 text-xs font-semibold uppercase text-muted">{t.datos}</p>
             <p className="px-3 text-sm">{modo === 'demo' ? t.modoDemo : t.modoPropio}</p>
             <p className={`px-3 pb-1 text-xs ${almacenamiento === 'guardado' ? 'text-muted' : 'text-danger'}`}>
@@ -81,6 +98,40 @@ export function Ajustes() {
           </div>
         </>
       )}
+      {cambiandoPin && <CambiarPin onClose={() => { setCambiandoPin(false); cerrar() }} />}
     </div>
+  )
+}
+
+function CambiarPin({ onClose }: { onClose: () => void }) {
+  const { t } = useI18n()
+  const { cambiarPin } = useCerradura()
+  const [actual, setActual] = useState('')
+  const [nuevo, setNuevo] = useState('')
+  const [repetido, setRepetido] = useState('')
+  const [mensaje, setMensaje] = useState<{ ok: boolean; texto: string }>()
+  const campo = 'h-12 w-full rounded-xl border border-line bg-bg px-3 text-center text-xl tracking-[0.4em] outline-none focus:border-accent'
+  const pinInput = (v: string, set: (v: string) => void, autoFocus?: boolean) => (
+    <input type="password" inputMode="numeric" autoComplete="off" maxLength={8} autoFocus={autoFocus} value={v}
+      onChange={(e) => set(e.target.value.replace(/\D/g, ''))} className={campo} />
+  )
+  return (
+    <Hoja
+      titulo={t.cambiarPin}
+      onClose={onClose}
+      puedeGuardar={actual.length >= 4 && nuevo.length >= 4 && repetido.length >= 4}
+      onGuardar={async () => {
+        if (!/^\d{4,8}$/.test(nuevo)) return setMensaje({ ok: false, texto: t.pinCorto })
+        if (nuevo !== repetido) return setMensaje({ ok: false, texto: t.pinNoCoincide })
+        const ok = await cambiarPin(actual, nuevo)
+        if (ok) onClose()
+        else setMensaje({ ok: false, texto: t.pinIncorrecto.split('.')[0] + '.' })
+      }}
+    >
+      <Campo label={t.pinActual}>{pinInput(actual, setActual, true)}</Campo>
+      <Campo label={t.pinNuevo}>{pinInput(nuevo, setNuevo)}</Campo>
+      <Campo label={t.repetirPin}>{pinInput(repetido, setRepetido)}</Campo>
+      {mensaje && <p className={mensaje.ok ? 'text-accent' : 'text-danger'}>{mensaje.texto}</p>}
+    </Hoja>
   )
 }
