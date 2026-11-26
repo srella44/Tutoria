@@ -12,6 +12,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Frases frecuentes de ejemplo en `src/data/demo.ts` (sustituir por las validadas del banco de expresiones).
 
 - [ ] Validar «Véder eth calendari» y «Ahèrs vençuts».
+- [ ] Validar los textos de cursos, frases y orden: «Corses escolars», «Cors nau», «Grops», «Actiu», «Passar er alumnat actiu a aguest cors», «Grop nau entar alumnat (opcionau)», «Frasa naua», «Àrea», «Ton», «Lograt», «Progrès», «Dificultat», «Prepausa», «Pujar», «Baishar», «Fet», «Ordenar per», «Nº de lista».
 - [ ] Validar «Barrar», «Tornar a daurir», «Barrada», «Data e ora», «Estat».
 - [ ] Validar los textos del importador: «Importar alumnat», «Triar fichèr», «Colomnes reconeishudes», «Damb es flèches separes eth nòm des cognòms.», «Ja existís», «Importar tanben es contactes des tutors», «Localitat», «Autorizacion d’imatge», «Non se tròbe ua colomna de nòms», «Non s’a pogut liéger eth fichèr.».
 - [ ] Validar los textos de las altas: «Alumne nau», «Nòm», «Cognòms», «Arxivar», «Arxivats», «Tornar a activar», «Contacte nau», «Relacion», «Telefòns», «Corrèus», «Separats per comes», «Tòca un aute còp entà confirmar», «Professionaus», «Professionau nau», «Ròtle», «Servici», «Encara non i a alumnes en aguest cors.», «Castelhan» y las relaciones sugeridas («Tutor legau», «Pairin», «Mairina»).
@@ -33,13 +34,14 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Publicar en Cloudflare Pages (`tutoria.pretzhet.app`) detrás de Cloudflare Access.
 - [ ] Icono PNG 180×180 para `apple-touch-icon` (iOS no usa el SVG del manifiesto).
 
-## Fase 1 · Núcleo local (siguiente)
+## Fase 1 · Núcleo local (completada)
 
 - [x] Persistencia en IndexedDB con Dexie (`src/data/db.ts`): registros, acuerdos y Ahèrs se guardan al cambiar; alumnado, contactos, profesionales, cursos y frases se cargan de la base (su edición llega con las altas).
 - [x] Altas y edición de alumnos (con archivado), contactos y profesionales. Los alumnos se archivan, no se borran.
-- [ ] Vista en dos columnas (lista + ficha) en iPad y ordenador.
-- [ ] Cursos escolares (crear, cambiar de curso activo).
-- [ ] Gestión de frases frecuentes.
+- [x] Vista en dos columnas (lista + ficha) desde 1024 px.
+- [x] Cursos escolares: crear (con paso del alumnado), editar grupos, cambiar el activo. La promoción por grupos y el archivo de antiguos alumnos siguen en la Fase 6.
+- [x] Gestión de frases frecuentes (añadir, editar, borrar, ordenar).
+- [x] Orden propio del alumnado (modo Ordenar en Alumnat).
 - [ ] Documentos del alumno (actas firmadas, adjuntos) dentro de la ficha; hoy no hay pestaña propia.
 - [x] Importación del alumnado desde Excel (.xlsx) o CSV, con vista previa (`src/lib/importar.ts`, `src/pages/Importar.tsx`).
 - [ ] Incorporar shadcn/ui para formularios y diálogos (ver `docs/decisiones/0002`).

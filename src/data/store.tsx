@@ -27,6 +27,16 @@ interface Store {
   borrarProfesional: (id: string) => void
   /** Alta en bloque (importación): añade alumnos y contactos y los grupos nuevos al curso. */
   importarAlumnado: (alumnos: Alumno[], contactos: ContactoFamiliar[]) => void
+  guardarCurso: (c: CursoEscolar) => void
+  /** Activa un curso y archiva el que estaba activo. */
+  activarCurso: (id: string) => void
+  /** Pasa alumnos a otro curso (conservan id e historial); opcionalmente con grupo nuevo. */
+  moverAlumnos: (ids: string[], cursoId: string, grupo?: string) => void
+  /** Guarda el orden de la lista: los ids en el orden deseado. */
+  ordenarAlumnos: (ids: string[]) => void
+  guardarFrase: (f: FraseFrecuente) => void
+  borrarFrase: (id: string) => void
+  moverFrase: (id: string, delta: -1 | 1) => void
   guardarRegistro: (r: Registro) => void
   borrarRegistro: (id: string) => void
   guardarAcuerdo: (a: Acuerdo) => void
@@ -102,16 +112,28 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   const [alumnos, setAlumnos] = useState(datos.alumnos)
   const [contactos, setContactos] = useState(datos.contactos)
   const [profesionales, setProfesionales] = useState(datos.profesionales)
-  const [frases] = useState(datos.frases)
+  const [frases, setFrases] = useState(() =>
+    [...datos.frases].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)))
+  usePersistir('frases', frases, guardar)
   usePersistir('cursos', cursos, guardar)
   usePersistir('alumnos', alumnos, guardar)
   usePersistir('contactos', contactos, guardar)
   usePersistir('profesionales', profesionales, guardar)
   const curso = cursos.find((c) => c.estado === 'activo') ?? cursos[0]
-  const alumnosActivos = alumnos.filter((a) => a.estado === 'activo' && a.cursoId === curso.id)
+  // Orden de las listas: el elegido por el tutor; si no hay, número de lista y luego nombre.
+  const alumnosActivos = alumnos
+    .filter((a) => a.estado === 'activo' && a.cursoId === curso.id)
+    .sort((x, y) => (x.orden ?? Infinity) - (y.orden ?? Infinity)
+      || (x.numeroLista ?? Infinity) - (y.numeroLista ?? Infinity)
+      || `${x.nombre} ${x.apellidos}`.localeCompare(`${y.nombre} ${y.apellidos}`))
   const upsert = <T extends { id: string }>(items: T[], item: T) =>
     items.some((x) => x.id === item.id) ? items.map((x) => (x.id === item.id ? item : x)) : [...items, item]
-  const guardarAlumno = (a: Alumno) => {
+  const guardarAlumno = (nuevo: Alumno) => {
+    // Un alumno nuevo va al final de la lista si ya hay un orden propio.
+    const hayOrden = alumnos.some((x) => x.orden !== undefined)
+    const a = !alumnos.some((x) => x.id === nuevo.id) && hayOrden && nuevo.orden === undefined
+      ? { ...nuevo, orden: Math.max(...alumnos.map((x) => x.orden ?? 0)) + 1 }
+      : nuevo
     setAlumnos((items) => upsert(items, a).sort((x, y) => `${x.nombre} ${x.apellidos}`.localeCompare(`${y.nombre} ${y.apellidos}`)))
     // Un grupo nuevo se añade al curso.
     if (a.grupo && !curso.grupos.includes(a.grupo)) {
@@ -124,6 +146,29 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
     const grupos = [...new Set(nuevos.map((a) => a.grupo).filter((g) => g && !curso.grupos.includes(g)))]
     if (grupos.length) setCursos((items) => items.map((c) => (c.id === curso.id ? { ...c, grupos: [...c.grupos, ...grupos] } : c)))
   }
+  const guardarCurso = (c: CursoEscolar) => setCursos((items) => upsert(items, c))
+  const activarCurso = (id: string) => setCursos((items) => items.map((c) =>
+    c.id === id ? { ...c, estado: 'activo' } : c.estado === 'activo' ? { ...c, estado: 'archivado' } : c))
+  const ordenarAlumnos = (ids: string[]) => setAlumnos((items) => items.map((a) => {
+    const i = ids.indexOf(a.id)
+    return i < 0 || a.orden === i ? a : { ...a, orden: i }
+  }))
+  const moverAlumnos = (ids: string[], cursoId: string, grupo?: string) => {
+    setAlumnos((items) => items.map((a) => (ids.includes(a.id) ? { ...a, cursoId, grupo: grupo || a.grupo } : a)))
+    if (grupo) setCursos((items) => items.map((c) => (c.id === cursoId && !c.grupos.includes(grupo) ? { ...c, grupos: [...c.grupos, grupo] } : c)))
+  }
+  // Las frases guardan su posición para conservar el orden elegido.
+  const numerar = (items: FraseFrecuente[]) => items.map((f, i) => (f.orden === i ? f : { ...f, orden: i }))
+  const guardarFrase = (f: FraseFrecuente) => setFrases((items) => numerar(upsert(items, f)))
+  const borrarFrase = (id: string) => setFrases((items) => numerar(items.filter((f) => f.id !== id)))
+  const moverFrase = (id: string, delta: -1 | 1) => setFrases((items) => {
+    const i = items.findIndex((f) => f.id === id)
+    const j = i + delta
+    if (i < 0 || j < 0 || j >= items.length) return items
+    const copia = [...items]
+    ;[copia[i], copia[j]] = [copia[j], copia[i]]
+    return numerar(copia)
+  })
   const guardarContacto = (c: ContactoFamiliar) => setContactos((items) => upsert(items, c))
   const borrarContacto = (id: string) => setContactos((items) => items.filter((c) => c.id !== id))
   const guardarProfesional = (p: Profesional) => setProfesionales((items) => upsert(items, p))
@@ -258,6 +303,13 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         guardarProfesional,
         borrarProfesional,
         importarAlumnado,
+        guardarCurso,
+        activarCurso,
+        moverAlumnos,
+        ordenarAlumnos,
+        guardarFrase,
+        borrarFrase,
+        moverFrase,
         guardarRegistro,
         borrarRegistro,
         guardarAcuerdo,

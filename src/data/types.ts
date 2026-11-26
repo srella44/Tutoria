@@ -23,6 +23,8 @@ export interface Alumno {
   autorizacionImagen?: boolean
   /** Número de lista del curso (importado). */
   numeroLista?: number
+  /** Posición elegida por el tutor en las listas (menor primero). */
+  orden?: number
   estado: 'activo' | 'archivado'
 }
 
@@ -99,6 +101,8 @@ export interface FraseFrecuente {
   texto: string
   area: string
   tono: 'logro' | 'progreso' | 'dificultad' | 'propuesta'
+  /** Posición en la lista (las frases se muestran en este orden). */
+  orden?: number
 }
 
 export const tiposAmassada = ['reunionFamilia', 'teEscoti', 'reunionEap', 'reunionLogopeda', 'reunionProfesionales', 'otraAmassada'] as const

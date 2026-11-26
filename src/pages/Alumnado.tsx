@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { BriefcaseBusiness, LayoutGrid, List, Plus, Search, Upload, Users } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, BriefcaseBusiness, LayoutGrid, List, Plus, Search, Upload, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FormAlumno } from '../components/Formularios'
@@ -9,11 +9,24 @@ import { useI18n } from '../lib/i18n'
 
 export function Alumnado() {
   const { t } = useI18n()
-  const { alumnos, alumnosActivos, curso } = useStore()
+  const { alumnos, alumnosActivos, curso, ordenarAlumnos } = useStore()
   const [q, setQ] = useState('')
   const [grid, setGrid] = useState(true)
   const [verArchivados, setVerArchivados] = useState(false)
   const [alta, setAlta] = useState(false)
+  const [ordenando, setOrdenando] = useState(false)
+  const ids = alumnosActivos.map((a) => a.id)
+  const mover = (i: number, delta: -1 | 1) => {
+    const j = i + delta
+    if (j < 0 || j >= ids.length) return
+    const copia = [...ids]
+    ;[copia[i], copia[j]] = [copia[j], copia[i]]
+    ordenarAlumnos(copia)
+  }
+  const ordenarPor = (clave: (a: (typeof alumnosActivos)[number]) => string | number) =>
+    ordenarAlumnos([...alumnosActivos]
+      .sort((x, y) => { const a = clave(x), b = clave(y); return typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b)) })
+      .map((a) => a.id))
   const archivados = alumnos.filter((a) => a.estado === 'archivado' && a.cursoId === curso.id)
   const base = verArchivados ? archivados : alumnosActivos
   const lista = base.filter((a) => `${a.nombre} ${a.apellidos}`.toLowerCase().includes(q.toLowerCase()))
@@ -31,6 +44,16 @@ export function Alumnado() {
             <Link to="/profesionales" aria-label={t.profesionales} title={t.profesionales} className="rounded-lg p-2 text-muted hover:bg-bg">
               <BriefcaseBusiness size={20} />
             </Link>
+            {alumnosActivos.length > 1 && (
+              <button
+                onClick={() => { setOrdenando((o) => !o); setVerArchivados(false) }}
+                aria-label={t.ordenar}
+                title={t.ordenar}
+                className={clsx('rounded-lg p-2 hover:bg-bg', ordenando ? 'bg-accent-soft text-accent' : 'text-muted')}
+              >
+                <ArrowUpDown size={20} />
+              </button>
+            )}
             <button onClick={() => setGrid((g) => !g)} aria-label="Vista" className="rounded-lg p-2 text-muted hover:bg-bg">
               {grid ? <List size={20} /> : <LayoutGrid size={20} />}
             </button>
@@ -57,7 +80,36 @@ export function Alumnado() {
           )}
         </div>
 
-        {base.length === 0 ? (
+        {ordenando ? (
+          <>
+            <p className="mb-2 text-sm text-muted">{t.ordenAyuda}</p>
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+              <span className="text-muted">{t.ordenarPor}:</span>
+              <button onClick={() => ordenarPor((a) => `${a.nombre} ${a.apellidos}`)} className="rounded-full border border-line px-3 py-1">{t.porNombre}</button>
+              <button onClick={() => ordenarPor((a) => `${a.apellidos} ${a.nombre}`)} className="rounded-full border border-line px-3 py-1">{t.porApellidos}</button>
+              {alumnosActivos.some((a) => a.numeroLista !== undefined) && (
+                <button onClick={() => ordenarPor((a) => a.numeroLista ?? Infinity)} className="rounded-full border border-line px-3 py-1">{t.porNumero}</button>
+              )}
+              <button onClick={() => setOrdenando(false)} className="ml-auto rounded-full bg-accent px-4 py-1.5 font-semibold text-on-accent">{t.hecho}</button>
+            </div>
+            <ol className="panel-app rounded-2xl border border-line bg-surface">
+              {alumnosActivos.map((a, i) => (
+                <li key={a.id} className="flex items-center gap-2 border-b border-line py-1.5 pr-2 pl-4 last:border-0">
+                  <span className="w-6 text-sm text-muted tabular-nums">{i + 1}</span>
+                  <span className="min-w-0 flex-1 truncate">
+                    <span className="font-medium">{a.nombre}</span> <span className="text-muted">{a.apellidos}</span>
+                  </span>
+                  <button onClick={() => mover(i, -1)} disabled={i === 0} aria-label={`${t.subir} ${a.nombre}`} className="grid size-10 place-items-center rounded-lg text-muted hover:bg-bg disabled:opacity-30">
+                    <ArrowUp size={18} />
+                  </button>
+                  <button onClick={() => mover(i, 1)} disabled={i === alumnosActivos.length - 1} aria-label={`${t.bajar} ${a.nombre}`} className="grid size-10 place-items-center rounded-lg text-muted hover:bg-bg disabled:opacity-30">
+                    <ArrowDown size={18} />
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </>
+        ) : base.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-line bg-surface px-6 py-10 text-center">
             <Users size={36} className="mx-auto text-muted" aria-hidden />
             <p className="mt-3 text-muted">{t.sinAlumnos}</p>

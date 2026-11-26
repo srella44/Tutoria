@@ -3,12 +3,14 @@ import { Layout } from './components/Layout'
 import { StoreProvider } from './data/store'
 import { GoogleCalendarProvider } from './lib/GoogleCalendarProvider'
 import { I18nProvider } from './lib/i18n'
-import { AlumnoFicha } from './pages/AlumnoFicha'
+import { FichaConLista } from './pages/FichaConLista'
 import { Alumnado } from './pages/Alumnado'
 import { Hoy } from './pages/Hoy'
 import { InformesPrivados } from './pages/InformesPrivados'
 import { Inicio } from './pages/Inicio'
 import { Reunion } from './pages/Reunion'
+import { Cursos } from './pages/Cursos'
+import { Frases } from './pages/Frases'
 import { Importar } from './pages/Importar'
 import { Profesionales } from './pages/Profesionales'
 import { Reuniones } from './pages/Reuniones'
@@ -28,9 +30,11 @@ export default function App() {
                 <Route index element={<Inicio />} />
                 <Route path="uei" element={<Hoy />} />
                 <Route path="alumnado" element={<Alumnado />} />
-                <Route path="alumnado/:id" element={<AlumnoFicha />} />
+                <Route path="alumnado/:id" element={<FichaConLista />} />
                 <Route path="profesionales" element={<Profesionales />} />
                 <Route path="importar" element={<Importar />} />
+                <Route path="cursos" element={<Cursos />} />
+                <Route path="frases" element={<Frases />} />
                 <Route path="reuniones" element={<Reuniones key="amassades" />} />
                 <Route path="claustre" element={<Reuniones key="claustre" claustre />} />
                 <Route path="seguimiento" element={<Seguimiento />} />

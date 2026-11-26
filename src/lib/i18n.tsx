@@ -7,6 +7,27 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  ordenar: 'Ordenar',
+  hecho: 'Fet',
+  ordenarPor: 'Ordenar per',
+  porNombre: 'Nòm',
+  porApellidos: 'Cognòms',
+  porNumero: 'Nº de lista',
+  ordenAyuda: 'Damb es flèches cambies era posicion. Aguest orde s’utilize en tota era app.',
+  cursos: 'Corses escolars',
+  cursoNuevo: 'Cors nau',
+  cursoNombre: 'Cors (p. ex. 2027-28)',
+  grupos: 'Grops',
+  separarComasGrupos: 'Separats per comes (p. ex. 5au A, 5au B)',
+  activo: 'Actiu',
+  activar: 'Activar',
+  pasarAlumnado: 'Passar er alumnat actiu a aguest cors',
+  grupoNuevo: 'Grop nau entar alumnat (opcionau)',
+  fraseNueva: 'Frasa naua',
+  area: 'Àrea',
+  tono: 'Ton',
+  subir: 'Pujar',
+  bajar: 'Baishar',
   cerrar: 'Barrar',
   reabrir: 'Tornar a daurir',
   cerrada: 'Barrada',
@@ -266,6 +287,27 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  ordenar: 'Ordenar',
+  hecho: 'Hecho',
+  ordenarPor: 'Ordenar por',
+  porNombre: 'Nombre',
+  porApellidos: 'Apellidos',
+  porNumero: 'N.º de lista',
+  ordenAyuda: 'Con las flechas cambias la posición. Este orden se usa en toda la app.',
+  cursos: 'Cursos escolares',
+  cursoNuevo: 'Curso nuevo',
+  cursoNombre: 'Curso (p. ej. 2027-28)',
+  grupos: 'Grupos',
+  separarComasGrupos: 'Separados por comas (p. ej. 5.º A, 5.º B)',
+  activo: 'Activo',
+  activar: 'Activar',
+  pasarAlumnado: 'Pasar el alumnado activo a este curso',
+  grupoNuevo: 'Grupo nuevo para el alumnado (opcional)',
+  fraseNueva: 'Frase nueva',
+  area: 'Área',
+  tono: 'Tono',
+  subir: 'Subir',
+  bajar: 'Bajar',
   cerrar: 'Cerrar',
   reabrir: 'Reabrir',
   cerrada: 'Cerrada',
@@ -662,4 +704,9 @@ export const gruposEscoti: Record<Lang, { titulo: string; preguntas: string[] }[
 export const nombreLengua: Record<Lang, Record<'oc' | 'es' | 'ca' | 'fr' | 'otra', string>> = {
   oc: { oc: 'Aranés', es: 'Castelhan', ca: 'Catalan', fr: 'Francés', otra: 'Auta' },
   es: { oc: 'Aranés', es: 'Castellano', ca: 'Catalán', fr: 'Francés', otra: 'Otra' },
+}
+
+export const nombreTono: Record<Lang, Record<'logro' | 'progreso' | 'dificultad' | 'propuesta', string>> = {
+  oc: { logro: 'Lograt', progreso: 'Progrès', dificultad: 'Dificultat', propuesta: 'Prepausa' },
+  es: { logro: 'Logro', progreso: 'Progreso', dificultad: 'Dificultad', propuesta: 'Propuesta' },
 }

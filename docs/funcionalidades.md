@@ -2,7 +2,7 @@
 
 Nombre de la app: **TUTOR-ia** (logo en `docs/marca/`, decisión 0006).
 
-Estado actual: **Fase 1 · Núcleo local** en curso. Los datos se guardan en el dispositivo (IndexedDB con Dexie) y sobreviven a recargas; la primera vez se carga el alumnado ficticio. Los borradores oficiales tienen su propio almacén cifrado.
+Estado actual: **Fase 1 · Núcleo local** completada. Los datos se guardan en el dispositivo (IndexedDB con Dexie) y sobreviven a recargas; la primera vez se carga el alumnado ficticio. Los borradores oficiales tienen su propio almacén cifrado.
 
 ## Identidad visual
 
@@ -18,10 +18,12 @@ Ajustes (idioma) en el engranaje de arriba a la derecha, en todas las secciones.
 | --- | --- | --- |
 | Inici / Inicio | `/` | Logo, saludo y fecha; tira **Aué** con lo de hoy (amassades y Claustre programados, Ahèrs con fecha de hoy y, si está conectado, eventos de Google Calendar), botón Registre nau y cuatro botones: Alumnat, Amassades, Claustre y Seguiment (aviso rojo si hay Ahèrs vencidos) |
 | Aué / Hoy | `/uei` | Calendario mensual con marcas por color para amassades, anotaciones, Ahèrs y eventos de Google. La agenda del día aparece al lado en escritorio y debajo del calendario en móvil |
-| Alumnat / Alumnado | `/alumnado` | Cuadrícula o lista del alumnado activo del curso, búsqueda, **Alumne nau** (nombre, apellidos, nacimiento, grupo, información relevante; un grupo nuevo se añade al curso), filtro de archivados y acceso a Profesionales |
+| Alumnat / Alumnado | `/alumnado` | Cuadrícula o lista del alumnado activo del curso en el orden elegido (modo **Ordenar**: flechas para subir y bajar y atajos por nombre, apellidos o número de lista; el orden se usa en toda la app), búsqueda, **Alumne nau** (nombre, apellidos, nacimiento, grupo, información relevante; un grupo nuevo se añade al curso), filtro de archivados y acceso a Profesionales |
 | Importar alumnat | `/importar` | Desde Alumnat (icono de subir) o la lista vacía. Lee Excel (.xlsx) o CSV en el navegador, sin enviar el fichero a ningún sitio. Encuentra la fila de cabeceras y reconoce columnas en aranés, castellano o catalán: número, «Nòm e cognòms» (o nombre y apellidos separados), nacimiento, localidad, grupo, autorización de imagen y correo y teléfono de tutor/tutriz 1 y 2. Vista previa con flechas para separar nombre y apellidos, casillas para excluir filas, aviso de duplicados y de contactos que conviene revisar (texto que no es un correo, correo sin @). Crea los alumnos y, si se quiere, un contacto por tutor (el 1 como preferente) |
 | Professionaus / Profesionales | `/profesionales` | Lista de profesionales (nombre, rol, servicio, contacto) con alta, edición y borrado |
-| Ficha | `/alumnado/:id` | Cabecera con grupo, nacimiento e información relevante y botón **Editar** (también archivar o reactivar); aviso si está archivado; botones llamar, escribir y registrar; Contactos con alta, edición y borrado (relación, teléfonos, correos, lengua, preferente único, restricciones); pestañas Cronología (filtrable, con acuerdos), Contactos y Evaluación |
+| Cors escolars / Cursos | `/cursos` (desde Ajustes) | Lista de cursos con su número de alumnos; **Cors nau** crea el curso (pasa a ser el activo y archiva el anterior) y puede pasar el alumnado activo con un grupo nuevo, conservando fichas e historial; editar año y grupos; activar otro curso |
+| Frases frequentes | `/frases` (desde Ajustes) | Añadir, editar, borrar y ordenar las frases de la captura rápida (texto, área y tono) |
+| Ficha | `/alumnado/:id` | Desde 1024 px de ancho (iPad en horizontal, ordenador), lista del alumnado a la izquierda y ficha a la derecha. Cabecera con grupo, nacimiento e información relevante y botón **Editar** (también archivar o reactivar); aviso si está archivado; botones llamar, escribir y registrar; Contactos con alta, edición y borrado (relación, teléfonos, correos, lengua, preferente único, restricciones); pestañas Cronología (filtrable, con acuerdos), Contactos y Evaluación |
 | Amassades / Reuniones | `/reuniones` | Familias, Te escoti, EAP, logopeda y otros profesionales vinculados al alumnado. Próximas y pasadas; permite programar y exportar citas a .ics |
 | Claustre / Claustro | `/claustre` | Claustros, sesiones de ciclo y mentoría, sin asociación a alumnado |
 | Seguiment / Seguimiento | `/seguimiento` | Ahèrs personales con fecha opcional y casilla de completado; grupos plegables para incidencias, Te escoti, actas sin firmar y tareas de otros responsables |

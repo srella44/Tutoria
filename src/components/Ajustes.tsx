@@ -1,6 +1,7 @@
 // Botón de ajustes: siempre arriba a la derecha, en todas las secciones y dispositivos.
-import { Settings } from 'lucide-react'
+import { CalendarRange, MessageSquareQuote, Settings } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useStore } from '../data/store'
 import { useI18n } from '../lib/i18n'
 
@@ -37,6 +38,12 @@ export function Ajustes() {
             >
               {t.lengua}: {t.idioma}
             </button>
+            <Link to="/cursos" onClick={cerrar} className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-bg">
+              <CalendarRange size={16} className="text-muted" aria-hidden /> {t.cursos}
+            </Link>
+            <Link to="/frases" onClick={cerrar} className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-bg">
+              <MessageSquareQuote size={16} className="text-muted" aria-hidden /> {t.frases}
+            </Link>
 
             <p className="mt-2 border-t border-line px-3 pb-1 pt-3 text-xs font-semibold uppercase text-muted">{t.datos}</p>
             <p className="px-3 text-sm">{modo === 'demo' ? t.modoDemo : t.modoPropio}</p>
