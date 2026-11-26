@@ -66,12 +66,11 @@ export function Importar() {
           id: crypto.randomUUID(),
           alumnoIds: [id],
           nombre: tu.nombre ?? `${t.tutorN} ${tu.numero}`,
-          relacion: tu.nombre ? `${t.tutorN} ${tu.numero}` : '',
+          relacion: `${t.tutorN} ${tu.numero}`,
           telefonos: tu.telefonos,
           correos: tu.correos,
           preferente: i === 0,
           lengua: 'oc',
-          restricciones: tu.revisar ? `${t.revisar}: ${[tu.nombre, ...tu.correos].filter(Boolean).join(' · ')}` : undefined,
         }))
       }
     }

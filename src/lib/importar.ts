@@ -9,7 +9,7 @@ export interface Tutor {
   nombre?: string
   correos: string[]
   telefonos: string[]
-  /** Hay algo que conviene revisar a mano (texto que no parece correo, correo sin @…). */
+  /** Hay un correo al que le falta la @: conviene revisarlo a mano. */
   revisar: boolean
 }
 
@@ -101,8 +101,7 @@ function leerContacto(valor: string) {
       correos.push(parte) // correo al que le falta la @
       revisar = true
     } else {
-      nombre ??= parte
-      revisar = true
+      nombre ??= parte // p. ej. «Nombre | correo»: el nombre del tutor
     }
   }
   return { correos, nombre, revisar }

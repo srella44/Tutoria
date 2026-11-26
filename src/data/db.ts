@@ -97,6 +97,7 @@ export async function cargarDatos(): Promise<{ datos: Datos; modo: 'demo' | 'pro
     await escribirTodo(datos, 'demo')
     return { datos, modo: 'demo' }
   }
+  await corregirContactosImportados()
   const leidos = await Promise.all(colecciones.map((c) => db[c].toArray()))
   const datos = Object.fromEntries(colecciones.map((c, i) => [c, leidos[i]])) as unknown as Datos
   datos.registros.sort((a, b) => b.fecha.localeCompare(a.fecha))
@@ -121,5 +122,29 @@ export async function sincronizar<T extends { id: string }>(coleccion: Coleccion
   await db.transaction('rw', tabla, async () => {
     if (cambiados.length) await tabla.bulkPut(cambiados)
     if (borrados.length) await tabla.bulkDelete(borrados)
+  })
+}
+
+/**
+ * Corrección única: la primera versión del importador guardaba en «Restricciones» el texto
+ * «Revisar: <nombre> · <correo>» cuando la celda traía el nombre del tutor junto al correo.
+ * Ese nombre pasa a ser el del contacto y el campo de restricciones queda vacío.
+ */
+async function corregirContactosImportados() {
+  if ((await db.meta.get('migracion-contactos-1'))?.valor) return
+  await db.transaction('rw', db.contactos, db.meta, async () => {
+    const afectados = (await db.contactos.toArray()).filter((c) => /^Revisa[rt]: /.test(c.restricciones ?? ''))
+    for (const c of afectados) {
+      const partes = c.restricciones!.replace(/^Revisa[rt]: /, '').split(' · ')
+      const nombre = partes.find((x) => !x.includes('@') && !/(gmail|hotmail|yahoo|outlook|icloud|xtec)\./i.test(x))
+      const generico = /^Tutor\/(tutriz|a) \d$/.test(c.nombre)
+      await db.contactos.put({
+        ...c,
+        nombre: nombre && generico ? nombre : c.nombre,
+        relacion: c.relacion || (generico ? c.nombre : ''),
+        restricciones: undefined,
+      })
+    }
+    await db.meta.put({ clave: 'migracion-contactos-1', valor: true })
   })
 }
