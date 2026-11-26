@@ -6,7 +6,7 @@ Estado actual: **Fase 0 · Prototipo navegable** con alumnado ficticio. Los regi
 
 ## Identidad visual
 
-Pizarra en la barra lateral, petróleo en las cabeceras, coral para las acciones principales y tarjetas de color en Inicio. El logo representa un cuaderno abierto con montañas y un marcapáginas coral. El logo de la barra lateral y de la barra inferior conduce a Inicio. También se usa como icono del navegador y de la PWA.
+Siempre tema claro: barra lateral y cabeceras blancas, coral para las acciones principales y tarjetas de color en Inicio. El logo representa un cuaderno abierto con montañas y un marcapáginas coral. El logo de la barra lateral y de la barra inferior conduce a Inicio. También se usa como icono del navegador y de la PWA.
 
 ## Secciones
 
@@ -64,4 +64,4 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 - Vista previa de una sola página: `npm run build:artifact` genera `dist-preview/index.html`.
 - Registros protegidos: el texto se oculta (••••••) a la espera del desbloqueo extra de la Fase 2.
 - PWA instalable con service worker (actualización automática).
-- Modo oscuro automático según el sistema.
+- Siempre tema claro, aunque el sistema esté en modo oscuro.

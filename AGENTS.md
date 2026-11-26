@@ -73,5 +73,5 @@ npm run preview   # sirve dist/
 ## Diseño
 
 iPhone 17 como referencia táctil. Sobrio, un color de acento (`--color-accent`), zonas táctiles ≥ 44 px,
-modo oscuro automático. Menú: Inici · Alumnat · + · Reunions · Seguiment (ver `docs/decisiones/0003`).
+siempre tema claro, sin modo oscuro (decisión 0007). Menú: Inici · Alumnat · + · Reunions · Seguiment (ver `docs/decisiones/0003`).
 Inici es una pantalla de botones grandes sin barra; dentro de las secciones, barra inferior con `+` central. iPad/ordenador: barra lateral. Ajustes siempre en el engranaje arriba a la derecha.

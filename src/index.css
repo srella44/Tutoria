@@ -19,36 +19,9 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Tema oscuro: sigue al sistema salvo que el contenedor fije data-theme. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --color-accent: #82cce5;
-    --color-on-accent: #102331;
-    --color-accent-soft: #223d4f;
-    --color-bg: #111f2b;
-    --color-surface: #1a2d3c;
-    --color-ink: #e9f2f8;
-    --color-muted: #aec0cf;
-    --color-line: #304758;
-    --color-warn: #f0a663;
-    --color-warn-soft: #33251a;
-    --color-danger: #f08a8c;
-    --color-danger-soft: #361d1e;
-  }
-}
-:root[data-theme='dark'] {
-    --color-accent: #82cce5;
-    --color-on-accent: #102331;
-    --color-accent-soft: #223d4f;
-    --color-bg: #111f2b;
-    --color-surface: #1a2d3c;
-    --color-ink: #e9f2f8;
-    --color-muted: #aec0cf;
-    --color-line: #304758;
-    --color-warn: #f0a663;
-    --color-warn-soft: #33251a;
-    --color-danger: #f08a8c;
-    --color-danger-soft: #361d1e;
+/* Siempre tema claro (decisión 0007), aunque el sistema esté en modo oscuro. */
+:root {
+  color-scheme: light;
 }
 
 html,
@@ -82,8 +55,8 @@ body {
 .franja-inicio,
 .cabecera-app,
 .cal-cabecera {
-  color: #fff;
-  background: var(--color-petroleo);
+  color: var(--color-ink);
+  background: var(--color-surface);
 }
 
 .franja-inicio {
@@ -104,23 +77,6 @@ body {
 
 .accion-coral:hover {
   background: #f9aa97;
-}
-
-.franja-inicio .ajustes-boton,
-.cabecera-app .ajustes-boton,
-.cabecera-app > div > div > button.text-muted {
-  color: #fff;
-}
-
-.franja-inicio .ajustes-boton:hover,
-.cabecera-app .ajustes-boton:hover,
-.cabecera-app > div > div > button.text-muted:hover {
-  background: #ffffff22;
-}
-
-.franja-inicio :is(.ajustes-boton, .accion-coral):focus-visible,
-.cabecera-app :is(.ajustes-boton, .accion-coral):focus-visible {
-  outline-color: #fff;
 }
 
 .inicio-icono {
@@ -362,23 +318,16 @@ button.cal-dia:hover {
 }
 
 .lateral-app {
-  border-color: #50687a;
-  color: #f1f7fb;
-  background: var(--color-pizarra);
-  box-shadow: 6px 0 24px #143a4c13;
+  border-color: var(--color-line);
+  color: var(--color-ink);
+  background: var(--color-surface);
 }
-
-.lateral-app .text-muted { color: #bdcfdc; }
-.lateral-app nav a { color: #edf5fc; }
-.lateral-app nav a:hover { background: #ffffff13; }
-.lateral-app a:focus-visible,
-.lateral-app button:focus-visible { outline-color: #fff; }
 
 .lateral-app .lateral-activo,
 .lateral-app .lateral-activo:hover {
-  color: #fff;
-  background: #315c79;
-  box-shadow: inset 3px 0 #7cc5ed;
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  box-shadow: inset 3px 0 var(--color-accent);
 }
 
 .barra-app {

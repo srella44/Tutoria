@@ -26,7 +26,7 @@ export function Layout() {
       <aside className="lateral-app hidden w-56 shrink-0 flex-col border-r border-line bg-surface p-4 md:flex lg:w-64">
         <NavLink to="/" end aria-label={t.inicio} className="mb-7 flex items-center gap-3 rounded-xl px-2 pt-4">
           <div>
-            <MarcaTutoria className="h-8 w-auto text-white" />
+            <MarcaTutoria className="h-8 w-auto text-ink" />
             <div className="mt-1.5 text-xs font-medium text-muted">{curso.anyo} · {curso.grupos.join(', ')}</div>
           </div>
         </NavLink>
