@@ -12,6 +12,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Frases frecuentes de ejemplo en `src/data/demo.ts` (sustituir por las validadas del banco de expresiones).
 
 - [ ] Validar «Véder eth calendari» y «Ahèrs vençuts».
+- [ ] Validar los textos de las altas: «Alumne nau», «Nòm», «Cognòms», «Arxivar», «Arxivats», «Tornar a activar», «Contacte nau», «Relacion», «Telefòns», «Corrèus», «Separats per comes», «Tòca un aute còp entà confirmar», «Professionaus», «Professionau nau», «Ròtle», «Servici», «Encara non i a alumnes en aguest cors.», «Castelhan» y las relaciones sugeridas («Tutor legau», «Pairin», «Mairina»).
 - [ ] Validar los textos de Ajustes › Donades: «Guardat en aguest dispositiu», «Començar sense exemple», «Tornar a cargar er exemple», «Se borraràn totes es donades d’aguest dispositiu.», «Donades pròpies».
 
 ## Material del centro (anonimizado)
@@ -33,7 +34,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 ## Fase 1 · Núcleo local (siguiente)
 
 - [x] Persistencia en IndexedDB con Dexie (`src/data/db.ts`): registros, acuerdos y Ahèrs se guardan al cambiar; alumnado, contactos, profesionales, cursos y frases se cargan de la base (su edición llega con las altas).
-- [ ] Altas y edición de alumnos, contactos y profesionales.
+- [x] Altas y edición de alumnos (con archivado), contactos y profesionales. Los alumnos se archivan, no se borran.
 - [ ] Vista en dos columnas (lista + ficha) en iPad y ordenador.
 - [ ] Cursos escolares (crear, cambiar de curso activo).
 - [ ] Gestión de frases frecuentes.

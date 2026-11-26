@@ -10,7 +10,7 @@ const tiposRapidos: TipoRegistro[] = ['observacion', 'incidencia', 'comunicacion
 
 export function QuickCapture({ onClose, preset }: { onClose: () => void; preset?: string[] }) {
   const { t, tipo: tipoLabel } = useI18n()
-  const { alumnos, frases, addRegistro } = useStore()
+  const { alumnosActivos: alumnos, frases, addRegistro } = useStore()
   const [sel, setSel] = useState<string[]>(preset ?? [])
   const [tipo, setTipo] = useState<TipoRegistro>('observacion')
   const [texto, setTexto] = useState('')

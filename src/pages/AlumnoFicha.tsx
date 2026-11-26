@@ -1,16 +1,17 @@
 import clsx from 'clsx'
-import { ChevronLeft, Mail, Phone, Plus } from 'lucide-react'
+import { Archive, ChevronLeft, Mail, Pencil, Phone, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { BorradorEvaluacion } from '../components/BorradorEvaluacion'
+import { FormAlumno, FormContacto } from '../components/Formularios'
 import { Ajustes } from '../components/Ajustes'
 import { QuickCapture } from '../components/QuickCapture'
 import { RegistroItem } from '../components/RegistroItem'
 import { Avatar, Card, Empty } from '../components/ui'
 import { useStore } from '../data/store'
-import type { TipoRegistro } from '../data/types'
+import type { ContactoFamiliar, TipoRegistro } from '../data/types'
 import { fechaCorta } from '../lib/fechas'
-import { useI18n } from '../lib/i18n'
+import { nombreLengua, useI18n } from '../lib/i18n'
 
 type Tab = 'cronologia' | 'contactos' | 'evaluacion'
 
@@ -21,6 +22,8 @@ export function AlumnoFicha() {
   const [tab, setTab] = useState<Tab>('cronologia')
   const [filtro, setFiltro] = useState<TipoRegistro | 'todos'>('todos')
   const [capture, setCapture] = useState(false)
+  const [editar, setEditar] = useState(false)
+  const [contacto, setContacto] = useState<ContactoFamiliar | 'nuevo'>()
   const a = alumnos.find((x) => x.id === id)
   if (!a) return <Empty>404</Empty>
 
@@ -52,13 +55,23 @@ export function AlumnoFicha() {
           <div className="flex items-center gap-4">
             <Avatar nombre={a.nombre} apellidos={a.apellidos} size={64} />
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-bold leading-tight">{a.nombre}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold leading-tight">{a.nombre}</h1>
+                <button onClick={() => setEditar(true)} aria-label={t.editar} title={t.editar} className="rounded-lg p-1.5 text-muted hover:bg-bg">
+                  <Pencil size={17} />
+                </button>
+              </div>
               <p className="text-muted">
-                {a.apellidos} · {a.grupo} · {a.fechaNacimiento.split('-').reverse().join('/')}
+                {[a.apellidos, a.grupo, a.fechaNacimiento && a.fechaNacimiento.split('-').reverse().join('/')].filter(Boolean).join(' · ')}
               </p>
               {a.infoRelevante && <p className="mt-1 text-sm">{a.infoRelevante}</p>}
             </div>
           </div>
+          {a.estado === 'archivado' && (
+            <p className="mt-3 flex items-center gap-2 rounded-xl bg-warn-soft px-3 py-2 text-sm text-warn">
+              <Archive size={16} aria-hidden /> {t.archivado}
+            </p>
+          )}
           <div className="mt-3 flex gap-2">
             {preferente && (
               <>
@@ -141,16 +154,27 @@ export function AlumnoFicha() {
 
         {tab === 'contactos' && (
           <div className="space-y-3">
+            <button
+              onClick={() => setContacto('nuevo')}
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-line bg-surface font-medium text-accent"
+            >
+              <Plus size={18} /> {t.contactoNuevo}
+            </button>
             {familia.map((c) => (
               <Card key={c.id} className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <div className="font-semibold">{c.nombre}</div>
-                  {c.preferente && (
-                    <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] text-accent">{t.preferente}</span>
-                  )}
+                  <div className="flex items-center gap-1">
+                    {c.preferente && (
+                      <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] text-accent">{t.preferente}</span>
+                    )}
+                    <button onClick={() => setContacto(c)} aria-label={t.editar} className="rounded-lg p-1.5 text-muted hover:bg-bg">
+                      <Pencil size={16} />
+                    </button>
+                  </div>
                 </div>
                 <div className="text-sm text-muted">
-                  {c.relacion} · {t.lengua}: {c.lengua}
+                  {[c.relacion, `${t.lengua}: ${nombreLengua[lang][c.lengua]}`].filter(Boolean).join(' · ')}
                 </div>
                 <div className="mt-2 space-y-1 text-sm">
                   {c.telefonos.map((tel) => (
@@ -201,6 +225,10 @@ export function AlumnoFicha() {
       </div>
 
       {capture && <QuickCapture preset={[a.id]} onClose={() => setCapture(false)} />}
+      {editar && <FormAlumno alumno={a} onClose={() => setEditar(false)} />}
+      {contacto && (
+        <FormContacto alumnoId={a.id} contacto={contacto === 'nuevo' ? undefined : contacto} onClose={() => setContacto(undefined)} />
+      )}
     </>
   )
 }

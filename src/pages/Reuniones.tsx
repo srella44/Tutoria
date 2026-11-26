@@ -94,7 +94,7 @@ function NuevaReunion({ claustre, tiposReunion, tituloNueva, onClose }: {
   onClose: () => void
 }) {
   const { t, tipo: tipoLabel } = useI18n()
-  const { alumnos, addRegistro } = useStore()
+  const { alumnosActivos: alumnos, addRegistro } = useStore()
   const [tipo, setTipo] = useState<TipoRegistro>(tiposReunion[0])
   const [sel, setSel] = useState<string[]>([])
   const [titulo, setTitulo] = useState('')

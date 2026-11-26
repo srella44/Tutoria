@@ -9,6 +9,7 @@ import { Hoy } from './pages/Hoy'
 import { InformesPrivados } from './pages/InformesPrivados'
 import { Inicio } from './pages/Inicio'
 import { Reunion } from './pages/Reunion'
+import { Profesionales } from './pages/Profesionales'
 import { Reuniones } from './pages/Reuniones'
 import { Seguimiento } from './pages/Seguimiento'
 
@@ -27,6 +28,7 @@ export default function App() {
                 <Route path="uei" element={<Hoy />} />
                 <Route path="alumnado" element={<Alumnado />} />
                 <Route path="alumnado/:id" element={<AlumnoFicha />} />
+                <Route path="profesionales" element={<Profesionales />} />
                 <Route path="reuniones" element={<Reuniones key="amassades" />} />
                 <Route path="claustre" element={<Reuniones key="claustre" claustre />} />
                 <Route path="seguimiento" element={<Seguimiento />} />

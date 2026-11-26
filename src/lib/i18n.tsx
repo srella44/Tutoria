@@ -7,6 +7,28 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  alumnoNuevo: 'Alumne nau',
+  editar: 'Editar',
+  nombre: 'Nòm',
+  apellidos: 'Cognòms',
+  archivar: 'Arxivar',
+  reactivar: 'Tornar a activar',
+  archivados: 'Arxivats',
+  archivado: 'Arxivat',
+  sinAlumnos: 'Encara non i a alumnes en aguest cors.',
+  contactoNuevo: 'Contacte nau',
+  relacion: 'Relacion',
+  telefonos: 'Telefòns',
+  correos: 'Corrèus',
+  separarComas: 'Separats per comes',
+  borrar: 'Borrar',
+  tocaConfirmar: 'Tòca un aute còp entà confirmar',
+  profesionales: 'Professionaus',
+  profesionalNuevo: 'Professionau nau',
+  rol: 'Ròtle',
+  servicio: 'Servici',
+  contacto: 'Contacte',
+  obligatorio: 'Obligatòri',
   guardadoLocal: 'Guardat en aguest dispositiu',
   soloMemoria: 'Eth navegador non dèishe guardar: es cambis se pèrden en tornar a cargar',
   modoDemo: 'Alumnat fictici',
@@ -222,6 +244,28 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  alumnoNuevo: 'Alumno nuevo',
+  editar: 'Editar',
+  nombre: 'Nombre',
+  apellidos: 'Apellidos',
+  archivar: 'Archivar',
+  reactivar: 'Reactivar',
+  archivados: 'Archivados',
+  archivado: 'Archivado',
+  sinAlumnos: 'Todavía no hay alumnos en este curso.',
+  contactoNuevo: 'Contacto nuevo',
+  relacion: 'Relación',
+  telefonos: 'Teléfonos',
+  correos: 'Correos',
+  separarComas: 'Separados por comas',
+  borrar: 'Borrar',
+  tocaConfirmar: 'Toca otra vez para confirmar',
+  profesionales: 'Profesionales',
+  profesionalNuevo: 'Profesional nuevo',
+  rol: 'Rol',
+  servicio: 'Servicio',
+  contacto: 'Contacto',
+  obligatorio: 'Obligatorio',
   guardadoLocal: 'Guardado en este dispositivo',
   soloMemoria: 'El navegador no deja guardar: los cambios se pierden al recargar',
   modoDemo: 'Alumnado ficticio',
@@ -569,4 +613,9 @@ export const gruposEscoti: Record<Lang, { titulo: string; preguntas: string[] }[
       '¿De qué manera asimilas mejor la información? ¿Visualmente, escuchando o de otra forma?',
     ] },
   ],
+}
+
+export const nombreLengua: Record<Lang, Record<'oc' | 'es' | 'ca' | 'fr' | 'otra', string>> = {
+  oc: { oc: 'Aranés', es: 'Castelhan', ca: 'Catalan', fr: 'Francés', otra: 'Auta' },
+  es: { oc: 'Aranés', es: 'Castellano', ca: 'Catalán', fr: 'Francés', otra: 'Otra' },
 }

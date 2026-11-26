@@ -18,8 +18,9 @@ Ajustes (idioma) en el engranaje de arriba a la derecha, en todas las secciones.
 | --- | --- | --- |
 | Inici / Inicio | `/` | Logo, saludo y fecha; tira **Aué** con lo de hoy (amassades y Claustre programados, Ahèrs con fecha de hoy y, si está conectado, eventos de Google Calendar), botón Registre nau y cuatro botones: Alumnat, Amassades, Claustre y Seguiment (aviso rojo si hay Ahèrs vencidos) |
 | Aué / Hoy | `/uei` | Calendario mensual con marcas por color para amassades, anotaciones, Ahèrs y eventos de Google. La agenda del día aparece al lado en escritorio y debajo del calendario en móvil |
-| Alumnat / Alumnado | `/alumnado` | Cuadrícula o lista del grupo, búsqueda por nombre |
-| Ficha | `/alumnado/:id` | Cabecera con grupo, nacimiento e información relevante; botones llamar, escribir y registrar; pestañas Cronología (filtrable, con acuerdos), Contactos y Evaluación |
+| Alumnat / Alumnado | `/alumnado` | Cuadrícula o lista del alumnado activo del curso, búsqueda, **Alumne nau** (nombre, apellidos, nacimiento, grupo, información relevante; un grupo nuevo se añade al curso), filtro de archivados y acceso a Profesionales |
+| Professionaus / Profesionales | `/profesionales` | Lista de profesionales (nombre, rol, servicio, contacto) con alta, edición y borrado |
+| Ficha | `/alumnado/:id` | Cabecera con grupo, nacimiento e información relevante y botón **Editar** (también archivar o reactivar); aviso si está archivado; botones llamar, escribir y registrar; Contactos con alta, edición y borrado (relación, teléfonos, correos, lengua, preferente único, restricciones); pestañas Cronología (filtrable, con acuerdos), Contactos y Evaluación |
 | Amassades / Reuniones | `/reuniones` | Familias, Te escoti, EAP, logopeda y otros profesionales vinculados al alumnado. Próximas y pasadas; permite programar y exportar citas a .ics |
 | Claustre / Claustro | `/claustre` | Claustros, sesiones de ciclo y mentoría, sin asociación a alumnado |
 | Seguiment / Seguimiento | `/seguimiento` | Ahèrs personales con fecha opcional y casilla de completado; grupos plegables para incidencias, Te escoti, actas sin firmar y tareas de otros responsables |

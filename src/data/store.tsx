@@ -18,6 +18,13 @@ interface Store {
   contactos: ContactoFamiliar[]
   profesionales: Profesional[]
   frases: FraseFrecuente[]
+  /** Alumnado activo (sin archivados): para listas y selectores. `alumnos` incluye los archivados. */
+  alumnosActivos: Alumno[]
+  guardarAlumno: (a: Alumno) => void
+  guardarContacto: (c: ContactoFamiliar) => void
+  borrarContacto: (id: string) => void
+  guardarProfesional: (p: Profesional) => void
+  borrarProfesional: (id: string) => void
   documentosClaustre: File[]
   addDocumentosClaustre: (archivos: File[]) => void
   registros: Registro[]
@@ -83,12 +90,30 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   children: ReactNode
 }) {
   const guardar = almacenamiento === 'guardado'
-  const [cursos] = useState(datos.cursos)
-  const [alumnos] = useState(datos.alumnos)
-  const [contactos] = useState(datos.contactos)
-  const [profesionales] = useState(datos.profesionales)
+  const [cursos, setCursos] = useState(datos.cursos)
+  const [alumnos, setAlumnos] = useState(datos.alumnos)
+  const [contactos, setContactos] = useState(datos.contactos)
+  const [profesionales, setProfesionales] = useState(datos.profesionales)
   const [frases] = useState(datos.frases)
+  usePersistir('cursos', cursos, guardar)
+  usePersistir('alumnos', alumnos, guardar)
+  usePersistir('contactos', contactos, guardar)
+  usePersistir('profesionales', profesionales, guardar)
   const curso = cursos.find((c) => c.estado === 'activo') ?? cursos[0]
+  const alumnosActivos = alumnos.filter((a) => a.estado === 'activo' && a.cursoId === curso.id)
+  const upsert = <T extends { id: string }>(items: T[], item: T) =>
+    items.some((x) => x.id === item.id) ? items.map((x) => (x.id === item.id ? item : x)) : [...items, item]
+  const guardarAlumno = (a: Alumno) => {
+    setAlumnos((items) => upsert(items, a).sort((x, y) => `${x.nombre} ${x.apellidos}`.localeCompare(`${y.nombre} ${y.apellidos}`)))
+    // Un grupo nuevo se añade al curso.
+    if (a.grupo && !curso.grupos.includes(a.grupo)) {
+      setCursos((items) => items.map((c) => (c.id === curso.id ? { ...c, grupos: [...c.grupos, a.grupo] } : c)))
+    }
+  }
+  const guardarContacto = (c: ContactoFamiliar) => setContactos((items) => upsert(items, c))
+  const borrarContacto = (id: string) => setContactos((items) => items.filter((c) => c.id !== id))
+  const guardarProfesional = (p: Profesional) => setProfesionales((items) => upsert(items, p))
+  const borrarProfesional = (id: string) => setProfesionales((items) => items.filter((p) => p.id !== id))
   const reiniciar = async (nuevo: 'demo' | 'propio') => {
     const nuevos = guardar ? await reiniciarDatos(nuevo) : datosDemo()
     onReiniciar({ datos: nuevos, modo: nuevo, almacenamiento })
@@ -194,6 +219,12 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         contactos,
         profesionales,
         frases,
+        alumnosActivos,
+        guardarAlumno,
+        guardarContacto,
+        borrarContacto,
+        guardarProfesional,
+        borrarProfesional,
         documentosClaustre,
         addDocumentosClaustre,
         registros,
