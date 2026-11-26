@@ -74,7 +74,7 @@ export function Inicio() {
   const claustreProximo = registros.filter((r) => esClaustre(r.tipo) && !citaRealizada(r) && diasDesdeHoy(r.fecha) >= 0).length
 
   const botones = [
-    { to: '/alumnado', icon: Users, label: t.alumnado, detalle: `${alumnos.length} · ${curso.grupos.join(', ')}` },
+    { to: '/alumnado', icon: Users, label: t.alumnado, detalle: [String(alumnos.length), ...curso.grupos].join(' · ') },
     { to: '/reuniones', icon: Handshake, label: t.reuniones, detalle: `${t.proximasN} · ${proximas}` },
     { to: '/claustre', icon: Building2, label: t.claustre, detalle: `${t.proximasN} · ${claustreProximo}` },
     {

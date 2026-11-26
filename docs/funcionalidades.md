@@ -2,7 +2,7 @@
 
 Nombre de la app: **TUTOR-ia** (logo en `docs/marca/`, decisión 0006).
 
-Estado actual: **Fase 0 · Prototipo navegable** con alumnado ficticio. Los registros de demostración viven en memoria. Los borradores oficiales se guardan localmente.
+Estado actual: **Fase 1 · Núcleo local** en curso. Los datos se guardan en el dispositivo (IndexedDB con Dexie) y sobreviven a recargas; la primera vez se carga el alumnado ficticio. Los borradores oficiales tienen su propio almacén cifrado.
 
 ## Identidad visual
 
@@ -65,3 +65,4 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 - Registros protegidos: el texto se oculta (••••••) a la espera del desbloqueo extra de la Fase 2.
 - PWA instalable con service worker (actualización automática).
 - Siempre tema claro, aunque el sistema esté en modo oscuro.
+- Ajustes › Donades: indica si los datos se guardan en el dispositivo y permite empezar sin ejemplo (borra todo y crea un curso vacío) o volver a cargar el alumnado ficticio, con confirmación.

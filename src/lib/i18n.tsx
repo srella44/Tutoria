@@ -7,6 +7,14 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  guardadoLocal: 'Guardat en aguest dispositiu',
+  soloMemoria: 'Eth navegador non dèishe guardar: es cambis se pèrden en tornar a cargar',
+  modoDemo: 'Alumnat fictici',
+  modoPropio: 'Donades pròpies',
+  empezarLimpio: 'Començar sense exemple',
+  volverEjemplo: 'Tornar a cargar er exemple',
+  confirmarBorrado: 'Se borraràn totes es donades d’aguest dispositiu.',
+  confirmar: 'Confirmar',
   verCalendario: 'Véder eth calendari',
   revisionVencida: 'Ahèrs vençuts',
   crearAherPunto: 'Convertir en ahèr',
@@ -214,6 +222,14 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  guardadoLocal: 'Guardado en este dispositivo',
+  soloMemoria: 'El navegador no deja guardar: los cambios se pierden al recargar',
+  modoDemo: 'Alumnado ficticio',
+  modoPropio: 'Datos propios',
+  empezarLimpio: 'Empezar sin ejemplo',
+  volverEjemplo: 'Volver a cargar el ejemplo',
+  confirmarBorrado: 'Se borrarán todos los datos de este dispositivo.',
+  confirmar: 'Confirmar',
   verCalendario: 'Ver el calendario',
   revisionVencida: 'Tareas vencidas',
   crearAherPunto: 'Convertir en tarea',

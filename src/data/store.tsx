@@ -1,15 +1,23 @@
-// Los registros del prototipo viven en memoria. Los borradores oficiales tienen su propio almacén cifrado.
+// Estado de la app. Fase 1: se carga de IndexedDB (src/data/db.ts) y cada cambio se guarda en el dispositivo.
+// Si el navegador bloquea el almacenamiento, funciona en memoria con el alumnado ficticio.
+// Los borradores oficiales tienen su propio almacén cifrado.
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { guardarBorradorOficial, leerBorradoresOficiales, type BorradorOficial } from './borradoresOficiales'
-import * as demo from './demo'
-import { citaRealizada, type Acuerdo, type Aher, type Registro } from './types'
+import { cargarDatos, datosDemo, reiniciarDatos, sincronizar, type Coleccion, type Datos } from './db'
+import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro } from './types'
 
 interface Store {
-  curso: typeof demo.curso
-  alumnos: typeof demo.alumnos
-  contactos: typeof demo.contactos
-  profesionales: typeof demo.profesionales
-  frases: typeof demo.frases
+  /** 'guardado': en IndexedDB · 'memoria': el navegador no deja guardar */
+  almacenamiento: 'guardado' | 'memoria'
+  /** 'demo': alumnado ficticio · 'propio': empezado en limpio */
+  modo: 'demo' | 'propio'
+  reiniciar: (modo: 'demo' | 'propio') => Promise<void>
+  cursos: CursoEscolar[]
+  curso: CursoEscolar
+  alumnos: Alumno[]
+  contactos: ContactoFamiliar[]
+  profesionales: Profesional[]
+  frases: FraseFrecuente[]
   documentosClaustre: File[]
   addDocumentosClaustre: (archivos: File[]) => void
   registros: Registro[]
@@ -42,11 +50,53 @@ function originalesIncluidos(): File[] {
 
 const StoreCtx = createContext<Store | null>(null)
 
+/** Guarda en IndexedDB los cambios de una colección (lo nuevo, lo modificado y lo borrado). */
+function usePersistir<T extends { id: string }>(coleccion: Coleccion, items: T[], activo: boolean) {
+  const previo = useRef(items)
+  useEffect(() => {
+    if (!activo) {
+      previo.current = items
+      return
+    }
+    const antes = previo.current
+    previo.current = items
+    sincronizar(coleccion, antes, items).catch((error: unknown) => console.error('No se ha podido guardar', coleccion, error))
+  }, [coleccion, items, activo])
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
+  const [inicio, setInicio] = useState<{ datos: Datos; modo: 'demo' | 'propio'; almacenamiento: Store['almacenamiento'] }>()
+  useEffect(() => {
+    cargarDatos()
+      .then(({ datos, modo }) => setInicio({ datos, modo, almacenamiento: 'guardado' }))
+      .catch(() => setInicio({ datos: datosDemo(), modo: 'demo', almacenamiento: 'memoria' }))
+  }, [])
+  if (!inicio) return <div className="grid h-full place-items-center text-muted">…</div>
+  return <StoreCargado key={inicio.modo + inicio.datos.cursos[0]?.id} {...inicio} onReiniciar={setInicio}>{children}</StoreCargado>
+}
+
+function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
+  datos: Datos
+  modo: 'demo' | 'propio'
+  almacenamiento: Store['almacenamiento']
+  onReiniciar: (inicio: { datos: Datos; modo: 'demo' | 'propio'; almacenamiento: Store['almacenamiento'] }) => void
+  children: ReactNode
+}) {
+  const guardar = almacenamiento === 'guardado'
+  const [cursos] = useState(datos.cursos)
+  const [alumnos] = useState(datos.alumnos)
+  const [contactos] = useState(datos.contactos)
+  const [profesionales] = useState(datos.profesionales)
+  const [frases] = useState(datos.frases)
+  const curso = cursos.find((c) => c.estado === 'activo') ?? cursos[0]
+  const reiniciar = async (nuevo: 'demo' | 'propio') => {
+    const nuevos = guardar ? await reiniciarDatos(nuevo) : datosDemo()
+    onReiniciar({ datos: nuevos, modo: nuevo, almacenamiento })
+  }
   const [documentosClaustre, setDocumentosClaustre] = useState(originalesIncluidos)
   const addDocumentosClaustre = (archivos: File[]) =>
     setDocumentosClaustre((actuales) => [...actuales, ...archivos])
-  const [registros, setRegistros] = useState<Registro[]>(demo.registros)
+  const [registros, setRegistros] = useState<Registro[]>(datos.registros)
   const [borradores, setBorradores] = useState<Store['borradores']>({})
   const [estadoBorradores, setEstadoBorradores] = useState<Store['estadoBorradores']>({})
   const [borradoresListos, setBorradoresListos] = useState(false)
@@ -92,10 +142,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     void tarea.then(() => terminar('guardado'), () => terminar('fallo'))
   }
 
-  const acuerdosOriginales = demo.acuerdos
-  const [ahers, setAhers] = useState<Aher[]>(() => acuerdosOriginales
-    .filter((a) => a.responsable === 'Tutor')
-    .map((a) => ({ id: a.id, texto: a.texto, fecha: a.fechaRevision, completado: a.estado === 'completado' })))
+  const [acuerdosGuardados, setAcuerdos] = useState<Acuerdo[]>(datos.acuerdos)
+  const [ahers, setAhers] = useState<Aher[]>(datos.ahers)
+  usePersistir('registros', registros, guardar)
+  usePersistir('acuerdos', acuerdosGuardados, guardar)
+  usePersistir('ahers', ahers, guardar)
   const addAher: Store['addAher'] = (texto, fecha, detalle) => {
     const id = crypto.randomUUID()
     setAhers((items) => {
@@ -104,12 +155,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       return [{ id, texto, fecha, completado: false, ...detalle }, ...items]
     })
   }
-  const toggleAher = (id: string) => setAhers((items) =>
-    items.map((item) => item.id === id ? { ...item, completado: !item.completado } : item))
-  const acuerdos: Acuerdo[] = acuerdosOriginales.map((a) => {
-    const tarea = ahers.find((item) => item.id === a.id)
-    return tarea?.completado ? { ...a, estado: 'completado' } : a
-  })
+  // Un Ahèr que viene de un acuerdo comparte su id: al completarlo, el acuerdo también se completa.
+  const toggleAher = (id: string) => {
+    const tarea = ahers.find((item) => item.id === id)
+    if (!tarea) return
+    setAhers((items) => items.map((item) => item.id === id ? { ...item, completado: !item.completado } : item))
+    setAcuerdos((items) => items.map((a) => a.id === id
+      ? { ...a, estado: tarea.completado ? 'pendiente' : 'completado' } : a))
+  }
+  const acuerdos = acuerdosGuardados
   const setTextoRegistro = (id: string, texto: string) => setRegistros((items) =>
     items.map((r) => r.id === id && r.visibilidad !== 'protegido' ? { ...r, texto } : r))
   const toggleCita = (id: string) => setRegistros((items) =>
@@ -131,11 +185,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   return (
     <StoreCtx.Provider
       value={{
-        curso: demo.curso,
-        alumnos: demo.alumnos,
-        contactos: demo.contactos,
-        profesionales: demo.profesionales,
-        frases: demo.frases,
+        almacenamiento,
+        modo,
+        reiniciar,
+        cursos,
+        curso,
+        alumnos,
+        contactos,
+        profesionales,
+        frases,
         documentosClaustre,
         addDocumentosClaustre,
         registros,
