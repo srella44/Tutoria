@@ -19,6 +19,10 @@ export interface Alumno {
   cursoId: Id
   grupo: string
   infoRelevante?: string
+  localidad?: string
+  autorizacionImagen?: boolean
+  /** Número de lista del curso (importado). */
+  numeroLista?: number
   estado: 'activo' | 'archivado'
 }
 

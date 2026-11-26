@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { BriefcaseBusiness, LayoutGrid, List, Plus, Search, Users } from 'lucide-react'
+import { BriefcaseBusiness, LayoutGrid, List, Plus, Search, Upload, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FormAlumno } from '../components/Formularios'
@@ -25,6 +25,9 @@ export function Alumnado() {
         icon={Users}
         right={
           <>
+            <Link to="/importar" aria-label={t.importarTitulo} title={t.importarTitulo} className="rounded-lg p-2 text-muted hover:bg-bg">
+              <Upload size={20} />
+            </Link>
             <Link to="/profesionales" aria-label={t.profesionales} title={t.profesionales} className="rounded-lg p-2 text-muted hover:bg-bg">
               <BriefcaseBusiness size={20} />
             </Link>
@@ -64,6 +67,9 @@ export function Alumnado() {
             >
               <Plus size={18} /> {t.alumnoNuevo}
             </button>
+            <Link to="/importar" className="mt-2 ml-2 inline-flex min-h-11 items-center gap-2 rounded-xl border border-line px-4 font-semibold text-accent">
+              <Upload size={18} /> {t.importarTitulo}
+            </Link>
           </div>
         ) : (
           <>

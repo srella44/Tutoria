@@ -30,6 +30,8 @@ export function FormAlumno({ alumno, onClose }: { alumno?: Alumno; onClose: () =
   const [nacimiento, setNacimiento] = useState(alumno?.fechaNacimiento ?? '')
   const [grupo, setGrupo] = useState(alumno?.grupo ?? curso.grupos[0] ?? '')
   const [info, setInfo] = useState(alumno?.infoRelevante ?? '')
+  const [localidad, setLocalidad] = useState(alumno?.localidad ?? '')
+  const [imagen, setImagen] = useState(alumno?.autorizacionImagen ?? false)
   const ok = nombre.trim() !== '' && apellidos.trim() !== ''
 
   const guardar = (estado: Alumno['estado'] = alumno?.estado ?? 'activo') => {
@@ -41,6 +43,9 @@ export function FormAlumno({ alumno, onClose }: { alumno?: Alumno; onClose: () =
       cursoId: alumno?.cursoId ?? curso.id,
       grupo: grupo.trim(),
       infoRelevante: info.trim() || undefined,
+      localidad: localidad.trim() || undefined,
+      autorizacionImagen: imagen,
+      numeroLista: alumno?.numeroLista,
       estado,
     })
     onClose()
@@ -72,6 +77,13 @@ export function FormAlumno({ alumno, onClose }: { alumno?: Alumno; onClose: () =
             {curso.grupos.map((g) => <option key={g} value={g} />)}
           </datalist>
         </Campo>
+        <Campo label={t.localidad}>
+          <input value={localidad} onChange={(e) => setLocalidad(e.target.value)} className={claseInput} />
+        </Campo>
+        <label className="flex min-h-11 items-center gap-3 self-end">
+          <input type="checkbox" checked={imagen} onChange={(e) => setImagen(e.target.checked)} className="size-5 accent-[var(--color-accent)]" />
+          <span>{t.autorizacionImagen}</span>
+        </label>
       </div>
       <Campo label={t.info}>
         <textarea rows={3} value={info} onChange={(e) => setInfo(e.target.value)} className={claseTextarea} />

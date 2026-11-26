@@ -25,6 +25,8 @@ interface Store {
   borrarContacto: (id: string) => void
   guardarProfesional: (p: Profesional) => void
   borrarProfesional: (id: string) => void
+  /** Alta en bloque (importación): añade alumnos y contactos y los grupos nuevos al curso. */
+  importarAlumnado: (alumnos: Alumno[], contactos: ContactoFamiliar[]) => void
   documentosClaustre: File[]
   addDocumentosClaustre: (archivos: File[]) => void
   registros: Registro[]
@@ -109,6 +111,12 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
     if (a.grupo && !curso.grupos.includes(a.grupo)) {
       setCursos((items) => items.map((c) => (c.id === curso.id ? { ...c, grupos: [...c.grupos, a.grupo] } : c)))
     }
+  }
+  const importarAlumnado = (nuevos: Alumno[], nuevosContactos: ContactoFamiliar[]) => {
+    setAlumnos((items) => [...items, ...nuevos].sort((x, y) => `${x.nombre} ${x.apellidos}`.localeCompare(`${y.nombre} ${y.apellidos}`)))
+    setContactos((items) => [...items, ...nuevosContactos])
+    const grupos = [...new Set(nuevos.map((a) => a.grupo).filter((g) => g && !curso.grupos.includes(g)))]
+    if (grupos.length) setCursos((items) => items.map((c) => (c.id === curso.id ? { ...c, grupos: [...c.grupos, ...grupos] } : c)))
   }
   const guardarContacto = (c: ContactoFamiliar) => setContactos((items) => upsert(items, c))
   const borrarContacto = (id: string) => setContactos((items) => items.filter((c) => c.id !== id))
@@ -225,6 +233,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         borrarContacto,
         guardarProfesional,
         borrarProfesional,
+        importarAlumnado,
         documentosClaustre,
         addDocumentosClaustre,
         registros,

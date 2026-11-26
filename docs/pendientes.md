@@ -12,6 +12,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Frases frecuentes de ejemplo en `src/data/demo.ts` (sustituir por las validadas del banco de expresiones).
 
 - [ ] Validar «Véder eth calendari» y «Ahèrs vençuts».
+- [ ] Validar los textos del importador: «Importar alumnat», «Triar fichèr», «Colomnes reconeishudes», «Damb es flèches separes eth nòm des cognòms.», «Ja existís», «Importar tanben es contactes des tutors», «Localitat», «Autorizacion d’imatge», «Non se tròbe ua colomna de nòms», «Non s’a pogut liéger eth fichèr.».
 - [ ] Validar los textos de las altas: «Alumne nau», «Nòm», «Cognòms», «Arxivar», «Arxivats», «Tornar a activar», «Contacte nau», «Relacion», «Telefòns», «Corrèus», «Separats per comes», «Tòca un aute còp entà confirmar», «Professionaus», «Professionau nau», «Ròtle», «Servici», «Encara non i a alumnes en aguest cors.», «Castelhan» y las relaciones sugeridas («Tutor legau», «Pairin», «Mairina»).
 - [ ] Validar los textos de Ajustes › Donades: «Guardat en aguest dispositiu», «Començar sense exemple», «Tornar a cargar er exemple», «Se borraràn totes es donades d’aguest dispositiu.», «Donades pròpies».
 
@@ -39,7 +40,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Cursos escolares (crear, cambiar de curso activo).
 - [ ] Gestión de frases frecuentes.
 - [ ] Documentos del alumno (actas firmadas, adjuntos) dentro de la ficha; hoy no hay pestaña propia.
-- [ ] Importación CSV del alumnado.
+- [x] Importación del alumnado desde Excel (.xlsx) o CSV, con vista previa (`src/lib/importar.ts`, `src/pages/Importar.tsx`).
 - [ ] Incorporar shadcn/ui para formularios y diálogos (ver `docs/decisiones/0002`).
 - [ ] Editar y cerrar incidencias.
 - [ ] Configurar el cliente OAuth del centro y verificar el acceso real a Google Calendar con una cuenta autorizada.

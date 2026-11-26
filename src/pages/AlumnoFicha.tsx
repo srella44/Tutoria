@@ -32,7 +32,9 @@ export function AlumnoFicha() {
     .sort((x, y) => y.fecha.localeCompare(x.fecha))
   const visibles = filtro === 'todos' ? propios : propios.filter((r) => r.tipo === filtro)
   const tiposPresentes = [...new Set(propios.map((r) => r.tipo))]
-  const familia = contactos.filter((c) => c.alumnoIds.includes(a.id))
+  const familia = contactos
+    .filter((c) => c.alumnoIds.includes(a.id))
+    .sort((x, y) => Number(y.preferente) - Number(x.preferente) || x.nombre.localeCompare(y.nombre))
   const preferente = familia.find((c) => c.preferente)
   const susAcuerdos = acuerdos.filter((x) => x.alumnoIds.includes(a.id))
 
@@ -62,8 +64,13 @@ export function AlumnoFicha() {
                 </button>
               </div>
               <p className="text-muted">
-                {[a.apellidos, a.grupo, a.fechaNacimiento && a.fechaNacimiento.split('-').reverse().join('/')].filter(Boolean).join(' · ')}
+                {[a.apellidos, a.grupo, a.fechaNacimiento && a.fechaNacimiento.split('-').reverse().join('/'), a.localidad].filter(Boolean).join(' · ')}
               </p>
+              {a.autorizacionImagen !== undefined && (
+                <p className={`mt-1 text-xs font-medium ${a.autorizacionImagen ? 'text-accent' : 'text-warn'}`}>
+                  {t.autorizacionImagen}: {a.autorizacionImagen ? '✓' : '✗'}
+                </p>
+              )}
               {a.infoRelevante && <p className="mt-1 text-sm">{a.infoRelevante}</p>}
             </div>
           </div>
