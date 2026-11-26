@@ -1,10 +1,10 @@
 import clsx from 'clsx'
-import { Building2, Handshake, ListChecks, Plus, Sun, Users } from 'lucide-react'
+import { Building2, Handshake, House, ListChecks, Plus, Sun, Users } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useStore } from '../data/store'
 import { useI18n } from '../lib/i18n'
-import { LogoTutoria } from './LogoTutoria'
+import { MarcaTutoria } from './MarcaTutoria'
 import { QuickCapture } from './QuickCapture'
 
 export function Layout() {
@@ -25,10 +25,9 @@ export function Layout() {
       {/* iPad y ordenador: barra lateral */}
       <aside className="lateral-app hidden w-56 shrink-0 flex-col border-r border-line bg-surface p-4 md:flex lg:w-64">
         <NavLink to="/" end aria-label={t.inicio} className="mb-7 flex items-center gap-3 rounded-xl px-2 pt-4">
-          <LogoTutoria className="marca-app size-10 shrink-0" />
           <div>
-            <div className="text-xl leading-tight font-bold tracking-tight">Tutoria</div>
-            <div className="text-xs font-medium text-muted">{curso.anyo} · {curso.grupos.join(', ')}</div>
+            <MarcaTutoria className="h-8 w-auto text-white" />
+            <div className="mt-1.5 text-xs font-medium text-muted">{curso.anyo} · {curso.grupos.join(', ')}</div>
           </div>
         </NavLink>
         <button
@@ -63,9 +62,7 @@ export function Layout() {
       {/* iPhone: barra inferior con el + central */}
       <nav hidden={enInicio} className="barra-app pb-safe fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur md:hidden">
         <div className="mx-auto grid h-16 max-w-md grid-cols-5 items-center">
-          <NavLink to="/" end aria-label={t.inicio} className="mx-0.5 grid min-h-11 place-items-center rounded-xl">
-            <LogoTutoria className="size-8" />
-          </NavLink>
+          <TabItem to="/" label={t.inicio} icon={House} end />
           <TabItem {...items[0]} />
           <div className="flex justify-center">
             <button
@@ -87,10 +84,11 @@ export function Layout() {
   )
 }
 
-function TabItem({ to, label, icon: Icon }: { to: string; label: string; icon: typeof Users }) {
+function TabItem({ to, label, icon: Icon, end }: { to: string; label: string; icon: typeof Users; end?: boolean }) {
   return (
     <NavLink
       to={to}
+      end={end}
       className={({ isActive }) =>
         clsx('mx-0.5 flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] sm:text-xs', isActive ? 'bg-accent-soft font-semibold text-accent' : 'text-muted')
       }

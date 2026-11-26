@@ -1,5 +1,7 @@
 # Funcionalidades
 
+Nombre de la app: **TUTOR-ia** (logo en `docs/marca/`, decisión 0006).
+
 Estado actual: **Fase 0 · Prototipo navegable** con alumnado ficticio. Los registros de demostración viven en memoria. Los borradores oficiales se guardan localmente.
 
 ## Identidad visual
@@ -9,12 +11,12 @@ Pizarra en la barra lateral, petróleo en las cabeceras, coral para las acciones
 ## Secciones
 
 Al abrir la app se ve **Inici**: saludo con acceso a Registre nau, próxima reunión, tareas personales con revisión pendiente o vencida y accesos diferenciados por color a Aué, Alumnat, Amassades, Claustre y Seguiment. En móvil, la barra inferior aparece dentro de las secciones.
-Al entrar en una sección aparece la barra **Logo de Tutoria · Alumnat · + · Amassades · Seguiment** (en iPad/ordenador, barra lateral siempre visible).
+Al entrar en una sección aparece la barra **Inici (casa) · Alumnat · + · Amassades · Seguiment** (en iPad/ordenador, barra lateral siempre visible).
 Ajustes (idioma) en el engranaje de arriba a la derecha, en todas las secciones.
 
 | Sección | Ruta | Qué hace hoy |
 | --- | --- | --- |
-| Inici / Inicio | `/` | Registro rápido, enlace a la próxima reunión, revisiones de tareas personales que requieren atención y accesos directos a las secciones |
+| Inici / Inicio | `/` | Logo, saludo y fecha; tira **Aué** con lo de hoy (amassades y Claustre programados, Ahèrs con fecha de hoy y, si está conectado, eventos de Google Calendar), botón Registre nau y cuatro botones: Alumnat, Amassades, Claustre y Seguiment (aviso rojo si hay Ahèrs vencidos) |
 | Aué / Hoy | `/uei` | Calendario mensual con marcas por color para amassades, anotaciones, Ahèrs y eventos de Google. La agenda del día aparece al lado en escritorio y debajo del calendario en móvil |
 | Alumnat / Alumnado | `/alumnado` | Cuadrícula o lista del grupo, búsqueda por nombre |
 | Ficha | `/alumnado/:id` | Cabecera con grupo, nacimiento e información relevante; botones llamar, escribir y registrar; pestañas Cronología (filtrable, con acuerdos), Contactos y Evaluación |

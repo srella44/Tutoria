@@ -1,96 +1,182 @@
-import { useState } from 'react'
-import { ArrowRight, Building2, CalendarDays, FileLock2, Handshake, ListChecks, Plus, Sun, Users } from 'lucide-react'
+// «Inici»: qué tengo hoy (Aué) y adónde voy (cuatro botones). Sin barra inferior en el móvil.
+import clsx from 'clsx'
+import { Building2, ChevronRight, FileLock2, Handshake, ListChecks, Plus, Users } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { Ajustes } from '../components/Ajustes'
-import { LogoTutoria } from '../components/LogoTutoria'
+import { MarcaTutoria } from '../components/MarcaTutoria'
 import { useStore } from '../data/store'
 import { citaRealizada, esClaustre } from '../data/types'
-import { diasDesdeHoy, fechaCorta, fechaHora } from '../lib/fechas'
+import { ocurreEnDia } from '../lib/calendario'
+import { diaLocal, diasDesdeHoy, fechaCorta, hora } from '../lib/fechas'
+import { listarMesGoogle, type EventoGoogle } from '../lib/googleCalendar'
+import { useGoogleCalendar } from '../lib/GoogleCalendarProvider'
 import { useI18n } from '../lib/i18n'
+
+interface ItemDia {
+  id: string
+  hora?: string // HH:MM; sin hora = todo el día
+  titulo: string
+  detalle?: string
+  origen: 'tutoria' | 'google' | 'aher'
+  to?: string
+}
 
 export function Inicio() {
   const { t, lang, tipo } = useI18n()
   const { abrirCaptura } = useOutletContext<{ abrirCaptura: () => void }>()
   const { registros, ahers, alumnos, curso } = useStore()
-  const [fecha] = useState(() => new Date().toISOString())
+  const { conexion, revisarError } = useGoogleCalendar()
+  const [ahora] = useState(() => new Date())
+  const hoy = diaLocal(ahora)
+  const [google, setGoogle] = useState<EventoGoogle[]>([])
 
-  const proximas = registros
-    .filter((r) => r.programada && !citaRealizada(r) && !esClaustre(r.tipo) && Date.parse(r.fecha) >= Date.parse(fecha))
-    .sort((a, b) => Date.parse(a.fecha) - Date.parse(b.fecha))
-  const siguiente = proximas[0]
-  const reunionesHoy = registros.filter((r) => r.programada && !citaRealizada(r) && !esClaustre(r.tipo) && diasDesdeHoy(r.fecha) === 0).length
-  const pendientes = ahers.filter((a) => !a.completado && !a.responsable)
-  const revisiones = pendientes.filter((a) => a.fecha && diasDesdeHoy(a.fecha) <= 0).length
+  useEffect(() => {
+    if (!conexion) return
+    const control = new AbortController()
+    const mes = new Date(ahora.getFullYear(), ahora.getMonth(), 1)
+    listarMesGoogle(conexion.token, mes, control.signal).then(setGoogle, (e) => {
+      if (!control.signal.aborted) revisarError(e)
+    })
+    return () => control.abort()
+  }, [conexion, ahora, revisarError])
 
-  const secciones = [
-    { to: '/uei', icon: Sun, color: 'menta', label: t.hoy, detail: `${t.reunionesHoyN} · ${reunionesHoy}` },
-    { to: '/alumnado', icon: Users, color: 'azul', label: t.alumnado, detail: `${alumnos.length} ${t.alumnosN.toLowerCase()} · ${curso.grupos.join(', ')}` },
-    { to: '/reuniones', icon: Handshake, color: 'lila', label: t.reuniones, detail: `${t.proximasN} · ${proximas.length}` },
-    { to: '/claustre', icon: Building2, color: 'miel', label: t.claustre, detail: [tipo.ciclo, tipo.mentoria].join(' · ') },
-    { to: '/seguimiento', icon: ListChecks, color: 'coral', label: t.seguimiento, detail: `${t.acuerdosAbiertosN} · ${pendientes.length}` },
-    ...(import.meta.env.VITE_SINGLEFILE ? [{ to: '/informes', icon: FileLock2, color: 'azul', label: t.bancoInformes, detail: t.informesPrivados }] : []),
+  const nombre = (id: string) => alumnos.find((a) => a.id === id)?.nombre ?? '?'
+  const citasHoy = registros.filter((r) => r.programada && !citaRealizada(r) && diasDesdeHoy(r.fecha) === 0)
+  const misAhers = ahers.filter((a) => !a.completado && !a.responsable)
+  const vencidos = misAhers.filter((a) => a.fecha && diasDesdeHoy(a.fecha) < 0).length
+
+  const items: ItemDia[] = [
+    ...citasHoy.map((r) => ({
+      id: r.id,
+      hora: hora(r.fecha),
+      titulo: r.titulo || tipo[r.tipo],
+      detalle: r.alumnoIds.map(nombre).join(', ') || undefined,
+      origen: 'tutoria' as const,
+      to: `/reunion/${r.id}`,
+    })),
+    ...(conexion ? google : [])
+      .filter((e) => ocurreEnDia(e, hoy) && !e.extendedProperties?.private?.tutoriaRegistro)
+      .map((e) => ({
+        id: e.id,
+        hora: e.start.dateTime ? hora(e.start.dateTime) : undefined,
+        titulo: e.summary || 'Google Calendar',
+        detalle: 'Google Calendar',
+        origen: 'google' as const,
+      })),
+    ...misAhers
+      .filter((a) => a.fecha && diasDesdeHoy(a.fecha) === 0)
+      .map((a) => ({ id: a.id, titulo: a.texto, detalle: t.acuerdos, origen: 'aher' as const, to: '/seguimiento' })),
+  ]
+  items.sort((a, b) => (a.hora ?? '').localeCompare(b.hora ?? ''))
+
+  const proximas = registros.filter((r) => r.programada && !citaRealizada(r) && !esClaustre(r.tipo) && diasDesdeHoy(r.fecha) >= 0).length
+  const claustreProximo = registros.filter((r) => esClaustre(r.tipo) && !citaRealizada(r) && diasDesdeHoy(r.fecha) >= 0).length
+
+  const botones = [
+    { to: '/alumnado', icon: Users, label: t.alumnado, detalle: `${alumnos.length} · ${curso.grupos.join(', ')}` },
+    { to: '/reuniones', icon: Handshake, label: t.reuniones, detalle: `${t.proximasN} · ${proximas}` },
+    { to: '/claustre', icon: Building2, label: t.claustre, detalle: `${t.proximasN} · ${claustreProximo}` },
+    {
+      to: '/seguimiento',
+      icon: ListChecks,
+      label: t.seguimiento,
+      detalle: vencidos > 0 ? `${t.revisionVencida} · ${vencidos}` : `${t.acuerdosAbiertosN} · ${misAhers.length}`,
+      aviso: vencidos > 0,
+    },
   ]
 
   return (
-    <div className="pt-safe mx-auto max-w-6xl px-3 sm:px-6">
-      <div className="h-3 sm:h-5" aria-hidden />
-      <header className="franja-inicio flex items-center gap-3 rounded-2xl px-4 py-3 sm:px-5">
-        <LogoTutoria className="size-10 shrink-0" />
-        <div className="min-w-0 flex-1">
-          <div className="text-lg leading-tight font-bold tracking-tight">Tutoria</div>
-          <p className="text-xs font-medium text-[#c5dde8]">{curso.anyo} · {curso.grupos.join(', ')}</p>
-        </div>
+    <div className="pt-safe mx-auto max-w-3xl px-4">
+      <header className="flex items-center justify-between gap-3 pt-5">
+        <MarcaTutoria className="h-9 w-auto text-ink md:invisible" />
         <Ajustes />
       </header>
+      <p className="mt-4 text-sm font-medium capitalize text-muted">
+        {fechaCorta(ahora.toISOString(), lang)} · {curso.anyo}
+      </p>
+      <h1 className="text-3xl leading-tight font-bold tracking-tight">{t.bonDia}</h1>
 
-      <section className="inicio-saludo relative isolate mt-4 overflow-hidden rounded-2xl px-5 py-5 sm:px-7">
-        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium capitalize text-muted">{fechaCorta(fecha, lang)}</p>
-            <h1 className="mt-1 text-3xl leading-tight font-bold tracking-tight sm:text-4xl">{t.bonDia}</h1>
-          </div>
-          <button onClick={abrirCaptura} className="accion-coral inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-bold">
-            <Plus size={20} aria-hidden /> {t.nuevoRegistro}
-          </button>
-        </div>
+      {/* Aué: lo de hoy, de Tutoria y de Google Calendar */}
+      <section className="mt-4 rounded-2xl border border-line bg-surface">
+        <Link to="/uei" className="flex items-center justify-between px-4 pt-3 pb-2">
+          <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t.hoy}</span>
+          <span className="flex items-center gap-1 text-sm font-medium text-accent">
+            {t.verCalendario} <ChevronRight size={16} aria-hidden />
+          </span>
+        </Link>
+        {items.length === 0 ? (
+          <p className="px-4 pb-4 text-sm text-muted">{t.nadaPendiente}</p>
+        ) : (
+          <ul className="pb-1">
+            {items.map((it) => {
+              const fila = (
+                <>
+                  <span className="w-14 shrink-0 text-[15px] font-semibold tabular-nums">{it.hora ?? '—'}</span>
+                  <span
+                    className={clsx(
+                      'h-8 w-1 shrink-0 rounded-full',
+                      it.origen === 'google' ? 'bg-line' : it.origen === 'aher' ? 'bg-coral-accion' : 'bg-accent',
+                    )}
+                    aria-hidden
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">{it.titulo}</span>
+                    {it.detalle && <span className="block truncate text-xs text-muted">{it.detalle}</span>}
+                  </span>
+                </>
+              )
+              return (
+                <li key={`${it.origen}-${it.id}`} className="border-t border-line">
+                  {it.to ? (
+                    <Link to={it.to} state={{ desdeTutoria: true }} className="flex items-center gap-3 px-4 py-2.5">
+                      {fila}
+                      <ChevronRight size={16} className="text-muted" aria-hidden />
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-2.5">{fila}</div>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </section>
 
-      <nav className="mt-4 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]">
-        {secciones.map(({ to, icon: Icon, color, label, detail }) => (
-          <Link key={to} to={to} data-color={color} className="inicio-seccion">
-            <span className="inicio-icono"><Icon size={22} aria-hidden /></span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-base font-bold">{label}</span>
-              <span className="inicio-detalle block text-xs leading-relaxed">{detail}</span>
+      <button
+        onClick={abrirCaptura}
+        className="accion-coral mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl text-lg font-bold shadow-sm active:scale-[0.99]"
+      >
+        <Plus size={24} aria-hidden /> {t.nuevoRegistro}
+      </button>
+
+      <nav className="mt-4 grid grid-cols-2 gap-3">
+        {botones.map(({ to, icon: Icon, label, detalle, aviso }) => (
+          <Link
+            key={to}
+            to={to}
+            className="flex min-h-32 flex-col justify-between rounded-2xl border border-line bg-surface p-4 hover:border-accent active:scale-[0.98]"
+          >
+            <span className="flex items-start justify-between">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                <Icon size={24} aria-hidden />
+              </span>
+              {aviso && <span className="mt-1 h-2.5 w-2.5 rounded-full bg-danger" aria-hidden />}
             </span>
-            <ArrowRight size={17} className="inicio-flecha shrink-0" aria-hidden />
+            <span>
+              <span className="block text-lg font-bold">{label}</span>
+              <span className={clsx('block text-sm', aviso ? 'font-medium text-danger' : 'text-muted')}>{detalle}</span>
+            </span>
           </Link>
         ))}
       </nav>
 
-      {(siguiente || revisiones > 0) && (
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          {siguiente && (
-            <Link to={`/reunion/${siguiente.id}`} state={{ desdeTutoria: true }} className="inicio-resumen">
-              <span className="inicio-icono" data-color="lila"><CalendarDays size={21} aria-hidden /></span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold">{t.proximaReunion}</span>
-                <span className="block text-xs text-muted">{siguiente.titulo || tipo[siguiente.tipo]} · {fechaHora(siguiente.fecha, lang)}</span>
-              </span>
-              <ArrowRight size={16} aria-hidden />
-            </Link>
-          )}
-          {revisiones > 0 && (
-            <Link to="/seguimiento" className="inicio-resumen">
-              <span className="inicio-icono" data-color="coral"><ListChecks size={21} aria-hidden /></span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold">{t.acuerdosVencen}</span>
-                <span className="block text-xs text-muted">{t.revisiones} · {revisiones}</span>
-              </span>
-              <ArrowRight size={16} aria-hidden />
-            </Link>
-          )}
-        </div>
+      {import.meta.env.VITE_SINGLEFILE && (
+        <Link to="/informes" className="mt-4 flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3">
+          <FileLock2 size={20} className="text-accent" aria-hidden />
+          <span className="flex-1 font-medium">{t.bancoInformes}</span>
+          <ChevronRight size={16} className="text-muted" aria-hidden />
+        </Link>
       )}
     </div>
   )

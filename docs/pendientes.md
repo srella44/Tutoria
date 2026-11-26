@@ -11,6 +11,8 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Revisar también el aranés de las observaciones, los acuerdos y las fichas ficticias de `src/data/demo.ts`.
 - [ ] Frases frecuentes de ejemplo en `src/data/demo.ts` (sustituir por las validadas del banco de expresiones).
 
+- [ ] Validar «Véder eth calendari» y «Ahèrs vençuts».
+
 ## Material del centro (anonimizado)
 
 - [x] Plantilla oficial de reunión con familias (PDF recibido)

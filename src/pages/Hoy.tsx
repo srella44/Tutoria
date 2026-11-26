@@ -7,6 +7,7 @@ import { Card, PageHeader } from '../components/ui'
 import { useStore } from '../data/store'
 import { citaRealizada, esClaustre, tiposAmassada, type TipoRegistro } from '../data/types'
 import { diaLocal, fechaCorta, hora, mesYAnyo, semanaAbreviada } from '../lib/fechas'
+import { ocurreEnDia } from '../lib/calendario'
 import { listarMesGoogle, type EventoGoogle } from '../lib/googleCalendar'
 import { useGoogleCalendar } from '../lib/GoogleCalendarProvider'
 import { useI18n } from '../lib/i18n'
@@ -17,18 +18,6 @@ function esCita(r: { tipo: TipoRegistro }) {
   return esClaustre(r.tipo) || amassades.includes(r.tipo)
 }
 
-function ocurreEnDia(evento: EventoGoogle, dia: string) {
-  if (evento.start.date) {
-    return evento.start.date <= dia && (evento.end.date ? dia < evento.end.date : dia === evento.start.date)
-  }
-  if (!evento.start.dateTime) return false
-  const inicioDia = Date.parse(`${dia}T00:00:00`)
-  const siguiente = new Date(inicioDia)
-  siguiente.setDate(siguiente.getDate() + 1)
-  const inicio = Date.parse(evento.start.dateTime)
-  const fin = evento.end.dateTime ? Date.parse(evento.end.dateTime) : inicio
-  return inicio < siguiente.getTime() && (fin > inicioDia || inicio >= inicioDia)
-}
 
 export function Hoy() {
   const { t, lang, tipo } = useI18n()

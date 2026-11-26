@@ -374,10 +374,6 @@ button.cal-dia:hover {
 .lateral-app a:focus-visible,
 .lateral-app button:focus-visible { outline-color: #fff; }
 
-.marca-app {
-  filter: drop-shadow(0 3px 5px #114e3b28);
-}
-
 .lateral-app .lateral-activo,
 .lateral-app .lateral-activo:hover {
   color: #fff;

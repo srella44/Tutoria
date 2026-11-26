@@ -7,6 +7,8 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  verCalendario: 'Véder eth calendari',
+  revisionVencida: 'Ahèrs vençuts',
   crearAherPunto: 'Convertir en ahèr',
   aherPuntoGuardado: 'Ahèr creat',
   paraMi: 'Entà jo',
@@ -212,6 +214,8 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  verCalendario: 'Ver el calendario',
+  revisionVencida: 'Tareas vencidas',
   crearAherPunto: 'Convertir en tarea',
   aherPuntoGuardado: 'Tarea creada',
   paraMi: 'Para mí',
