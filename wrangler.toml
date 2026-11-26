@@ -9,3 +9,9 @@ binding = "DB"
 database_name = "tutoria"
 database_id = "850dd845-a45b-4521-ada6-e3f13d7dbc59"
 migrations_dir = "migrations"
+
+# Cloudflare Access (no son secretos): equipo y «Application Audience (AUD) Tag» de la aplicación TUTOR-ia.
+# La API solo acepta peticiones con un token de Access firmado por este equipo y para esta aplicación.
+[vars]
+ACCESS_TEAM_DOMAIN = "dark-limit-b322.cloudflareaccess.com"
+ACCESS_AUD = "485188b1ac9cbe73e1e141a3ad407188c7ca4fb8078865bfc0506653661af0d9"
