@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { ChevronLeft, Mail, Phone, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { BorradorEvaluacion } from '../components/BorradorEvaluacion'
 import { Ajustes } from '../components/Ajustes'
 import { QuickCapture } from '../components/QuickCapture'
 import { RegistroItem } from '../components/RegistroItem'
@@ -24,7 +25,7 @@ export function AlumnoFicha() {
   if (!a) return <Empty>404</Empty>
 
   const propios = registros
-    .filter((r) => r.alumnoIds.includes(a.id) && !r.programada)
+    .filter((r) => r.alumnoIds.includes(a.id) && (!r.programada || r.realizada))
     .sort((x, y) => y.fecha.localeCompare(x.fecha))
   const visibles = filtro === 'todos' ? propios : propios.filter((r) => r.tipo === filtro)
   const tiposPresentes = [...new Set(propios.map((r) => r.tipo))]
@@ -174,7 +175,15 @@ export function AlumnoFicha() {
         )}
 
         {tab === 'evaluacion' && (
-          <Card>
+          <div className="space-y-3">
+            {import.meta.env.VITE_SINGLEFILE && (
+              <Link className="block rounded-xl bg-accent-soft px-4 py-3 font-semibold text-accent"
+                to={`/informes?${new URLSearchParams({ alumno: `${a.nombre} ${a.apellidos}`, archivo: 'informe' })}`}>
+                {t.historialInformes}
+              </Link>
+            )}
+            <BorradorEvaluacion key={a.id} nombre={`${a.nombre} ${a.apellidos}`} registros={propios} />
+            <Card>
             {propios.some((r) => r.tipo === 'evaluacion') ? (
               <ul>
                 {propios
@@ -186,7 +195,8 @@ export function AlumnoFicha() {
             ) : (
               <Empty>{t.proximamente}</Empty>
             )}
-          </Card>
+            </Card>
+          </div>
         )}
       </div>
 

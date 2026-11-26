@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { LayoutGrid, List, Search } from 'lucide-react'
+import { LayoutGrid, List, Search, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Avatar, PageHeader } from '../components/ui'
@@ -17,6 +17,7 @@ export function Alumnado() {
     <>
       <PageHeader
         title={t.alumnado}
+        icon={Users}
         right={
           <button
             onClick={() => setGrid((g) => !g)}
@@ -40,14 +41,14 @@ export function Alumnado() {
             className="h-11 w-full bg-transparent text-base outline-none"
           />
         </label>
-        <ul className={clsx(grid ? 'grid grid-cols-3 gap-3 sm:grid-cols-4' : 'rounded-2xl border border-line bg-surface')}>
+        <ul className={clsx(grid ? 'grid grid-cols-3 gap-3 sm:grid-cols-4' : 'panel-app rounded-2xl border border-line bg-surface')}>
           {lista.map((a) => (
             <li key={a.id} className={clsx(!grid && 'border-b border-line last:border-0')}>
               <Link
                 to={`/alumnado/${a.id}`}
                 className={clsx(
                   grid
-                    ? 'flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-3 text-center'
+                    ? 'flex flex-col items-center gap-2 panel-app rounded-2xl border border-line bg-surface p-3 text-center hover:border-accent'
                     : 'flex items-center gap-3 px-4 py-2.5',
                 )}
               >

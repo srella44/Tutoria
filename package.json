@@ -8,11 +8,12 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "build:artifact": "tsc -b && vite build --mode singlefile"
+    "build:artifact": "tsc -b && vite build --mode singlefile && node scripts/proteger-vista.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "lucide-react": "^1.80.0",
+    "pdf-lib": "1.17.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.7"

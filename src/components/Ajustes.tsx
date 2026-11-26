@@ -12,14 +12,14 @@ export function Ajustes() {
         onClick={() => setOpen((o) => !o)}
         aria-label={t.ajustes}
         aria-expanded={open}
-        className="flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-surface"
+        className="ajustes-boton flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-surface"
       >
         <Settings size={20} />
       </button>
       {open && (
         <>
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-40 mt-1 w-56 rounded-2xl border border-line bg-surface p-2 shadow-lg">
+          <div className="absolute right-0 z-40 mt-1 w-56 rounded-2xl border border-line bg-surface p-2 text-ink shadow-lg">
             <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase text-muted">{t.ajustes}</p>
             <button
               onClick={() => {

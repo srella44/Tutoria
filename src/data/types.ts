@@ -48,6 +48,13 @@ export type TipoRegistro =
   | 'comunicacion'
   | 'reunionFamilia'
   | 'reunionProfesionales'
+  | 'reunionEap'
+  | 'reunionLogopeda'
+  | 'claustro'
+  | 'ciclo'
+  | 'mentoria'
+  | 'otraAmassada'
+  | 'otroClaustre'
   | 'teEscoti'
   | 'evaluacion'
   | 'informe'
@@ -64,6 +71,10 @@ export interface Registro {
   visibilidad: Visibilidad
   estado?: 'abierto' | 'cerrado' | 'borrador' | 'sinFirmar' | 'firmado'
   asistentes?: Id[] // contactos y profesionales
+  realizada?: boolean
+  puntos?: { id: Id; texto: string; hecho: boolean; notas?: string }[]
+  titulo?: string
+  alumnosOtrosCursos?: { nombre: string; curso: string }[]
   programada?: boolean // reunión futura
 }
 
@@ -84,4 +95,24 @@ export interface FraseFrecuente {
   texto: string
   area: string
   tono: 'logro' | 'progreso' | 'dificultad' | 'propuesta'
+}
+
+export const tiposAmassada = ['reunionFamilia', 'teEscoti', 'reunionEap', 'reunionLogopeda', 'reunionProfesionales', 'otraAmassada'] as const
+export const tiposClaustre = ['claustro', 'ciclo', 'mentoria', 'otroClaustre'] as const
+
+export function esClaustre(tipo: TipoRegistro) {
+  return tiposClaustre.some((item) => item === tipo)
+}
+
+export interface Aher {
+  id: Id
+  texto: string
+  fecha?: IsoDate
+  completado: boolean
+  responsable?: string
+  origen?: { citaId: Id; puntoId: Id }
+}
+
+export function citaRealizada(cita: Registro) {
+  return cita.realizada ?? !cita.programada
 }

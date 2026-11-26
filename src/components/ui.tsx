@@ -1,12 +1,13 @@
 // Componentes base mínimos. En la Fase 1 se sustituyen por shadcn/ui (docs/decisiones/0002).
 import clsx from 'clsx'
+import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { TipoRegistro, Visibilidad } from '../data/types'
 import { Ajustes } from './Ajustes'
 
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={clsx('rounded-2xl border border-line bg-surface', className)}>{children}</div>
+    <div className={clsx('panel-app rounded-2xl border border-line bg-surface', className)}>{children}</div>
   )
 }
 
@@ -21,12 +22,21 @@ export function SectionTitle({ children, count }: { children: ReactNode; count?:
   )
 }
 
-export function PageHeader({ title, right }: { title: ReactNode; right?: ReactNode }) {
+export function PageHeader({ title, right, icon: Icono, color = 'menta', amplio }: {
+  title: ReactNode
+  right?: ReactNode
+  icon?: LucideIcon
+  color?: 'miel' | 'menta' | 'lila' | 'azul' | 'coral'
+  amplio?: boolean
+}) {
   return (
-    <header className="pt-safe sticky top-0 z-10 border-b border-line bg-bg/90 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
-        <h1 className="text-xl font-bold tracking-tight">{title}</h1>
-        <div className="flex items-center gap-1">
+    <header className="cabecera-app pt-safe sticky top-0 z-10 border-b border-line bg-bg/95 backdrop-blur">
+      <div className={clsx('mx-auto flex min-h-16 items-center justify-between gap-2 px-3 sm:px-6', amplio ? 'max-w-6xl' : 'max-w-3xl')}>
+        <div className="flex min-w-0 items-center gap-2.5">
+          {Icono && <span className="icono-seccion hidden sm:grid" data-color={color}><Icono size={19} aria-hidden /></span>}
+          <h1 className="min-w-0 text-lg font-bold tracking-tight sm:text-2xl">{title}</h1>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
           {right}
           <Ajustes />
         </div>
@@ -36,10 +46,13 @@ export function PageHeader({ title, right }: { title: ReactNode; right?: ReactNo
 }
 
 export function Avatar({ nombre, apellidos, size = 40 }: { nombre: string; apellidos: string; size?: number }) {
-  const ini = `${nombre[0]}${apellidos[0]}`
+  const ini = `${nombre.charAt(0)}${apellidos.charAt(0)}`
+  const colores = ['menta', 'lila', 'miel', 'azul', 'coral']
+  const color = colores[((nombre.codePointAt(0) ?? 0) + (apellidos.codePointAt(0) ?? 0)) % colores.length]
   return (
     <span
-      className="inline-flex shrink-0 items-center justify-center rounded-full bg-accent-soft font-semibold text-accent"
+      data-color={color}
+      className="avatar-app inline-flex shrink-0 items-center justify-center rounded-2xl font-bold"
       style={{ width: size, height: size, fontSize: size * 0.38 }}
       aria-hidden
     >
@@ -54,6 +67,13 @@ const tipoColor: Record<TipoRegistro, string> = {
   comunicacion: 'bg-line text-ink',
   reunionFamilia: 'bg-accent-soft text-accent',
   reunionProfesionales: 'bg-accent-soft text-accent',
+  reunionEap: 'bg-accent-soft text-accent',
+  reunionLogopeda: 'bg-accent-soft text-accent',
+  claustro: 'bg-accent-soft text-accent',
+  ciclo: 'bg-accent-soft text-accent',
+  mentoria: 'bg-accent-soft text-accent',
+  otraAmassada: 'bg-accent-soft text-accent',
+  otroClaustre: 'bg-accent-soft text-accent',
   teEscoti: 'bg-danger-soft text-danger',
   evaluacion: 'bg-line text-ink',
   informe: 'bg-line text-ink',

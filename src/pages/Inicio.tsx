@@ -1,72 +1,97 @@
-// «Inici»: pantalla de inicio con botones grandes. Sin barra inferior; al entrar en una sección aparece.
-import clsx from 'clsx'
-import { Handshake, ListChecks, Plus, Sun, Users } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowRight, Building2, CalendarDays, FileLock2, Handshake, ListChecks, Plus, Sun, Users } from 'lucide-react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { Ajustes } from '../components/Ajustes'
+import { LogoTutoria } from '../components/LogoTutoria'
 import { useStore } from '../data/store'
-import { diasDesdeHoy, fechaCorta } from '../lib/fechas'
+import { citaRealizada, esClaustre } from '../data/types'
+import { diasDesdeHoy, fechaCorta, fechaHora } from '../lib/fechas'
 import { useI18n } from '../lib/i18n'
 
 export function Inicio() {
-  const { t, lang } = useI18n()
+  const { t, lang, tipo } = useI18n()
   const { abrirCaptura } = useOutletContext<{ abrirCaptura: () => void }>()
-  const { registros, acuerdos, alumnos, curso } = useStore()
+  const { registros, ahers, alumnos, curso } = useStore()
+  const [fecha] = useState(() => new Date().toISOString())
 
-  const reunionesHoy = registros.filter((r) => r.programada && diasDesdeHoy(r.fecha) === 0).length
-  const proximas = registros.filter((r) => r.programada && diasDesdeHoy(r.fecha) >= 0).length
-  const abiertas = registros.filter(
-    (r) => r.estado === 'sinFirmar' || ((r.tipo === 'incidencia' || r.tipo === 'teEscoti') && r.estado === 'abierto'),
-  ).length
-  const acuerdosAbiertos = acuerdos.filter((a) => a.estado !== 'completado').length
-  const vencidos = acuerdos.filter((a) => a.estado !== 'completado' && diasDesdeHoy(a.fechaRevision) <= 0).length
+  const proximas = registros
+    .filter((r) => r.programada && !citaRealizada(r) && !esClaustre(r.tipo) && Date.parse(r.fecha) >= Date.parse(fecha))
+    .sort((a, b) => Date.parse(a.fecha) - Date.parse(b.fecha))
+  const siguiente = proximas[0]
+  const reunionesHoy = registros.filter((r) => r.programada && !citaRealizada(r) && !esClaustre(r.tipo) && diasDesdeHoy(r.fecha) === 0).length
+  const pendientes = ahers.filter((a) => !a.completado && !a.responsable)
+  const revisiones = pendientes.filter((a) => a.fecha && diasDesdeHoy(a.fecha) <= 0).length
 
-  const botones = [
-    { to: '/uei', icon: Sun, label: t.hoy, detalle: `${t.reunionesHoyN}: ${reunionesHoy} · ${t.pendientesN}: ${abiertas + vencidos}`, aviso: vencidos > 0 },
-    { to: '/alumnado', icon: Users, label: t.alumnado, detalle: `${t.alumnosN}: ${alumnos.length} · ${curso.grupos.join(', ')}` },
-    { to: '/reuniones', icon: Handshake, label: t.reuniones, detalle: `${t.proximasN}: ${proximas}` },
-    { to: '/seguimiento', icon: ListChecks, label: t.seguimiento, detalle: `${t.acuerdosAbiertosN}: ${acuerdosAbiertos}` },
+  const secciones = [
+    { to: '/uei', icon: Sun, color: 'menta', label: t.hoy, detail: `${t.reunionesHoyN} · ${reunionesHoy}` },
+    { to: '/alumnado', icon: Users, color: 'azul', label: t.alumnado, detail: `${alumnos.length} ${t.alumnosN.toLowerCase()} · ${curso.grupos.join(', ')}` },
+    { to: '/reuniones', icon: Handshake, color: 'lila', label: t.reuniones, detail: `${t.proximasN} · ${proximas.length}` },
+    { to: '/claustre', icon: Building2, color: 'miel', label: t.claustre, detail: [tipo.ciclo, tipo.mentoria].join(' · ') },
+    { to: '/seguimiento', icon: ListChecks, color: 'coral', label: t.seguimiento, detail: `${t.acuerdosAbiertosN} · ${pendientes.length}` },
+    ...(import.meta.env.VITE_SINGLEFILE ? [{ to: '/informes', icon: FileLock2, color: 'azul', label: t.bancoInformes, detail: t.informesPrivados }] : []),
   ]
 
   return (
-    <div className="pt-safe mx-auto flex min-h-full max-w-3xl flex-col px-4">
-      <header className="flex items-start justify-between pb-6 pt-6">
-        <div>
-          <p className="text-sm capitalize text-muted">{fechaCorta(new Date().toISOString(), lang)}</p>
-          <h1 className="text-[32px] font-bold leading-tight tracking-tight">{t.bonDia}</h1>
-          <p className="text-muted">
-            Tutoria · {curso.anyo}
-          </p>
+    <div className="pt-safe mx-auto max-w-6xl px-3 sm:px-6">
+      <div className="h-3 sm:h-5" aria-hidden />
+      <header className="franja-inicio flex items-center gap-3 rounded-2xl px-4 py-3 sm:px-5">
+        <LogoTutoria className="size-10 shrink-0" />
+        <div className="min-w-0 flex-1">
+          <div className="text-lg leading-tight font-bold tracking-tight">Tutoria</div>
+          <p className="text-xs font-medium text-[#c5dde8]">{curso.anyo} · {curso.grupos.join(', ')}</p>
         </div>
         <Ajustes />
       </header>
 
-      <button
-        onClick={abrirCaptura}
-        className="mb-4 flex min-h-16 items-center justify-center gap-3 rounded-2xl bg-accent px-4 text-lg font-semibold text-on-accent shadow-sm active:scale-[0.99]"
-      >
-        <Plus size={26} /> {t.nuevoRegistro}
-      </button>
+      <section className="inicio-saludo relative isolate mt-4 overflow-hidden rounded-2xl px-5 py-5 sm:px-7">
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium capitalize text-muted">{fechaCorta(fecha, lang)}</p>
+            <h1 className="mt-1 text-3xl leading-tight font-bold tracking-tight sm:text-4xl">{t.bonDia}</h1>
+          </div>
+          <button onClick={abrirCaptura} className="accion-coral inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-bold">
+            <Plus size={20} aria-hidden /> {t.nuevoRegistro}
+          </button>
+        </div>
+      </section>
 
-      <nav className="grid grid-cols-2 gap-3">
-        {botones.map(({ to, icon: Icon, label, detalle, aviso }) => (
-          <Link
-            key={to}
-            to={to}
-            className="flex aspect-square flex-col justify-between rounded-3xl border border-line bg-surface p-4 active:scale-[0.98] sm:aspect-[4/3]"
-          >
-            <span className="flex items-start justify-between">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
-                <Icon size={26} />
-              </span>
-              {aviso && <span className="mt-1 h-2.5 w-2.5 rounded-full bg-danger" aria-hidden />}
+      <nav className="mt-4 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]">
+        {secciones.map(({ to, icon: Icon, color, label, detail }) => (
+          <Link key={to} to={to} data-color={color} className="inicio-seccion">
+            <span className="inicio-icono"><Icon size={22} aria-hidden /></span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-base font-bold">{label}</span>
+              <span className="inicio-detalle block text-xs leading-relaxed">{detail}</span>
             </span>
-            <span>
-              <span className="block text-xl font-semibold">{label}</span>
-              <span className={clsx('block text-sm', aviso ? 'text-danger' : 'text-muted')}>{detalle}</span>
-            </span>
+            <ArrowRight size={17} className="inicio-flecha shrink-0" aria-hidden />
           </Link>
         ))}
       </nav>
+
+      {(siguiente || revisiones > 0) && (
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          {siguiente && (
+            <Link to={`/reunion/${siguiente.id}`} state={{ desdeTutoria: true }} className="inicio-resumen">
+              <span className="inicio-icono" data-color="lila"><CalendarDays size={21} aria-hidden /></span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold">{t.proximaReunion}</span>
+                <span className="block text-xs text-muted">{siguiente.titulo || tipo[siguiente.tipo]} · {fechaHora(siguiente.fecha, lang)}</span>
+              </span>
+              <ArrowRight size={16} aria-hidden />
+            </Link>
+          )}
+          {revisiones > 0 && (
+            <Link to="/seguimiento" className="inicio-resumen">
+              <span className="inicio-icono" data-color="coral"><ListChecks size={21} aria-hidden /></span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold">{t.acuerdosVencen}</span>
+                <span className="block text-xs text-muted">{t.revisiones} · {revisiones}</span>
+              </span>
+              <ArrowRight size={16} aria-hidden />
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   )
 }
