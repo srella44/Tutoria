@@ -21,14 +21,16 @@ export function Reunion() {
   const nav = useNavigate()
   const location = useLocation()
   const { t, lang, tipo } = useI18n()
-  const { registros, borradoresListos, acuerdos, alumnos, contactos, profesionales, setTextoRegistro } = useStore()
+  const { registros, borradoresListos, acuerdos, alumnos, contactos, profesionales } = useStore()
   const [paso, setPaso] = useState(0)
   const r = registros.find((x) => x.id === id)
   if (!r) return <Empty>{borradoresListos ? '404' : t.pdfCargando}</Empty>
 
   const interna = esClaustre(r.tipo)
-  const pasos = interna ? [t.preparar, t.anotar, t.acta, t.pdf] : [t.preparar, t.anotar, t.acta, t.firmas, t.pdf]
   const modelo = r.tipo === 'reunionFamilia' ? 'familia' : r.tipo === 'teEscoti' ? 'escoti' : undefined
+  // Sin hoja oficial (Claustre y amassades con profesionales u otras): acta propia «popurrí», sin firmas.
+  const actaPropia = !modelo
+  const pasos = actaPropia ? [t.preparar, t.anotar, t.acta, t.pdf] : [t.preparar, t.anotar, t.acta, t.firmas, t.pdf]
   const protegido = r.visibilidad === 'protegido'
   const cerrar = () => location.state?.desdeTutoria ? nav(-1) : nav(interna ? '/claustre' : '/reuniones', { replace: true })
   const nombres = [
@@ -151,29 +153,11 @@ export function Reunion() {
             ...cursoYClase(alumnoCita?.grupo ?? r.alumnosOtrosCursos?.[0]?.curso ?? ''),
             asistentes: asistentes.join(', '),
           }} />}
-          {!modelo && paso === 1 && (protegido ? <Card><Empty>{t.protegido}</Empty></Card> : interna ? <NotasInternas cita={r} /> : (
-            <textarea
-              autoFocus
-              aria-label={t.anotar}
-              value={r.texto}
-              onChange={(e) => setTextoRegistro(r.id, e.target.value)}
-              rows={14}
-              className="w-full rounded-2xl border border-line bg-surface p-4 text-base outline-none focus:border-accent"
-            />
-          ))}
+          {actaPropia && paso === 1 && (protegido ? <Card><Empty>{t.protegido}</Empty></Card> : <NotasInternas cita={r} />)}
 
-          {paso === 2 && !interna && !modelo && (
-            <Card className="p-5">
-              <p className="mb-3 text-xs uppercase text-muted">{t.acta} · {tipo[r.tipo]}</p>
-              <p className="mb-2 font-semibold">{titulo}</p>
-              <p className="mb-4 text-sm text-muted">{fechaHora(r.fecha, lang)} · {asistentes.join(', ')}</p>
-              <p className="whitespace-pre-wrap text-[15px]">{protegido ? '••••••' : r.texto || '—'}</p>
-              <p className="mt-6 text-xs text-muted">{t.proximamente}</p>
-            </Card>
-          )}
-
-          {interna && paso >= 2 && <>
-            <ActaInterna cita={r} titulo={titulo} fecha={fechaHora(r.fecha, lang)} />
+          {actaPropia && paso >= 2 && <>
+            <ActaInterna cita={r} titulo={interna ? titulo : r.titulo || tipo[r.tipo]} fecha={fechaHora(r.fecha, lang)}
+              detalle={interna ? undefined : [nombres, asistentes.join(', ')].filter(Boolean).join(' · ')} />
             {paso === 3 && (
               <div className="acta-acciones flex flex-wrap items-center gap-3">
                 <button type="button" onClick={() => window.print()}
@@ -185,11 +169,6 @@ export function Reunion() {
             )}
           </>}
 
-          {!interna && !modelo && paso >= 3 && (
-            <Card>
-              <Empty>{t.proximamente}</Empty>
-            </Card>
-          )}
         </div>
       </div>
 

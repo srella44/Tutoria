@@ -124,3 +124,5 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 - Acta definitiva: PDF firmado con sello «TUTOR-ia · Version N · signat eth …» al pie, huella SHA-256 y versión (colección `actas`); la cita queda en estado `firmado` y sus campos bloqueados. «Version naua» la reabre sin borrar las versiones firmadas.
 - En la cronología, la etiqueta «Acta signada · vN» descarga el último PDF firmado.
 - Límite: un PDF de más de ~1 MB se guarda en el aparato pero no se sincroniza (límite de D1).
+
+Las amassades sin hoja oficial (EAP, logopeda, profesionales y otras) usan el mismo flujo que Claustre: puntos en Preparar, notas por punto y Ahèrs en Anotar, y acta «popurrí» en PDF (sin firmas). En el acta aparecen el tipo de reunión, el alumnado y los asistentes.
