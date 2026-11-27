@@ -18,7 +18,7 @@ export function Ajustes() {
   const sync = useSincronizacion()
   const [errorActivar, setErrorActivar] = useState<string | false>(false)
   const [borrando, setBorrando] = useState(false)
-  const [uniendo, setUniendo] = useState(false)
+  const [pidiendoPin, setPidiendoPin] = useState(false)
   const [cambiandoPin, setCambiandoPin] = useState(false)
   const cerrar = () => {
     setOpen(false)
@@ -61,11 +61,11 @@ export function Ajustes() {
                   <ShieldCheck size={14} aria-hidden /> {t.cifradoActivo}
                 </p>
                 <label className="flex min-h-11 items-center justify-between gap-2 px-3 text-sm">
-                  <span>{t.bloqueoAutomatico}</span>
+                  <span className="min-w-0">{t.bloqueoAutomatico}</span>
                   <select
                     value={cerradura.minutos}
                     onChange={(e) => cerradura.cambiarMinutos(Number(e.target.value))}
-                    className="rounded-lg border border-line bg-bg px-2 py-1.5"
+                    className="w-28 shrink-0 rounded-lg border border-line bg-bg px-2 py-1.5"
                   >
                     {OPCIONES_BLOQUEO.map((m) => (
                       <option key={m} value={m}>{m === 60 ? t.hora1 : m === 480 ? t.horas8 : `${m} min`}</option>
@@ -83,62 +83,28 @@ export function Ajustes() {
             {sync.disponible && cerradura.activa && (
               <>
                 <p className="mt-2 border-t border-line px-3 pb-1 pt-3 text-xs font-semibold uppercase text-muted">{t.sincronizacion}</p>
-                {sync.estado === 'desactivada' && sync.servidor === 'cuenta' ? (
-                  // Ya hay cuenta: este dispositivo tiene otra llave y debe unirse (se borran sus datos locales).
-                  <>
-                    <p className="px-3 pb-1 text-xs text-muted">{t.hayCuenta}</p>
-                    <button
-                      onClick={async () => {
-                        if (!uniendo) return setUniendo(true)
-                        const { borrarDispositivo } = await import('../data/db')
-                        await borrarDispositivo()
-                        window.location.reload()
-                      }}
-                      className={`flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg ${uniendo ? 'font-semibold text-danger' : ''}`}
-                    >
-                      <CloudUpload size={16} className="text-muted" aria-hidden /> {uniendo ? t.tocaConfirmar : t.unirEsteDispositivo}
-                    </button>
-                  </>
-                ) : sync.estado === 'desactivada' && sync.servidor === 'sin-acceso' ? (
-                  <>
-                    <p className="px-3 pb-1 text-xs text-danger">{t.sinAcceso}</p>
-                    <button onClick={() => window.location.reload()} className="mx-3 mb-1 min-h-9 rounded-lg border border-line px-3 text-sm">
-                      {t.volverAEntrar}
-                    </button>
-                  </>
+                <p className={`px-3 text-xs ${sync.estado === 'error' || errorActivar ? 'text-danger' : 'text-muted'}`}>
+                  {errorActivar ? errorActivar
+                    : sync.estado === 'desactivada' ? t.syncDesactivada
+                    : sync.estado === 'sincronizando' ? t.sincronizando
+                    : sync.estado === 'error' ? t.syncError
+                    : `${t.ultimaSync}: ${sync.ultima ? hora(new Date(sync.ultima).toISOString()) : '—'}`}
+                </p>
+                {sync.estado === 'desactivada' ? (
+                  <button onClick={() => { setErrorActivar(false); setPidiendoPin(true) }} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
+                    <CloudUpload size={16} className="text-muted" aria-hidden /> {t.activarSync}
+                  </button>
                 ) : (
-                  <>
-                    <p className={`px-3 text-xs ${sync.estado === 'error' || errorActivar ? 'text-danger' : 'text-muted'}`}>
-                      {sync.estado === 'desactivada' ? t.syncDesactivada
-                        : sync.estado === 'sincronizando' ? t.sincronizando
-                        : sync.estado === 'error' ? t.syncError
-                        : `${t.ultimaSync}: ${sync.ultima ? hora(new Date(sync.ultima).toISOString()) : '—'}`}
-                    </p>
-                    {sync.estado === 'desactivada' ? (
-                      <button
-                        onClick={async () => {
-                          setErrorActivar(false)
-                          try { await sync.activar() } catch (e) { setErrorActivar(e instanceof Error && e.message === 'cuenta-existente' ? t.hayCuenta : t.syncError) }
-                        }}
-                        className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg"
-                      >
-                        <CloudUpload size={16} className="text-muted" aria-hidden /> {t.activarSync}
-                      </button>
-                    ) : (
-                      <button onClick={() => void sync.sincronizar()} disabled={sync.estado === 'sincronizando'} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg disabled:opacity-50">
-                        <RefreshCw size={16} className="text-muted" aria-hidden /> {t.sincronizarAhora}
-                      </button>
-                    )}
-                    {errorActivar && <p className="px-3 pb-1 text-xs text-danger">{errorActivar}</p>}
-                    {(sync.estado === 'error' || errorActivar) && (
-                      // Suele ser que la sesión de Cloudflare Access ha caducado: al recargar, Access pide entrar.
-                      <button onClick={() => window.location.reload()} className="mx-3 mb-1 min-h-9 rounded-lg border border-line px-3 text-sm">
-                        {t.volverAEntrar}
-                      </button>
-                    )}
-                  </>
+                  <button onClick={() => void sync.sincronizar()} disabled={sync.estado === 'sincronizando'} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg disabled:opacity-50">
+                    <RefreshCw size={16} className="text-muted" aria-hidden /> {t.sincronizarAhora}
+                  </button>
                 )}
-                <p className="px-3 pb-1 text-[11px] text-muted">{t.syncAyuda}</p>
+                {(sync.estado === 'error' || (sync.estado === 'desactivada' && sync.servidor === 'sin-acceso')) && (
+                  // Suele ser que la sesión de Cloudflare Access ha caducado: al recargar, Access pide entrar.
+                  <button onClick={() => window.location.reload()} className="mx-3 mb-1 min-h-9 rounded-lg border border-line px-3 text-sm">
+                    {t.volverAEntrar}
+                  </button>
+                )}
               </>
             )}
             <p className="mt-2 border-t border-line px-3 pb-1 pt-3 text-xs font-semibold uppercase text-muted">{t.datos}</p>
@@ -188,6 +154,26 @@ export function Ajustes() {
           </div>
         </>
       )}
+      {pidiendoPin && (
+        <PedirPinActivar
+          onClose={() => setPidiendoPin(false)}
+          onActivar={async (pin) => {
+            if (!(await cerradura.verificarPin(pin))) return t.pinIncorrecto.split('.')[0] + '.'
+            setPidiendoPin(false)
+            try {
+              await sync.activar()
+            } catch (e) {
+              if (e instanceof Error && e.message === 'cuenta-existente') {
+                // Ya hay cuenta: este aparato se une a ella (se borran sus datos y se entra con el PIN).
+                const { borrarDispositivo } = await import('../data/db')
+                await borrarDispositivo()
+                window.location.reload()
+              } else setErrorActivar(t.syncError)
+            }
+            return undefined
+          }}
+        />
+      )}
       {cambiandoPin && <CambiarPin onClose={() => { setCambiandoPin(false); cerrar() }} />}
     </div>
   )
@@ -222,6 +208,23 @@ function CambiarPin({ onClose }: { onClose: () => void }) {
       <Campo label={t.pinNuevo}>{pinInput(nuevo, setNuevo)}</Campo>
       <Campo label={t.repetirPin}>{pinInput(repetido, setRepetido)}</Campo>
       {mensaje && <p className={mensaje.ok ? 'text-accent' : 'text-danger'}>{mensaje.texto}</p>}
+    </Hoja>
+  )
+}
+
+/** Antes de activar la sincronización se pide el PIN: así otro aparato podrá entrar con él. */
+function PedirPinActivar({ onClose, onActivar }: { onClose: () => void; onActivar: (pin: string) => Promise<string | undefined> }) {
+  const { t } = useI18n()
+  const [pin, setPin] = useState('')
+  const [error, setError] = useState<string>()
+  return (
+    <Hoja titulo={t.activarSync} onClose={onClose} puedeGuardar={pin.length >= 4} onGuardar={async () => setError(await onActivar(pin))}>
+      <Campo label={t.pin}>
+        <input type="password" inputMode="numeric" autoComplete="off" maxLength={8} autoFocus value={pin}
+          onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+          className="h-12 w-full rounded-xl border border-line bg-bg px-3 text-center text-xl tracking-[0.4em] outline-none focus:border-accent" />
+      </Campo>
+      {error && <p className="text-danger">{error}</p>}
     </Hoja>
   )
 }

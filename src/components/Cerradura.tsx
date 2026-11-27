@@ -29,11 +29,13 @@ interface CerraduraCtx {
   bloquear: () => void
   /** Cambia el PIN comprobando el actual. Devuelve false si el actual no es correcto. */
   cambiarPin: (actual: string, nuevo: string) => Promise<boolean>
+  /** Comprueba el PIN y lo deja preparado para la sincronización (copia con PIN en el servidor). */
+  verificarPin: (pin: string) => Promise<boolean>
   /** Minutos sin uso hasta el bloqueo automático. */
   minutos: number
   cambiarMinutos: (minutos: number) => void
 }
-const Ctx = createContext<CerraduraCtx>({ activa: false, bloquear: () => {}, cambiarPin: async () => false, minutos: 60, cambiarMinutos: () => {} })
+const Ctx = createContext<CerraduraCtx>({ activa: false, bloquear: () => {}, cambiarPin: async () => false, verificarPin: async () => false, minutos: 60, cambiarMinutos: () => {} })
 export const useCerradura = () => useContext(Ctx)
 
 type Estado =
@@ -126,6 +128,14 @@ export function Cerradura({ children }: { children: ReactNode }) {
     }
   }, [abierta, bloquear, limite])
 
+  const verificarPin = async (pin: string) => {
+    if (estado.fase !== 'abierta') return false
+    const candado = await leerCandado()
+    if (!candado || !(await abrirConPin(candado, pin, await llaveDispositivo()))) return false
+    await recordarPin(estado.dek, pin)
+    return true
+  }
+
   const cambiarPin = async (actual: string, nuevo: string) => {
     if (estado.fase !== 'abierta' || !pinValido(nuevo)) return false
     const candado = await leerCandado()
@@ -137,10 +147,10 @@ export function Cerradura({ children }: { children: ReactNode }) {
   }
 
   if (estado.fase === 'sin-almacenamiento') {
-    return <Ctx.Provider value={{ activa: false, bloquear: () => {}, cambiarPin: async () => false, minutos, cambiarMinutos }}>{children}</Ctx.Provider>
+    return <Ctx.Provider value={{ activa: false, bloquear: () => {}, cambiarPin: async () => false, verificarPin: async () => false, minutos, cambiarMinutos }}>{children}</Ctx.Provider>
   }
   if (estado.fase === 'abierta') {
-    return <Ctx.Provider value={{ activa: true, bloquear, cambiarPin, minutos, cambiarMinutos }}>{children}</Ctx.Provider>
+    return <Ctx.Provider value={{ activa: true, bloquear, cambiarPin, verificarPin, minutos, cambiarMinutos }}>{children}</Ctx.Provider>
   }
   return (
     <div className="pt-safe pb-safe grid min-h-full place-items-center bg-bg px-4 py-8">
