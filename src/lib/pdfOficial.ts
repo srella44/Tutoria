@@ -201,6 +201,8 @@ export async function rellenarPdfOficial(
   const documento = await PDFDocument.load(original, { updateMetadata: false })
   const paginas = documento.getPages()
   const fuente = await documento.embedFont(StandardFonts.Helvetica)
+  let fuenteCursiva: PDFFont | undefined
+  const cursiva = async () => (fuenteCursiva ??= await documento.embedFont(StandardFonts.HelveticaOblique))
   for (const [clave, caja] of Object.entries(modelos[modelo].campos)) {
     if (clave === 'aspectos' && puntos?.length) {
       const fuentes = {
@@ -211,7 +213,9 @@ export async function rellenarPdfOficial(
       escribirPuntos(documento, paginas[caja[0]], caja, puntos, fuentes, clave, tinta, encabezadoPuntos)
       continue
     }
-    escribir(paginas[caja[0]], caja, valores[clave] ?? '', fuente, clave, tinta)
+    // T'escoti: las respuestas, propuestas y acuerdos van en cursiva (los datos de cabecera, no).
+    const respuesta = modelo === 'escoti' && (clave.startsWith('q') || clave === 'propuestas' || clave === 'acuerdos')
+    escribir(paginas[caja[0]], caja, valores[clave] ?? '', respuesta ? await cursiva() : fuente, clave, tinta)
   }
   if (modelo === 'familia') {
     for (const motivo of motivos) {
