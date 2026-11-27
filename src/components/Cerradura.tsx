@@ -141,9 +141,9 @@ function Boton({ children, ocupado, disabled }: { children: ReactNode; ocupado?:
 
 function CrearPin({ onListo, onUnirse }: { onListo: (clave: string, dek: CryptoKey) => void; onUnirse: () => void }) {
   const { t } = useI18n()
-  // Si el servidor ya tiene una cuenta, se ofrece unir este dispositivo.
-  const [hayCuenta, setHayCuenta] = useState(false)
-  useEffect(() => { descargarRecuperacion().then((r) => setHayCuenta(Boolean(r))).catch(() => {}) }, [])
+  // Unir este dispositivo a la cuenta: siempre visible en la app publicada (la vista previa no tiene servidor).
+  // Si el servidor no responde, la pantalla de unirse lo explica.
+  const hayCuenta = !import.meta.env.VITE_SINGLEFILE
   const [pin, setPin] = useState('')
   const [repetido, setRepetido] = useState('')
   const [error, setError] = useState<string>()
