@@ -44,13 +44,13 @@ export function QuickCapture({ onClose, preset }: { onClose: () => void; preset?
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 md:items-center" onClick={onClose}>
+    <div className="pt-safe fixed inset-0 z-40 flex flex-col bg-surface">
       <div
         role="dialog"
         aria-modal="true"
         aria-label={t.nuevoRegistro}
         onClick={(e) => e.stopPropagation()}
-        className="pb-safe max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-surface md:max-w-lg md:rounded-3xl"
+        className="pb-safe min-h-0 w-full flex-1 overflow-y-auto overscroll-contain bg-surface"
       >
         <div className="sticky top-0 flex items-center justify-between border-b border-line bg-surface px-4 py-3">
           <button onClick={onClose} className="grid size-11 place-items-center rounded-full text-muted hover:bg-bg" aria-label={t.cancelar}>

@@ -1,4 +1,4 @@
-// Hoja inferior (iPhone) o diálogo centrado (iPad/ordenador) para formularios.
+// Formularios a pantalla completa (iPhone, iPad y ordenador).
 import { X } from 'lucide-react'
 import { useEffect, type FormEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
@@ -24,31 +24,36 @@ export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children
     if (puedeGuardar) onGuardar()
   }
   // Se monta en <body>: dentro de una cabecera con desenfoque, «fixed» quedaría atrapado en ella.
+  // Pantalla completa en todos los dispositivos: sin ventanas flotantes que se recorten o se desplacen.
   return createPortal(
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 md:items-center" onClick={onClose}>
-      <form
-        role="dialog"
-        aria-label={titulo}
-        onSubmit={enviar}
-        onClick={(e) => e.stopPropagation()}
-        className="pb-safe max-h-[92vh] max-h-[92dvh] w-full overflow-x-hidden overflow-y-auto overscroll-contain rounded-t-3xl bg-surface md:max-w-lg md:rounded-3xl"
-      >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-surface px-4 py-3">
-          <button type="button" onClick={onClose} className="text-muted" aria-label={t.cancelar}>
+    <form
+      role="dialog"
+      aria-modal="true"
+      aria-label={titulo}
+      onSubmit={enviar}
+      className="fixed inset-0 z-40 flex flex-col bg-surface"
+    >
+      <div className="pt-safe shrink-0 border-b border-line bg-surface">
+        <div className="mx-auto flex h-14 max-w-2xl items-center justify-between gap-3 px-2 sm:px-4">
+          <button type="button" onClick={onClose} className="grid size-11 shrink-0 place-items-center rounded-xl text-muted hover:bg-bg" aria-label={t.cancelar}>
             <X size={22} />
           </button>
-          <span className="font-semibold">{titulo}</span>
+          <span className="min-w-0 truncate font-semibold">{titulo}</span>
           <button
             type="submit"
             disabled={!puedeGuardar}
-            className="rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-on-accent disabled:opacity-40"
+            className="shrink-0 rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-on-accent disabled:opacity-40"
           >
             {t.guardar}
           </button>
         </div>
-        <div className="space-y-4 p-4">{children}</div>
-        {/* Guardar también al pie: en el iPhone la barra de arriba puede quedar fuera de la vista al desplazarse. */}
-        <div className="flex flex-wrap items-center gap-2 border-t border-line px-4 py-3">
+      </div>
+      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain">
+        <div className="mx-auto max-w-2xl space-y-4 p-4">{children}</div>
+      </div>
+      {/* Acciones al pie, siempre a la vista. */}
+      <div className="pb-safe shrink-0 border-t border-line bg-surface">
+        <div className="mx-auto flex max-w-2xl flex-wrap items-center gap-2 px-4 py-3">
           {pie}
           <button
             type="submit"
@@ -58,8 +63,8 @@ export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children
             {t.guardar}
           </button>
         </div>
-      </form>
-    </div>,
+      </div>
+    </form>,
     document.body,
   )
 }

@@ -106,3 +106,7 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 - En Alumnat, el botón del libro abre «Marcar qui hè religion»: una lista con casillas para marcar a todo el grupo de una vez.
 - Filtro «Religion · N» en Alumnat para ver solo a quienes la hacen.
 - Es un dato sensible: solo existe cifrado (dispositivo y sincronización), nunca en el repositorio.
+
+## Formularios
+
+- Formularios, captura rápida y cita nueva se abren a pantalla completa, con cabecera y pie fijos (decisión 0015).
