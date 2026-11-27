@@ -42,13 +42,19 @@ export async function pdfAutorizaciones({ titulo, subtitulo, cabeceraNombre, alu
   doc.setCreator('TUTOR-ia')
 
   // Apaisado si hay muchas columnas.
-  const apaisado = columnas.length > 4
+  // Vertical (más filas por hoja); apaisada solo con muchas columnas.
+  const apaisado = columnas.length > 7
   const [ancho, alto] = apaisado ? [841.89, 595.28] : [595.28, 841.89]
   const margen = 40
   const colN = 24
   const colNombre = Math.min(220, (ancho - 2 * margen - colN) * 0.4)
   const colDato = (ancho - 2 * margen - colN - colNombre) / Math.max(1, columnas.length)
-  const filaAlto = 20
+  // Siempre en una sola hoja: la altura de las filas (y la letra) se ajusta al número de alumnos.
+  const disponible = alto - 2 * margen - 48 - 30 - 14
+  const filaAlto = Math.min(20, disponible / Math.max(1, alumnos.length))
+  const letra = Math.max(5, Math.min(10, filaAlto * 0.5))
+  const letraDato = Math.max(5, Math.min(9, filaAlto * 0.45))
+  const baseTexto = (filaAlto - letra * 0.7) / 2
   const cab = 30
 
   const estado = (a: Alumno, c: ColumnaPdf): EstadoAutorizacion | 'pendiente' =>
@@ -63,7 +69,7 @@ export async function pdfAutorizaciones({ titulo, subtitulo, cabeceraNombre, alu
     return r.length < seguro(s).length ? `${r.slice(0, -1)}.` : r
   }
 
-  let pagina = doc.addPage([ancho, alto])
+  const pagina = doc.addPage([ancho, alto])
   let y = alto - margen
   const linea = rgb(0.83, 0.88, 0.92)
 
@@ -86,22 +92,18 @@ export async function pdfAutorizaciones({ titulo, subtitulo, cabeceraNombre, alu
   cabecera(true)
 
   alumnos.forEach((a, n) => {
-    if (y - filaAlto < margen + 20) {
-      pagina = doc.addPage([ancho, alto])
-      y = alto - margen
-      cabecera(false)
-    }
     const base = y - filaAlto
     if (n % 2 === 1) pagina.drawRectangle({ x: margen, y: base, width: colN + colNombre, height: filaAlto, color: rgb(0.96, 0.97, 0.98) })
-    pagina.drawText(String(n + 1), { x: margen + 6, y: base + 6, size: 9, font: normal, color: rgb(0.31, 0.39, 0.46) })
-    pagina.drawText(ajustar(`${a.apellidos}, ${a.nombre}`, normal, 10, colNombre - 8), { x: margen + colN + 4, y: base + 6, size: 10, font: normal, color: rgb(0.08, 0.16, 0.23) })
+    pagina.drawText(String(n + 1), { x: margen + 6, y: base + baseTexto, size: letraDato, font: normal, color: rgb(0.31, 0.39, 0.46) })
+    pagina.drawText(ajustar(`${a.apellidos}, ${a.nombre}`, normal, letra, colNombre - 8), { x: margen + colN + 4, y: base + baseTexto, size: letra, font: normal, color: rgb(0.08, 0.16, 0.23) })
     columnas.forEach((c, i) => {
       const e = estado(a, c)
       const x = margen + colN + colNombre + i * colDato
-      pagina.drawRectangle({ x: x + 1.5, y: base + 1.5, width: colDato - 3, height: filaAlto - 3, color: rgb(...COLOR[e]) })
-      const t = ajustar(texto(a, c), negrita, 9, colDato - 8)
-      const w = negrita.widthOfTextAtSize(t, 9)
-      pagina.drawText(t, { x: x + (colDato - w) / 2, y: base + 6, size: 9, font: negrita, color: rgb(...TINTA[e]) })
+      const hueco = Math.min(1.5, filaAlto * 0.08)
+      pagina.drawRectangle({ x: x + hueco, y: base + hueco, width: colDato - 2 * hueco, height: filaAlto - 2 * hueco, color: rgb(...COLOR[e]) })
+      const t = ajustar(texto(a, c), negrita, letraDato, colDato - 8)
+      const w = negrita.widthOfTextAtSize(t, letraDato)
+      pagina.drawText(t, { x: x + (colDato - w) / 2, y: base + baseTexto, size: letraDato, font: negrita, color: rgb(...TINTA[e]) })
     })
     pagina.drawLine({ start: { x: margen, y: base }, end: { x: ancho - margen, y: base }, thickness: 0.5, color: linea })
     y = base

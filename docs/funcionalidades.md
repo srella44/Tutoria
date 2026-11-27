@@ -104,7 +104,7 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 
 - Campo `religion` en cada alumno (casilla «Hè religion» al editarlo y etiqueta en la ficha).
 - En Alumnat, el botón de la casilla abre «Marcar ara classe»: se elige qué marcar (cada autorización o Religion) y se toca a cada alumno en una lista; las autorizaciones pasan por sus estados como en la ficha, con recuento y «Pendents → Òc» para el resto (`MarcadoRapido` en `src/components/Autorizaciones.tsx`).
-- Botón «PDF» en ese modo: se marcan las columnas que se quieren (cada autorización y, si se elige, Religion; por defecto no sale) y se descarga una tabla en color con todo el alumnado, generada en el dispositivo con pdf-lib (`src/lib/pdfAutorizaciones.ts`).
+- Botón «PDF» en ese modo: se marcan las columnas que se quieren (cada autorización y, si se elige, Religion; por defecto no sale) y se descarga una tabla en color con todo el alumnado, siempre en una sola hoja vertical (filas y letra se ajustan al número de alumnos), generada en el dispositivo con pdf-lib (`src/lib/pdfAutorizaciones.ts`).
 - Filtro «Religion · N» en Alumnat para ver solo a quienes la hacen.
 - Es un dato sensible: solo existe cifrado (dispositivo y sincronización), nunca en el repositorio.
 
