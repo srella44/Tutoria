@@ -46,7 +46,7 @@ export function ActaInterna({ cita, titulo, fecha, detalle }: { cita: Registro; 
 
   return (
     <article className="acta-impresion acta-popurri">
-      <span className="acta-cinta" aria-hidden />
+      <Banderines />
       {citaRealizada(cita) && <span className="acta-sello" aria-hidden>OK!</span>}
       <header className="acta-cabecera">
         {curso.logo && <img src={curso.logo} alt="" className="acta-logo" />}
@@ -60,14 +60,14 @@ export function ActaInterna({ cita, titulo, fecha, detalle }: { cita: Registro; 
       {cita.puntos?.map((punto, i) => (
         <section key={punto.id} className="acta-postit" data-color={coloresPostit[i % coloresPostit.length]} style={giro(i)}>
           <h3 className="font-semibold">{i + 1}. {punto.texto}</h3>
-          {punto.notas?.trim() && <p className="acta-bocadillo">{punto.notas}</p>}
+          {punto.notas?.trim() && <Tira color={coloresPostit[(i + 2) % coloresPostit.length]}>{punto.notas}</Tira>}
         </section>
       ))}
 
       {cita.texto.trim() && (
-        <section className="acta-postit" data-color="blanco" style={giro(1)}>
+        <section className="acta-postit" data-color="amarillo" style={giro(1)}>
           <h3 className="font-semibold">{t.notasGenerales}</h3>
-          <p className="acta-bocadillo">{cita.texto}</p>
+          <Tira color="lila">{cita.texto}</Tira>
         </section>
       )}
 
@@ -86,5 +86,29 @@ export function ActaInterna({ cita, titulo, fecha, detalle }: { cita: Registro; 
       )}
       <p className="acta-pie">Tutoria</p>
     </article>
+  )
+}
+
+function Tira({ color, children }: { color: string; children: string }) {
+  return (
+    <div className="acta-tira">
+      <span className="acta-tira-cinta" data-color={color} aria-hidden />
+      <p>{children}</p>
+    </div>
+  )
+}
+
+const coloresBanderin = ['#fac775', '#9fe1cb', '#cecbf6', '#f4c0d1', '#f5c4b3']
+
+function Banderines() {
+  return (
+    <svg className="acta-banderines" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden>
+      <path d="M0 2 Q150 16 300 2" fill="none" stroke="#888780" strokeWidth="0.8" vectorEffect="non-scaling-stroke" />
+      {Array.from({ length: 12 }, (_, i) => {
+        const x0 = 4 + i * 24.5
+        const y = (x: number) => 2 + 14 * (1 - (x / 150 - 1) ** 2) / 2
+        return <polygon key={i} points={`${x0},${y(x0)} ${x0 + 16},${y(x0 + 16)} ${x0 + 8},${y(x0 + 8) + 13}`} fill={coloresBanderin[i % 5]} />
+      })}
+    </svg>
   )
 }

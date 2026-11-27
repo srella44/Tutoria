@@ -1,5 +1,5 @@
 // PDF del acta propia («popurrí»): Claustre, Cicle, Mentoria y amassades sin hoja oficial.
-// Libreta pautada con margen rojo y cinta, puntos en post-its, notas en bocadillo (cursiva),
+// Libreta pautada con margen rojo y banderines, puntos en post-its, notas en tiras de papel pegadas (cursiva),
 // Ahèrs en post-its a dos columnas, logo de la escuela y sello «OK!». Se generan páginas nuevas si hace falta.
 import type { PDFFont, PDFImage, PDFPage, RGB } from 'pdf-lib'
 
@@ -18,7 +18,7 @@ const ANCHO = 595.28
 const ALTO = 841.89
 const IZQ = 56
 const DER = 40
-const ARRIBA = 50
+const ARRIBA = 78
 const ABAJO = 56
 const PAUTA = 18
 
@@ -77,11 +77,26 @@ export async function generarActaPropia(datos: DatosActaPropia) {
   const anchoUtil = ANCHO - IZQ - DER
 
   nuevaPagina()
-  // Cinta y sello.
-  pagina.drawRectangle({ x: ANCHO * 0.4, y: ALTO - 14, width: 90, height: 20, color: c.cinta, opacity: 0.85, rotate: degrees(-4) })
+  // Banderines de los colores de los post-its y sello.
+  {
+    const desde = IZQ - 6
+    const hasta = ANCHO - DER - (datos.sello ? 70 : 0)
+    const ancho = hasta - desde
+    const altura = (x: number) => 30 + 10 * (1 - ((2 * (x - desde)) / ancho - 1) ** 2)
+    pagina.drawSvgPath(`M 0 30 Q ${ancho / 2} 50 ${ancho} 30`, { x: desde, y: ALTO, borderColor: c.suave, borderWidth: 0.8 })
+    const n = Math.floor(ancho / 30)
+    for (let i = 0; i < n; i++) {
+      const x0 = desde + 6 + i * (ancho - 12) / n
+      const x1 = x0 + 18
+      const y0 = altura(x0)
+      const y1 = altura(x1)
+      pagina.drawSvgPath(`M ${x0 - desde} ${y0} L ${x1 - desde} ${y1} L ${(x0 + x1) / 2 - desde} ${(y0 + y1) / 2 + 20} Z`,
+        { x: desde, y: ALTO, color: postits[i % postits.length] })
+    }
+  }
   if (datos.sello) {
     const cx = ANCHO - DER - 26
-    const cy = ALTO - ARRIBA - 22
+    const cy = ALTO - 52
     pagina.drawEllipse({ x: cx, y: cy, xScale: 27, yScale: 27, color: c.sello, borderColor: c.blanco, borderWidth: 2 })
     const ancho = negrita.widthOfTextAtSize('OK!', 13)
     pagina.drawText('OK!', { x: cx - ancho / 2 + 2, y: cy - 6, size: 13, font: negrita, color: c.selloTexto, rotate: degrees(12) })
@@ -117,9 +132,9 @@ export async function generarActaPropia(datos: DatosActaPropia) {
   const tamNota = 10.5
   const interTitulo = 14
   const interNota = 13.5
-  const postit = (titulo: string, notas: string, color: RGB, giro: number) => {
+  const postit = (titulo: string, notas: string, color: RGB, giro: number, cinta: RGB) => {
     const lineasTitulo = partir(titulo, negrita, tamTitulo, anchoUtil - 20)
-    const lineasNota = notas.trim() ? partir(notas.trim(), cursiva, tamNota, anchoUtil - 20 - 22 - 16) : []
+    const lineasNota = notas.trim() ? partir(notas.trim(), cursiva, tamNota, anchoUtil - 20 - 20) : []
     let pendientes = lineasNota
     let primero = true
     while (primero || pendientes.length) {
@@ -140,14 +155,12 @@ export async function generarActaPropia(datos: DatosActaPropia) {
         cursor -= interTitulo
       })
       if (trozo.length) {
-        const bx = IZQ + 10 + 22
+        // Tira de papel blanca pegada con cinta de color dentro del post-it.
+        const bx = IZQ + 10
         const by = y - 10 - altoTitulo - 10
-        const bw = Math.min(anchoUtil - 20 - 22, Math.max(...trozo.map((l) => cursiva.widthOfTextAtSize(l, tamNota))) + 20)
-        const r = Math.min(10, altoBocadillo / 2)
-        pagina.drawSvgPath(
-          `M ${r} 0 L 12 0 L 18 -7 L 24 0 L ${bw - r} 0 Q ${bw} 0 ${bw} ${r} L ${bw} ${altoBocadillo - r} Q ${bw} ${altoBocadillo} ${bw - r} ${altoBocadillo} L ${r} ${altoBocadillo} Q 0 ${altoBocadillo} 0 ${altoBocadillo - r} L 0 ${r} Q 0 0 ${r} 0 Z`,
-          { x: bx, y: by, color: c.blanco, borderColor: c.borde, borderWidth: 1.2 },
-        )
+        const bw = anchoUtil - 20
+        pagina.drawRectangle({ x: bx, y: by - altoBocadillo, width: bw, height: altoBocadillo, color: c.blanco, rotate: degrees(0.5) })
+        pagina.drawRectangle({ x: bx + 14, y: by - 4, width: 40, height: 10, color: cinta, opacity: 0.9, rotate: degrees(-6) })
         let yn = by - 5 - tamNota + 1
         for (const linea of trozo) {
           pagina.drawText(linea, { x: bx + 10, y: yn, size: tamNota, font: cursiva, color: c.tinta })
@@ -159,8 +172,8 @@ export async function generarActaPropia(datos: DatosActaPropia) {
     }
   }
 
-  datos.puntos.forEach((p, i) => postit(`${i + 1}. ${p.titulo}`, p.notas, postits[i % postits.length], [-0.8, 0.6, -0.4, 0.5, -0.7][i % 5]))
-  if (datos.notasGenerales?.texto.trim()) postit(datos.notasGenerales.titulo, datos.notasGenerales.texto, c.blanco, 0.4)
+  datos.puntos.forEach((p, i) => postit(`${i + 1}. ${p.titulo}`, p.notas, postits[i % postits.length], [-0.8, 0.6, -0.4, 0.5, -0.7][i % 5], postits[(i + 2) % postits.length]))
+  if (datos.notasGenerales?.texto.trim()) postit(datos.notasGenerales.titulo, datos.notasGenerales.texto, postits[0], 0.4, postits[2])
 
   // Ahèrs: post-its a dos columnas con casilla dibujada.
   if (datos.ahers?.items.length) {

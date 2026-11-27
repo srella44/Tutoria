@@ -377,7 +377,6 @@ button.cal-dia:hover {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-.acta-cinta { position: absolute; top: -4px; left: 38%; width: 7rem; height: 1.4rem; background: #fac775; opacity: .85; transform: rotate(-4deg); }
 .acta-sello {
   position: absolute; top: 1rem; right: 1rem; display: grid; place-items: center; width: 3.6rem; height: 3.6rem;
   border: 2px dashed #fff; border-radius: 50%; background: #ed93b1; color: #4b1528; font-weight: 700; transform: rotate(12deg);
@@ -396,11 +395,15 @@ button.cal-dia:hover {
 .acta-postit[data-color='blanco'] { background: #fff; border: 1px solid #d3d1c7; }
 .acta-ahers { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0 1rem; }
 .acta-postit-aher { margin-top: .75rem; }
-.acta-bocadillo {
-  position: relative; display: inline-block; max-width: calc(100% - 1rem); margin: .6rem 0 0 1rem; padding: .35rem .8rem;
-  border: 1.5px solid #444441; border-radius: 1rem; background: #fff; font-style: italic; white-space: pre-wrap; overflow-wrap: anywhere;
-}
-.acta-bocadillo::before { content: ''; position: absolute; left: 1rem; top: -8px; border: 7px solid transparent; border-top: 0; border-bottom-color: #444441; }
+.acta-tira { position: relative; margin-top: .6rem; padding: .45rem .8rem; background: #fff; transform: rotate(.5deg); }
+.acta-tira p { font-style: italic; white-space: pre-wrap; overflow-wrap: anywhere; }
+.acta-tira-cinta { position: absolute; top: -6px; left: 1rem; width: 3rem; height: .8rem; opacity: .9; transform: rotate(-6deg); }
+.acta-tira-cinta[data-color='amarillo'] { background: #fac775; }
+.acta-tira-cinta[data-color='menta'] { background: #9fe1cb; }
+.acta-tira-cinta[data-color='lila'] { background: #cecbf6; }
+.acta-tira-cinta[data-color='rosa'] { background: #f4c0d1; }
+.acta-tira-cinta[data-color='melocoton'] { background: #f5c4b3; }
+.acta-banderines { display: block; width: calc(100% - 4rem); height: 1.8rem; margin: -1rem 0 .75rem; }
 .acta-pie { margin-top: 1.25rem; text-align: right; color: #888780; font-size: .75rem; }
 
 @media print {
