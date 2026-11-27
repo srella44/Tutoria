@@ -52,7 +52,12 @@ src/
   pages/               Inicio (botones), Hoy (Uei), Alumnado, AlumnoFicha, Reuniones, Seguimiento, Reunion (modo reunión)
   data/types.ts        modelo de datos
   data/demo.ts         alumnado ficticio (fechas relativas a hoy)
-  data/store.tsx       estado (Fase 0: en memoria)
+  data/store.tsx       estado y ciclo de sincronización
+  data/db.ts           IndexedDB (Dexie), cifrado por fila, cola y sincronización
+  lib/cripto.ts        llave de datos, PIN, clave de recuperación (AES-GCM, PBKDF2)
+  components/Cerradura.tsx  crear PIN, desbloquear, recuperar, unir dispositivo, bloqueo automático
+functions/api/         API de sincronización (Cloudflare Pages Functions + D1)
+migrations/            esquema de D1
   lib/i18n.tsx         textos oc / es
   lib/fechas.ts        utilidades de fecha
 docs/
