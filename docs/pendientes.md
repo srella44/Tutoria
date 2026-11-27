@@ -4,26 +4,26 @@
 
 Todos los textos en aranés del prototipo son **provisionales** y deben revisarse según la normativa del IEA:
 
-- [ ] Etiquetas de interfaz en `src/lib/i18n.tsx` (objeto `oc`), en especial: «Enregistrar» (guardar), «Registre nau», «Donades», «Tipe», «Escríuer», «Trucar», «Neishement», «Pròximes amassades», «Daurir amassada», «Toti», «Inici», «Amassada naua», «Passades», «Pendents», «Ajustaments», «Data», «Ora», «vençut», «Bon dia», «Ahèrs pendents».
-- [ ] Validar los nuevos textos del calendario, las amassades, Claustre y los Ahèrs, incluidas las formas de los meses. Revisar también «Cercar alumnes».
-- [ ] Nombres de tipos de registro (`tipoLabel.oc`).
-- [ ] Días de la semana en `src/lib/fechas.ts`.
+- [x] Etiquetas de interfaz en `src/lib/i18n.tsx` (objeto `oc`), en especial: «Enregistrar» (guardar), «Registre nau», «Donades», «Tipe», «Escríuer», «Trucar», «Neishement», «Pròximes amassades», «Daurir amassada», «Toti», «Inici», «Amassada naua», «Passades», «Pendents», «Ajustaments», «Data», «Ora», «vençut», «Bon dia», «Ahèrs pendents». **Validado por Sergio (27/11/2026) y aplicado.**
+- [x] Validar los nuevos textos del calendario, las amassades, Claustre y los Ahèrs, incluidas las formas de los meses. Revisar también «Cercar alumnes». **Validado por Sergio (27/11/2026) y aplicado.**
+- [ ] Nombres de tipos de registro (`tipoLabel.oc`). La lista validada («Amassada», «Entrevista», «Telefonada», «Corrèu electronic», «Acòrd», «Seguiment», «Avaloracion», «Tutoria», «Comportament», «Aprenedissatge», «Conviuença», «Assisténcia», «Auti») no coincide con los tipos actuales de la app (Observacion, Incidéncia, Comunicacion, Amassada damb era familha…, Claustre, Cicle, Mentor, Te escoti, Avaluacion, Informe): pendiente de decidir con Sergio.
+- [x] Días de la semana en `src/lib/fechas.ts`. **Validado por Sergio (27/11/2026) y aplicado.**
 - [ ] Revisar también el aranés de las observaciones, los acuerdos y las fichas ficticias de `src/data/demo.ts`.
 - [ ] Frases frecuentes de ejemplo en `src/data/demo.ts` (sustituir por las validadas del banco de expresiones).
 
-- [ ] Validar «Véder eth calendari» y «Ahèrs vençuts».
-- [ ] Validar los textos de cursos, frases y orden: «Corses escolars», «Cors nau», «Grops», «Actiu», «Passar er alumnat actiu a aguest cors», «Grop nau entar alumnat (opcionau)», «Frasa naua», «Àrea», «Ton», «Lograt», «Progrès», «Dificultat», «Prepausa», «Pujar», «Baishar», «Fet», «Ordenar per», «Nº de lista».
-- [ ] Validar «Ora (opcionau)».
-- [ ] Validar «Barrar», «Tornar a daurir», «Barrada», «Data e ora», «Estat».
-- [ ] Validar los textos del importador: «Importar alumnat», «Triar fichèr», «Colomnes reconeishudes», «Damb es flèches separes eth nòm des cognòms.», «Ja existís», «Importar tanben es contactes des tutors», «Localitat», «Autorizacion d’imatge», «Non se tròbe ua colomna de nòms», «Non s’a pogut liéger eth fichèr.».
-- [ ] Validar los textos de las altas: «Alumne nau», «Nòm», «Cognòms», «Arxivar», «Arxivats», «Tornar a activar», «Contacte nau», «Relacion», «Telefòns», «Corrèus», «Separats per comes», «Tòca un aute còp entà confirmar», «Professionaus», «Professionau nau», «Ròtle», «Servici», «Encara non i a alumnes en aguest cors.», «Castelhan» y las relaciones sugeridas («Tutor legau», «Pairin», «Mairina»).
-- [ ] Validar los textos de Ajustes › Donades: «Guardat en aguest dispositiu», «Començar sense exemple», «Tornar a cargar er exemple», «Se borraràn totes es donades d’aguest dispositiu.», «Donades pròpies».
+- [x] Validar «Véder eth calendari» y «Ahèrs vençuts». **Validado por Sergio (27/11/2026) y aplicado.**
+- [x] Validar los textos de cursos, frases y orden: «Corses escolars», «Cors nau», «Grops», «Actiu», «Passar er alumnat actiu a aguest cors», «Grop nau entar alumnat (opcionau)», «Frasa naua», «Àrea», «Ton», «Lograt», «Progrès», «Dificultat», «Prepausa», «Pujar», «Baishar», «Fet», «Ordenar per», «Nº de lista». **Validado por Sergio (27/11/2026) y aplicado.**
+- [x] Validar «Ora (opcionau)». **Validado por Sergio (27/11/2026) y aplicado.**
+- [x] Validar «Barrar», «Tornar a daurir», «Barrada», «Data e ora», «Estat». **Validado por Sergio (27/11/2026) y aplicado.**
+- [x] Validar los textos del importador: «Importar alumnat», «Triar fichèr», «Colomnes reconeishudes», «Damb es flèches separes eth nòm des cognòms.», «Ja existís», «Importar tanben es contactes des tutors», «Localitat», «Autorizacion d’imatge», «Non se tròbe ua colomna de nòms», «Non s’a pogut liéger eth fichèr.». **Validado por Sergio (27/11/2026) y aplicado.**
+- [x] Validar los textos de las altas: «Alumne nau», «Nòm», «Cognòms», «Arxivar», «Arxivats», «Tornar a activar», «Contacte nau», «Relacion», «Telefòns», «Corrèus», «Separats per comes», «Tòca un aute còp entà confirmar», «Professionaus», «Professionau nau», «Ròtle», «Servici», «Encara non i a alumnes en aguest cors.», «Castelhan» y las relaciones sugeridas («Tutor legau», «Pairin», «Mairina»). **Validado por Sergio (27/11/2026) y aplicado.**
+- [x] Validar los textos de Ajustes › Donades: «Guardat en aguest dispositiu», «Començar sense exemple», «Tornar a cargar er exemple», «Se borraràn totes es donades d’aguest dispositiu.», «Donades pròpies». **Validado por Sergio (27/11/2026) y aplicado.**
 
-- [ ] Validar los textos del horario: «Orari», «Session naua», «Matèria», «Jo e era classe», «Solament jo», «Solament era classe», «Jo», «Classe», «Dies», «Ora d’inici», «Ora de fin», «Lòc», «Qui la hè ara classe», «Ara», «Dempús», «enquia», «Setmana», «Aué non i a classes.» y los textos de ayuda.
+- [x] Validar los textos del horario: «Orari», «Session naua», «Matèria», «Jo e era classe», «Solament jo», «Solament era classe», «Jo», «Classe», «Dies», «Ora d’inici», «Ora de fin», «Lòc», «Qui la hè ara classe», «Ara», «Dempús», «enquia», «Setmana», «Aué non i a classes.» y los textos de ayuda. **Validado por Sergio (27/11/2026) y aplicado.**
 - [x] Horario: importar desde Excel en cuadrícula.
-- [ ] Validar «Importar orari», «Sessions liejudes», «Se substituirà er orari actuau…» y la ayuda del importador.
+- [x] Validar «Importar orari», «Sessions liejudes», «Se substituirà er orari actuau…» y la ayuda del importador. **Validado por Sergio (27/11/2026) y aplicado.**
 
-- [ ] Validar «Religion», «Hè religion», «Marcar qui hè religion», «Tòca es alumnes que hèn religion», «Marcar ara classe», «Pendents», «Exportar PDF», «Descargar», «Marca es donades que vòs que gessen en PDF…», «Era religion ei ua donada sensibla…».
+- [x] Validar «Religion», «Hè religion», «Marcar qui hè religion», «Tòca es alumnes que hèn religion», «Marcar ara classe», «Pendents», «Exportar PDF», «Descargar», «Marca es donades que vòs que gessen en PDF…», «Era religion ei ua donada sensibla…». **Validado por Sergio (27/11/2026) y aplicado.**
 
 ## Material del centro (anonimizado)
 

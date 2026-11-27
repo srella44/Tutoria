@@ -1,7 +1,7 @@
 import type { Lang } from './i18n'
 
 const dias: Record<Lang, string[]> = {
-  oc: ['dimenge', 'diluns', 'dimars', 'dimèrcles', 'dijaus', 'diuendres', 'dissabte'],
+  oc: ['dimenge', 'deluns', 'dimars', 'dimèrcles', 'dijaus', 'diuendres', 'dissabte'],
   es: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
 }
 
