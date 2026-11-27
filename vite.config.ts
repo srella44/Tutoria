@@ -26,7 +26,8 @@ export default defineConfig(({ mode }) => {
           navigateFallback: null,
           runtimeCaching: [
             {
-              urlPattern: ({ request, url }) => request.mode === 'navigate' && !url.pathname.startsWith('/api/'),
+              // Ni la API ni las páginas de Cloudflare Access (/cdn-cgi/) pasan por el service worker.
+              urlPattern: ({ request, url }) => request.mode === 'navigate' && !/^\/(api|cdn-cgi)\//.test(url.pathname),
               handler: 'NetworkFirst',
               options: { cacheName: 'paginas', networkTimeoutSeconds: 4, cacheableResponse: { statuses: [200] } },
             },
