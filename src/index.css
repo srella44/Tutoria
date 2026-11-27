@@ -364,6 +364,43 @@ button.cal-dia:hover {
   color: var(--color-accent);
 }
 
+/* Acta interna «popurrí» (decisión 0019): libreta pautada, post-its, bocadillos y sello. Se imprime con color. */
+.acta-popurri {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem 1.25rem 1.25rem 2rem;
+  border: 1px solid #d3d1c7;
+  border-left: 4px solid #f09595;
+  border-radius: 6px;
+  color: #2c2c2a;
+  background: repeating-linear-gradient(#fffdf7 0 23px, #b5d4f4 23px 24px);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.acta-cinta { position: absolute; top: -4px; left: 38%; width: 7rem; height: 1.4rem; background: #fac775; opacity: .85; transform: rotate(-4deg); }
+.acta-sello {
+  position: absolute; top: 1rem; right: 1rem; display: grid; place-items: center; width: 3.6rem; height: 3.6rem;
+  border: 2px dashed #fff; border-radius: 50%; background: #ed93b1; color: #4b1528; font-weight: 700; transform: rotate(12deg);
+}
+.acta-titulo { margin-right: 4rem; font-size: 1.6rem; font-weight: 800; letter-spacing: .03em; color: #993c1d; line-height: 1.15; }
+.acta-meta { margin-top: .25rem; color: #5f5e5a; font-size: .9rem; }
+.acta-seccion { margin-top: 1.5rem; font-weight: 700; color: #854f0b; }
+.acta-postit { margin-top: 1rem; padding: .7rem .9rem; border-radius: 2px; transform: rotate(var(--giro, 0deg)); break-inside: avoid; }
+.acta-postit[data-color='amarillo'] { background: #fac775; }
+.acta-postit[data-color='menta'] { background: #9fe1cb; }
+.acta-postit[data-color='lila'] { background: #cecbf6; }
+.acta-postit[data-color='rosa'] { background: #f4c0d1; }
+.acta-postit[data-color='melocoton'] { background: #f5c4b3; }
+.acta-postit[data-color='blanco'] { background: #fff; border: 1px solid #d3d1c7; }
+.acta-ahers { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0 1rem; }
+.acta-postit-aher { margin-top: .75rem; }
+.acta-bocadillo {
+  position: relative; display: inline-block; max-width: calc(100% - 1rem); margin: .6rem 0 0 1rem; padding: .35rem .8rem;
+  border: 1.5px solid #444441; border-radius: 1rem; background: #fff; font-style: italic; white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.acta-bocadillo::before { content: ''; position: absolute; left: 1rem; top: -8px; border: 7px solid transparent; border-top: 0; border-bottom-color: #444441; }
+.acta-pie { margin-top: 1.25rem; text-align: right; color: #888780; font-size: .75rem; }
+
 @media print {
   body:has(.acta-impresion),
   body:has(.acta-impresion) #root {
@@ -398,7 +435,15 @@ button.cal-dia:hover {
   .acta-impresion h3 { break-after: avoid; }
   .acta-punto { border-color: #ddd; }
 
-  @page { margin: 18mm; }
+  .acta-impresion.acta-popurri {
+    padding: 2rem 1.25rem 1.25rem 2rem;
+    border: 1px solid #d3d1c7;
+    border-left: 4px solid #f09595;
+    background: repeating-linear-gradient(#fffdf7 0 23px, #b5d4f4 23px 24px);
+    color: #2c2c2a;
+  }
+
+  @page { margin: 12mm; }
 }
 
 /* iOS Safari: los campos de fecha y hora tienen un ancho propio y se salían de la hoja, y el valor

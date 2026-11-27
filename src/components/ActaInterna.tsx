@@ -1,7 +1,7 @@
 import { AherDePunto } from './AherDePunto'
-import { Card } from './ui'
 import { useStore } from '../data/store'
-import type { Registro } from '../data/types'
+import type { CSSProperties } from 'react'
+import { citaRealizada, type Registro } from '../data/types'
 import { useI18n } from '../lib/i18n'
 
 export function NotasInternas({ cita }: { cita: Registro }) {
@@ -34,35 +34,51 @@ export function NotasInternas({ cita }: { cita: Registro }) {
   )
 }
 
+const coloresPostit = ['amarillo', 'menta', 'lila', 'rosa', 'melocoton'] as const
+
+// Acta interna (Claustre, Cicle, Mentoria, otras): diseño «popurrí» para uso propio.
+// Libreta pautada con margen y cinta, puntos y Ahèrs en post-its, notas en bocadillo y sello.
 export function ActaInterna({ cita, titulo, fecha }: { cita: Registro; titulo: string; fecha: string }) {
   const { t } = useI18n()
+  const { ahers, curso } = useStore()
+  const tareas = ahers.filter((a) => a.origen?.citaId === cita.id)
+  const giro = (i: number) => ({ '--giro': `${[-1.2, 1, -0.6, 0.8, -1][i % 5]}deg` }) as CSSProperties
 
   return (
-    <Card className="acta-impresion p-5 sm:p-8">
-      <p className="mb-2 text-sm font-semibold text-muted">{t.acta} · Tutoria</p>
-      <h1 className="text-2xl font-bold tracking-tight">{titulo}</h1>
-      <p className="mt-1 text-sm text-muted capitalize">{fecha}</p>
+    <article className="acta-impresion acta-popurri">
+      <span className="acta-cinta" aria-hidden />
+      {citaRealizada(cita) && <span className="acta-sello" aria-hidden>OK!</span>}
+      <h1 className="acta-titulo">{titulo.toLocaleUpperCase()}!</h1>
+      <p className="acta-meta capitalize">{[fecha, curso.tutor].filter(Boolean).join(' · ')}</p>
 
-      {!!cita.puntos?.length && (
-        <section className="mt-6">
-          <h2 className="mb-3 font-bold">{t.ordenDia}</h2>
-          <ol className="space-y-4">
-            {cita.puntos.map((punto, i) => (
-              <li key={punto.id} className="acta-punto border-t border-line pt-3">
-                <h3 className="font-semibold">{i + 1}. {punto.texto}</h3>
-                {punto.notas?.trim() && <p className="mt-1 whitespace-pre-wrap wrap-anywhere">{punto.notas}</p>}
-              </li>
-            ))}
-          </ol>
+      {cita.puntos?.map((punto, i) => (
+        <section key={punto.id} className="acta-postit" data-color={coloresPostit[i % coloresPostit.length]} style={giro(i)}>
+          <h3 className="font-semibold">{i + 1}. {punto.texto}</h3>
+          {punto.notas?.trim() && <p className="acta-bocadillo">{punto.notas}</p>}
         </section>
-      )}
+      ))}
 
       {cita.texto.trim() && (
-        <section className="mt-6">
-          <h2 className="mb-2 font-bold">{t.notasGenerales}</h2>
-          <p className="whitespace-pre-wrap wrap-anywhere">{cita.texto}</p>
+        <section className="acta-postit" data-color="blanco" style={giro(1)}>
+          <h3 className="font-semibold">{t.notasGenerales}</h3>
+          <p className="acta-bocadillo">{cita.texto}</p>
         </section>
       )}
-    </Card>
+
+      {tareas.length > 0 && (
+        <>
+          <h2 className="acta-seccion">{t.acuerdos}</h2>
+          <div className="acta-ahers">
+            {tareas.map((a, i) => (
+              <div key={a.id} className="acta-postit acta-postit-aher" data-color={coloresPostit[(i + 3) % coloresPostit.length]} style={giro(i + 2)}>
+                <p className="font-semibold">{a.completado ? '☑' : '☐'} {a.texto}</p>
+                <p className="text-sm">{[a.responsable || t.paraMi, a.fecha && new Date(`${a.fecha.slice(0, 10)}T12:00`).toLocaleDateString('es-ES')].filter(Boolean).join(' · ')}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      <p className="acta-pie">Tutoria</p>
+    </article>
   )
 }
