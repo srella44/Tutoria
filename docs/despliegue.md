@@ -29,10 +29,15 @@ TUTOR-ia se publica en **Cloudflare Pages** (app + API de sincronización) con u
 
 ## 4. Primer uso
 
-1. Abre la app en el dispositivo principal, crea el PIN y guarda la clave de recuperación.
-2. Ajustes › **Activar era sincronizacion**.
-3. En cada dispositivo nuevo: pantalla de PIN › **Ja utilizi TUTOR-ia en un aute dispositiu** › clave de
-   recuperación y PIN de ese dispositivo.
+1. En el aparato principal: crear el PIN (6 cifras recomendado) y guardar la clave de emergencia en papel.
+2. Ajustes › **Activar era sincronizacion** › escribir el PIN.
+3. En cada aparato nuevo: código del correo de Cloudflare › **Ja utilizi TUTOR-ia en un aute dispositiu** ›
+   el mismo PIN. (Si el aparato ya tenía su propio PIN, Ajustes › Activar lo lleva a esa pantalla.)
+
+## Empezar de cero (solo sin datos reales)
+
+Si el servidor queda con una cuenta a la que ningún aparato puede entrar: consola de D1 ›
+`DELETE FROM filas; DELETE FROM meta;` y repetir el primer uso.
 
 ## Desarrollo local
 
