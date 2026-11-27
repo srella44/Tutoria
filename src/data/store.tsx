@@ -217,16 +217,30 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
     a.autorizacionImagen !== undefined && a.autorizaciones?.foto === undefined
       ? { ...a, autorizaciones: { ...a.autorizaciones, foto: a.autorizacionImagen ? 'si' as const : 'no' as const } }
       : a))
-  // Si este aparato aún no tiene la lista de autorizaciones, se crea con las iniciales (ids fijos).
+  // Si este aparato aún no tiene la lista de autorizaciones, se crea con las iniciales (ids fijos) en el efecto
+  // de abajo, para que se guarden y se sincronicen.
   const [tiposAutorizacion, setTiposAutorizacion] = useState(() =>
-    [...(datos.autorizaciones?.length ? datos.autorizaciones : AUTORIZACIONES_INICIALES)].sort((a, b) => a.orden - b.orden))
+    [...(datos.autorizaciones ?? [])].sort((a, b) => a.orden - b.orden))
   usePersistir('autorizaciones', tiposAutorizacion, guardar)
   // Corrección única de la lista inicial: «Control 3» estaba vacía en el control en papel (se quita si nadie
   // la usa) y Minjador es de tres opciones. Se hace tras montar para que el cambio se guarde y se sincronice.
   useEffect(() => {
+    // Reparación (una vez por aparato): la lista inicial no se guardaba hasta tocarla, y solo llegaron al
+    // servidor las autorizaciones modificadas. Se recuperan las iniciales que falten (sus valores siguen en cada alumno).
+    let reparar = false
+    try {
+      reparar = localStorage.getItem('tutoria:autorizaciones-iniciales') !== '1'
+      localStorage.setItem('tutoria:autorizaciones-iniciales', '1')
+    } catch { /* sin almacenamiento: no se repara */ }
     setTiposAutorizacion((items) => {
       const sinUso = !datos.alumnos.some((a) => a.autorizaciones?.control3)
-      const nuevos = items
+      const faltan = reparar || !items.length ? AUTORIZACIONES_INICIALES.filter((i) => !items.some((x) => x.id === i.id)) : []
+      const posicion = (x: TipoAutorizacion) => {
+        const i = AUTORIZACIONES_INICIALES.findIndex((y) => y.id === x.id)
+        return faltan.length && i >= 0 ? i : 100 + x.orden
+      }
+      const nuevos = [...items, ...faltan.map((x) => ({ ...x }))]
+        .sort((a, b) => posicion(a) - posicion(b))
         .filter((x) => !(x.id === 'control3' && sinUso))
         .map((x) => (x.id === 'minjador' && x.tresEstados === undefined ? { ...x, tresEstados: true } : x))
         .map((x, i) => (x.orden === i ? x : { ...x, orden: i }))
