@@ -39,6 +39,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 
 - [x] Cifrado AES-GCM de todos los datos en el dispositivo, PIN, bloqueo automático y clave de recuperación (decisión 0009).
 - [ ] Passkey con Face ID / Touch ID (WebAuthn PRF).
+- [ ] Validar «Cifrat damb PIN», «Blocatge automatic sense usatge», «1 ora», «8 ores (tota era jornada)».
 - [x] Sincronización cifrada (Pages Functions + D1), probada en local con dos dispositivos (decisión 0010). Dispositivo nuevo con la clave de recuperación.
 - [x] Desplegado en Cloudflare: D1 `tutoria`, Pages `tutoria-7y6.pages.dev` desde `main`, Access («Solo Sergio») y comprobación del token en la API.
 - [ ] Dominio propio `tutoria.pretzhet.app` (Pages › Custom domains) y añadirlo a la aplicación de Access.

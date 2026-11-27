@@ -17,8 +17,12 @@ Primer paso de la Fase 2: los datos se guardan cifrados en el dispositivo y la a
 - **Intentos:** tras 5 PIN incorrectos se borra la copia de la DEK protegida por PIN. Solo se vuelve a entrar con
   la **clave de recuperación** (20 caracteres, unos 100 bits, para imprimir), que envuelve otra copia de la DEK.
   Sin PIN ni clave, los datos no se pueden recuperar (por diseño); la pantalla ofrece borrar el dispositivo.
-- **Bloqueo:** automático a los 5 minutos sin tocar la app (también si vuelve de segundo plano) y manual desde
+- **Bloqueo:** automático tras el tiempo elegido sin tocar la app (también si vuelve de segundo plano) y manual desde
   Ajustes. Bloqueada, el store no está montado: los datos descifrados no están en memoria.
+- **Sesión abierta (revisión):** para no pedir el PIN en cada recarga, al desbloquear se guarda la DEK envuelta
+  con una llave de sesión no extraíble (`meta.sesion`), con la hora del último uso. Al recargar, si no ha pasado el
+  tiempo de bloqueo, la app se abre sin PIN; si ha pasado, o tras «Blocar ara», la sesión se borra.
+  El tiempo de bloqueo se elige en Ajustes (5 min, 15 min, 1 h, 8 h); por defecto 1 hora.
 - **Migración:** al crear el PIN, lo que hubiera en claro se cifra en el momento.
 - Implementación: `src/lib/cripto.ts`, `src/data/db.ts`, `src/components/Cerradura.tsx`.
 

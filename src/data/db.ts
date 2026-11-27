@@ -1,7 +1,7 @@
 // Base de datos local (IndexedDB con Dexie). Fase 1: los datos viven en el dispositivo y sobreviven a recargas.
 // En la Fase 2 el contenido se cifrará (AES-GCM) antes de guardarse. Ver docs/decisiones/0008.
 import Dexie, { type Table } from 'dexie'
-import { cifrar, descifrar, generarLlaveDispositivo, type Candado, type Cifrado } from '../lib/cripto'
+import { cifrar, descifrar, generarLlaveDispositivo, type Candado, type Cifrado, type Sesion } from '../lib/cripto'
 import * as demo from './demo'
 import type { Acuerdo, Aher, Alumno, ContactoFamiliar, CursoEscolar, FraseFrecuente, Profesional, Registro } from './types'
 
@@ -141,6 +141,30 @@ export async function leerCandado() {
 export async function guardarCandado(candado: Candado) {
   await db.meta.put({ clave: 'candado', valor: candado })
 }
+// Sesión abierta (no es un dato personal: la DEK va envuelta con una llave no extraíble).
+export async function leerSesion() {
+  return (await db.meta.get('sesion'))?.valor as Sesion | undefined
+}
+export async function guardarSesion(sesion: Sesion) {
+  await db.meta.put({ clave: 'sesion', valor: sesion })
+}
+export async function tocarSesion(ultima: number) {
+  const sesion = await leerSesion()
+  if (sesion) await guardarSesion({ ...sesion, ultima })
+}
+export async function borrarSesion() {
+  await db.meta.delete('sesion')
+}
+/** Minutos sin uso hasta el bloqueo automático (1 hora por defecto). */
+export const OPCIONES_BLOQUEO = [5, 15, 60, 480] as const
+export async function leerMinutosBloqueo() {
+  const v = (await db.meta.get('bloqueo-minutos'))?.valor
+  return typeof v === 'number' ? v : 60
+}
+export async function guardarMinutosBloqueo(minutos: number) {
+  await db.meta.put({ clave: 'bloqueo-minutos', valor: minutos })
+}
+
 /** Llave del dispositivo: no extraíble, se crea una vez y no sale de este navegador. */
 export async function llaveDispositivo() {
   const guardada = (await db.meta.get('llave-dispositivo'))?.valor as CryptoKey | undefined

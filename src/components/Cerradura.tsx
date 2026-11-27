@@ -2,12 +2,11 @@
 // Mientras está bloqueada, los datos descifrados no existen en memoria: el store ni siquiera se monta.
 import { CloudDownload, KeyRound, Lock, ShieldCheck } from 'lucide-react'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { borrarDispositivo, cifrarTodo, descargarRecuperacion, guardarCandado, leerCandado, llaveDispositivo, prepararDispositivoUnido, sincronizarAhora, usarLlave } from '../data/db'
-import { abrirConPin, cambiarPin as recambiarPin, crearCandado, MAX_INTENTOS, recuperar, type Candado } from '../lib/cripto'
+import { borrarDispositivo, borrarSesion, cifrarTodo, guardarMinutosBloqueo, guardarSesion, leerMinutosBloqueo, leerSesion, tocarSesion, descargarRecuperacion, guardarCandado, leerCandado, llaveDispositivo, prepararDispositivoUnido, sincronizarAhora, usarLlave } from '../data/db'
+import { abrirConPin, abrirSesion, cambiarPin as recambiarPin, crearCandado, crearSesion, MAX_INTENTOS, recuperar, type Candado } from '../lib/cripto'
 import { useI18n } from '../lib/i18n'
 import { MarcaTutoria } from './MarcaTutoria'
 
-const INACTIVIDAD_MS = 5 * 60 * 1000
 const pinValido = (pin: string) => /^\d{4,8}$/.test(pin)
 
 interface CerraduraCtx {
@@ -16,8 +15,11 @@ interface CerraduraCtx {
   bloquear: () => void
   /** Cambia el PIN comprobando el actual. Devuelve false si el actual no es correcto. */
   cambiarPin: (actual: string, nuevo: string) => Promise<boolean>
+  /** Minutos sin uso hasta el bloqueo automático. */
+  minutos: number
+  cambiarMinutos: (minutos: number) => void
 }
-const Ctx = createContext<CerraduraCtx>({ activa: false, bloquear: () => {}, cambiarPin: async () => false })
+const Ctx = createContext<CerraduraCtx>({ activa: false, bloquear: () => {}, cambiarPin: async () => false, minutos: 5, cambiarMinutos: () => {} })
 export const useCerradura = () => useContext(Ctx)
 
 type Estado =
@@ -33,25 +35,65 @@ type Estado =
 export function Cerradura({ children }: { children: ReactNode }) {
   const [estado, setEstado] = useState<Estado>({ fase: 'cargando' })
   const ultimaActividad = useRef(Date.now())
+  const [minutos, setMinutos] = useState(60)
+  const limite = minutos * 60_000
 
   useEffect(() => {
-    leerCandado()
-      .then((candado) => setEstado(candado ? (candado.dekPin ? { fase: 'pin', candado } : { fase: 'recuperar', candado }) : { fase: 'crear' }))
-      .catch(() => setEstado({ fase: 'sin-almacenamiento' }))
+    (async () => {
+      const candado = await leerCandado()
+      const mins = await leerMinutosBloqueo()
+      setMinutos(mins)
+      if (!candado) return setEstado({ fase: 'crear' })
+      if (!candado.dekPin) return setEstado({ fase: 'recuperar', candado })
+      // Al recargar: si la app se usó hace menos del tiempo de bloqueo, se abre sin pedir el PIN.
+      const sesion = await leerSesion()
+      if (sesion && Date.now() - sesion.ultima < mins * 60_000) {
+        const dek = await abrirSesion(sesion)
+        if (dek) {
+          usarLlave(dek)
+          return setEstado({ fase: 'abierta', dek })
+        }
+      }
+      await borrarSesion()
+      setEstado({ fase: 'pin', candado })
+    })().catch(() => setEstado({ fase: 'sin-almacenamiento' }))
   }, [])
 
   const bloquear = useCallback(() => {
     usarLlave(null)
+    void borrarSesion()
     leerCandado().then((candado) => candado && setEstado({ fase: 'pin', candado }))
   }, [])
 
-  // Bloqueo automático tras 5 minutos sin tocar la app (también si estuvo en segundo plano).
+  const cambiarMinutos = (m: number) => {
+    setMinutos(m)
+    void guardarMinutosBloqueo(m)
+  }
+
+  // Sesión abierta: se crea al desbloquear y se renueva mientras se usa la app (cada 30 s como mucho).
+  const dekAbierta = estado.fase === 'abierta' ? estado.dek : null
+  useEffect(() => {
+    if (!dekAbierta) return
+    leerSesion().then(async (s) => {
+      if (s) await tocarSesion(Date.now())
+      else await guardarSesion(await crearSesion(dekAbierta))
+    }).catch(() => {})
+  }, [dekAbierta])
+
+  // Bloqueo automático tras el tiempo elegido sin tocar la app (también si estuvo en segundo plano).
   const abierta = estado.fase === 'abierta'
   useEffect(() => {
     if (!abierta) return
     ultimaActividad.current = Date.now()
-    const actividad = () => { ultimaActividad.current = Date.now() }
-    const comprobar = () => { if (Date.now() - ultimaActividad.current > INACTIVIDAD_MS) bloquear() }
+    let guardada = Date.now()
+    const actividad = () => {
+      ultimaActividad.current = Date.now()
+      if (ultimaActividad.current - guardada > 30_000) {
+        guardada = ultimaActividad.current
+        void tocarSesion(guardada)
+      }
+    }
+    const comprobar = () => { if (Date.now() - ultimaActividad.current > limite) bloquear() }
     const eventos = ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const
     eventos.forEach((e) => window.addEventListener(e, actividad, { passive: true }))
     document.addEventListener('visibilitychange', comprobar)
@@ -61,7 +103,7 @@ export function Cerradura({ children }: { children: ReactNode }) {
       document.removeEventListener('visibilitychange', comprobar)
       window.clearInterval(reloj)
     }
-  }, [abierta, bloquear])
+  }, [abierta, bloquear, limite])
 
   const cambiarPin = async (actual: string, nuevo: string) => {
     if (estado.fase !== 'abierta' || !pinValido(nuevo)) return false
@@ -73,10 +115,10 @@ export function Cerradura({ children }: { children: ReactNode }) {
   }
 
   if (estado.fase === 'sin-almacenamiento') {
-    return <Ctx.Provider value={{ activa: false, bloquear: () => {}, cambiarPin: async () => false }}>{children}</Ctx.Provider>
+    return <Ctx.Provider value={{ activa: false, bloquear: () => {}, cambiarPin: async () => false, minutos, cambiarMinutos }}>{children}</Ctx.Provider>
   }
   if (estado.fase === 'abierta') {
-    return <Ctx.Provider value={{ activa: true, bloquear, cambiarPin }}>{children}</Ctx.Provider>
+    return <Ctx.Provider value={{ activa: true, bloquear, cambiarPin, minutos, cambiarMinutos }}>{children}</Ctx.Provider>
   }
   return (
     <div className="pt-safe pb-safe grid min-h-full place-items-center bg-bg px-4 py-8">

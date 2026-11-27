@@ -49,7 +49,7 @@ export function generarLlaveDispositivo() {
   return crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt'])
 }
 
-const importarDek = (raw: ArrayBuffer) =>
+export const importarDek = (raw: ArrayBuffer) =>
   crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, true, ['encrypt', 'decrypt'])
 
 /** Clave de recuperación: 20 caracteres sin ambigüedades (100 bits), en grupos de 4. */
@@ -130,4 +130,29 @@ export async function cifrar(dek: CryptoKey, contexto: string, valor: unknown): 
 export async function descifrar<T>(dek: CryptoKey, contexto: string, { iv, c }: Cifrado): Promise<T> {
   const bytes = await crypto.subtle.decrypt({ name: 'AES-GCM', iv, additionalData: codificador.encode(contexto) }, dek, c)
   return JSON.parse(decodificador.decode(bytes)) as T
+}
+
+// ── Sesión abierta ────────────────────────────────────────────────────────
+// Para no pedir el PIN en cada recarga: mientras la app se use, la DEK se guarda envuelta con una llave de
+// sesión no extraíble. Caduca con el bloqueo automático (o al bloquear a mano) y entonces se borra.
+export interface Sesion {
+  llave: CryptoKey
+  iv: Bytes
+  dek: ArrayBuffer
+  ultima: number
+}
+
+export async function crearSesion(dek: CryptoKey): Promise<Sesion> {
+  const llave = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt'])
+  const iv = aleatorio(12)
+  const raw = await crypto.subtle.exportKey('raw', dek)
+  return { llave, iv, dek: await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, llave, raw), ultima: Date.now() }
+}
+
+export async function abrirSesion(sesion: Sesion) {
+  try {
+    return await importarDek(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: sesion.iv }, sesion.llave, sesion.dek))
+  } catch {
+    return null
+  }
 }

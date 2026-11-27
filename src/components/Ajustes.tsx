@@ -2,6 +2,7 @@
 import { CalendarRange, CloudUpload, KeyRound, Lock, MessageSquareQuote, RefreshCw, Settings, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { OPCIONES_BLOQUEO } from '../data/db'
 import { useSincronizacion, useStore } from '../data/store'
 import { hora } from '../lib/fechas'
 import { useCerradura } from './Cerradura'
@@ -58,6 +59,18 @@ export function Ajustes() {
                 <p className="mt-2 flex items-center gap-1.5 border-t border-line px-3 pt-3 text-xs text-accent">
                   <ShieldCheck size={14} aria-hidden /> {t.cifradoActivo}
                 </p>
+                <label className="flex min-h-11 items-center justify-between gap-2 px-3 text-sm">
+                  <span>{t.bloqueoAutomatico}</span>
+                  <select
+                    value={cerradura.minutos}
+                    onChange={(e) => cerradura.cambiarMinutos(Number(e.target.value))}
+                    className="rounded-lg border border-line bg-bg px-2 py-1.5"
+                  >
+                    {OPCIONES_BLOQUEO.map((m) => (
+                      <option key={m} value={m}>{m === 60 ? t.hora1 : m === 480 ? t.horas8 : `${m} min`}</option>
+                    ))}
+                  </select>
+                </label>
                 <button onClick={() => { cerrar(); cerradura.bloquear() }} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
                   <Lock size={16} className="text-muted" aria-hidden /> {t.bloquearAhora}
                 </button>
