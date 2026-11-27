@@ -1,6 +1,6 @@
 // PDF del acta propia («popurrí»): Claustre, Cicle, Mentoria y amassades sin hoja oficial.
-// Libreta pautada con margen rojo, título de etiquetadora, puntos en post-its, notas escritas sobre la pauta en cursiva azul,
-// Ahèrs en post-its a dos columnas, logo de la escuela y sello «OK!». Se generan páginas nuevas si hace falta.
+// «Libreta de classa»: pauta con margen rojo y cinta, título de etiquetadora, puntos en negrita y notas en cursiva sobre la pauta,
+// Ahèrs con casilla sobre la pauta, logo de la escuela y sello «OK!». Se generan páginas nuevas si hace falta.
 import type { PDFFont, PDFImage, PDFPage, RGB } from 'pdf-lib'
 
 export interface DatosActaPropia {
@@ -32,7 +32,6 @@ export async function generarActaPropia(datos: DatosActaPropia) {
     tinta: hex('#2c2c2a'), gris: hex('#5f5e5a'), suave: hex('#888780'), titulo: hex('#993c1d'),
     seccion: hex('#854f0b'), boli: hex('#185fa5'), borde: hex('#444441'), blanco: rgb(1, 1, 1), sello: hex('#ed93b1'), selloTexto: hex('#4b1528'),
   }
-  const postits = ['#fac775', '#9fe1cb', '#cecbf6', '#f4c0d1', '#f5c4b3'].map(hex)
   const coloresEtiqueta = ['#d85a30', '#185fa5', '#3b6d11'].map(hex)
 
   const doc = await PDFDocument.create()
@@ -80,7 +79,8 @@ export async function generarActaPropia(datos: DatosActaPropia) {
   const anchoUtil = ANCHO - IZQ - DER
 
   nuevaPagina()
-  // Sello.
+  // Cinta adhesiva arriba y sello.
+  pagina.drawRectangle({ x: ANCHO * 0.42, y: ALTO - 14, width: 90, height: 20, color: c.cinta, opacity: 0.85, rotate: degrees(-4) })
   if (datos.sello) {
     const cx = ANCHO - DER - 26
     const cy = ALTO - ARRIBA - 22
@@ -156,74 +156,57 @@ export async function generarActaPropia(datos: DatosActaPropia) {
   // Post-it con título en negrita y notas en bocadillo; se parte entre páginas si es muy largo.
   const tamTitulo = 11
   const tamNota = 10.5
-  const interTitulo = 14
-  // Post-it como etiqueta del punto; lo redactado se escribe debajo, sobre la pauta, en cursiva azul («boli»).
+  // Libreta de classa: todo se escribe sobre la pauta. Punto en negrita; lo redactado, sangrado y en cursiva.
   const PRIMERA_PAUTA = ALTO - 72
   const siguientePauta = (desde: number) => PRIMERA_PAUTA - Math.ceil((PRIMERA_PAUTA - desde) / PAUTA) * PAUTA
-  const postit = (titulo: string, notas: string, color: RGB, giro: number) => {
-    const lineasTitulo = partir(titulo, negrita, tamTitulo, anchoUtil - 20)
-    const altoTitulo = lineasTitulo.length * interTitulo
-    const anchoEtiqueta = Math.min(anchoUtil, Math.max(...lineasTitulo.map((l) => negrita.widthOfTextAtSize(l, tamTitulo))) + 20)
-    const alto = 9 + altoTitulo + 5
-    cabe(alto + PAUTA + 4)
-    pagina.drawRectangle({ x: IZQ, y: y - alto, width: anchoEtiqueta, height: alto, color, rotate: degrees(giro) })
-    let cursor = y - 9 - tamTitulo + 1
-    for (const linea of lineasTitulo) {
-      pagina.drawText(linea, { x: IZQ + 10, y: cursor, size: tamTitulo, font: negrita, color: c.tinta })
-      cursor -= interTitulo
+  /** Escribe una línea apoyada en la pauta siguiente; salta de página si no cabe. Devuelve la línea base usada. */
+  const renglon = (dibujar: (base: number) => void) => {
+    let base = siguientePauta(y - 9) + 3
+    if (base < ABAJO) {
+      nuevaPagina()
+      base = siguientePauta(y - 9) + 3
     }
-    y -= alto + 2
-    const lineasNota = notas.trim() ? partir(notas.trim(), cursiva, tamNota, anchoUtil - 12) : []
+    dibujar(base)
+    y = base - 5
+    return base
+  }
+  const punto = (titulo: string, notas: string) => {
+    if (y - 2 * PAUTA < ABAJO) nuevaPagina()
+    for (const linea of partir(titulo, negrita, tamTitulo, anchoUtil)) {
+      renglon((base) => pagina.drawText(linea, { x: IZQ, y: base, size: tamTitulo, font: negrita, color: c.tinta }))
+    }
+    const lineasNota = notas.trim() ? partir(notas.trim(), cursiva, tamNota, anchoUtil - 18) : []
     for (const linea of lineasNota) {
-      let base = siguientePauta(y - tamNota) + 3
-      if (base < ABAJO) {
-        nuevaPagina()
-        base = siguientePauta(y - tamNota) + 3
-      }
-      if (linea) pagina.drawText(linea, { x: IZQ + 12, y: base, size: tamNota, font: cursiva, color: c.boli })
-      y = base - 3 - 2
+      renglon((base) => { if (linea) pagina.drawText(linea, { x: IZQ + 18, y: base, size: tamNota, font: cursiva, color: c.tinta }) })
     }
-    y -= 12
+    y -= PAUTA - 5
   }
 
-  datos.puntos.forEach((p, i) => postit(`${i + 1}. ${p.titulo}`, p.notas, postits[i % postits.length], [-0.8, 0.6, -0.4, 0.5, -0.7][i % 5]))
-  if (datos.notasGenerales?.texto.trim()) postit(datos.notasGenerales.titulo, datos.notasGenerales.texto, postits[0], 0.4)
+  datos.puntos.forEach((p, i) => punto(`${i + 1}. ${p.titulo}`, p.notas))
+  if (datos.notasGenerales?.texto.trim()) punto(datos.notasGenerales.titulo, datos.notasGenerales.texto)
 
-  // Ahèrs: post-its a dos columnas con casilla dibujada.
+  // Ahèrs: casilla dibujada, texto en negrita y responsable y fecha en gris, en la misma línea si cabe.
   if (datos.ahers?.items.length) {
-    cabe(40)
-    y -= 6
-    pagina.drawText(limpio(datos.ahers.titulo), { x: IZQ, y: y - 13, size: 13, font: negrita, color: c.seccion })
-    y -= 26
-    const hueco = 12
-    const anchoCol = (anchoUtil - hueco) / 2
-    for (let i = 0; i < datos.ahers.items.length; i += 2) {
-      const fila = datos.ahers.items.slice(i, i + 2).map((a) => ({
-        ...a,
-        lineas: partir(a.texto, negrita, 10.5, anchoCol - 34),
-        detalles: a.detalle ? partir(a.detalle, normal, 9.5, anchoCol - 34) : [],
-      }))
-      const alto = Math.max(...fila.map((a) => 10 + a.lineas.length * 13 + a.detalles.length * 12 + 10))
-      cabe(alto)
-      fila.forEach((a, j) => {
-        const x = IZQ + j * (anchoCol + hueco)
-        pagina.drawRectangle({ x, y: y - alto, width: anchoCol, height: alto, color: postits[(i + j + 3) % postits.length], rotate: degrees(j ? 0.6 : -0.6) })
-        pagina.drawRectangle({ x: x + 10, y: y - 21, width: 10, height: 10, borderColor: c.tinta, borderWidth: 1 })
-        if (a.hecho) {
-          pagina.drawLine({ start: { x: x + 11.5, y: y - 16 }, end: { x: x + 14.5, y: y - 19.5 }, thickness: 1.4, color: c.tinta })
-          pagina.drawLine({ start: { x: x + 14.5, y: y - 19.5 }, end: { x: x + 19, y: y - 12 }, thickness: 1.4, color: c.tinta })
-        }
-        let cursor = y - 10 - 9.5
-        for (const linea of a.lineas) {
-          pagina.drawText(linea, { x: x + 26, y: cursor, size: 10.5, font: negrita, color: c.tinta })
-          cursor -= 13
-        }
-        for (const linea of a.detalles) {
-          pagina.drawText(linea, { x: x + 26, y: cursor, size: 9.5, font: normal, color: c.gris })
-          cursor -= 12
-        }
+    if (y - 3 * PAUTA < ABAJO) nuevaPagina()
+    renglon((base) => pagina.drawText(limpio(datos.ahers!.titulo), { x: IZQ, y: base, size: 12, font: negrita, color: c.seccion }))
+    for (const a of datos.ahers.items) {
+      const detalle = a.detalle ? ` · ${limpio(a.detalle)}` : ''
+      const lineas = partir(a.texto, negrita, 10.5, anchoUtil - 20 - normal.widthOfTextAtSize(detalle, 9.5))
+      lineas.forEach((linea, k) => {
+        renglon((base) => {
+          if (k === 0) {
+            pagina.drawRectangle({ x: IZQ, y: base - 1, width: 9, height: 9, borderColor: c.tinta, borderWidth: 1 })
+            if (a.hecho) {
+              pagina.drawLine({ start: { x: IZQ + 1.5, y: base + 4 }, end: { x: IZQ + 4, y: base + 1 }, thickness: 1.3, color: c.tinta })
+              pagina.drawLine({ start: { x: IZQ + 4, y: base + 1 }, end: { x: IZQ + 8.5, y: base + 8 }, thickness: 1.3, color: c.tinta })
+            }
+          }
+          pagina.drawText(linea, { x: IZQ + 16, y: base, size: 10.5, font: negrita, color: c.tinta })
+          if (k === lineas.length - 1 && detalle) {
+            pagina.drawText(detalle, { x: IZQ + 16 + negrita.widthOfTextAtSize(linea, 10.5), y: base, size: 9.5, font: normal, color: c.gris })
+          }
+        })
       })
-      y -= alto + 10
     }
   }
 

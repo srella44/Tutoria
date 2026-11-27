@@ -1,6 +1,5 @@
 import { AherDePunto } from './AherDePunto'
 import { useStore } from '../data/store'
-import type { CSSProperties } from 'react'
 import { citaRealizada, esClaustre, type Registro } from '../data/types'
 import { useI18n } from '../lib/i18n'
 
@@ -34,7 +33,6 @@ export function NotasInternas({ cita }: { cita: Registro }) {
   )
 }
 
-const coloresPostit = ['amarillo', 'menta', 'lila', 'rosa', 'melocoton'] as const
 
 // Acta interna (Claustre, Cicle, Mentoria, otras): diseño «popurrí» para uso propio.
 // Libreta pautada con margen y cinta, puntos y Ahèrs en post-its, notas en bocadillo y sello.
@@ -42,11 +40,11 @@ export function ActaInterna({ cita, titulo, etiquetas, detalle }: { cita: Regist
   const { t } = useI18n()
   const { ahers, curso } = useStore()
   const tareas = ahers.filter((a) => a.origen?.citaId === cita.id)
-  const giro = (i: number) => ({ '--giro': `${[-1.2, 1, -0.6, 0.8, -1][i % 5]}deg` }) as CSSProperties
 
   return (
     <article className="acta-impresion acta-popurri">
       {citaRealizada(cita) && <span className="acta-sello" aria-hidden>OK!</span>}
+      <span className="acta-cinta" aria-hidden />
       <header className="acta-cabecera">
         {curso.logo && <img src={curso.logo} alt="" className="acta-logo" />}
         <div className="min-w-0">
@@ -60,14 +58,14 @@ export function ActaInterna({ cita, titulo, etiquetas, detalle }: { cita: Regist
 
       {cita.puntos?.map((punto, i) => (
         <section key={punto.id} className="acta-punto-boli">
-          <h3 className="acta-postit acta-etiqueta-punto font-semibold" data-color={coloresPostit[i % coloresPostit.length]} style={giro(i)}>{i + 1}. {punto.texto}</h3>
+          <h3 className="acta-punto-titulo">{i + 1}. {punto.texto}</h3>
           {punto.notas?.trim() && <p className="acta-boli">{punto.notas}</p>}
         </section>
       ))}
 
       {cita.texto.trim() && (
         <section className="acta-punto-boli">
-          <h3 className="acta-postit acta-etiqueta-punto font-semibold" data-color="amarillo" style={giro(1)}>{t.notasGenerales}</h3>
+          <h3 className="acta-punto-titulo">{t.notasGenerales}</h3>
           <p className="acta-boli">{cita.texto}</p>
         </section>
       )}
@@ -75,14 +73,15 @@ export function ActaInterna({ cita, titulo, etiquetas, detalle }: { cita: Regist
       {tareas.length > 0 && (
         <>
           <h2 className="acta-seccion">{t.acuerdos}</h2>
-          <div className="acta-ahers">
-            {tareas.map((a, i) => (
-              <div key={a.id} className="acta-postit acta-postit-aher" data-color={coloresPostit[(i + 3) % coloresPostit.length]} style={giro(i + 2)}>
-                <p className="font-semibold">{a.completado ? '☑' : '☐'} {a.texto}</p>
-                <p className="text-sm">{[a.responsable || t.paraMi, a.fecha && new Date(`${a.fecha.slice(0, 10)}T12:00`).toLocaleDateString('es-ES')].filter(Boolean).join(' · ')}</p>
-              </div>
+          <ul className="acta-ahers">
+            {tareas.map((a) => (
+              <li key={a.id}>
+                <span className="acta-casilla" aria-hidden>{a.completado ? '✓' : ''}</span>
+                <span className="font-semibold">{a.texto}</span>
+                <span className="acta-meta-inline"> · {[a.responsable || t.paraMi, a.fecha && new Date(`${a.fecha.slice(0, 10)}T12:00`).toLocaleDateString('es-ES')].filter(Boolean).join(' · ')}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </>
       )}
       <p className="acta-pie">Tutoria</p>

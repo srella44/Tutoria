@@ -394,19 +394,14 @@ button.cal-dia:hover {
 .acta-dymo-mini[data-color='1'] { background: #185fa5; }
 .acta-dymo-mini[data-color='2'] { background: #3b6d11; }
 .acta-meta { margin-top: .25rem; color: #5f5e5a; font-size: .9rem; }
-.acta-seccion { margin-top: 1.5rem; font-weight: 700; color: #854f0b; }
-.acta-postit { margin-top: 1rem; padding: .7rem .9rem; border-radius: 2px; transform: rotate(var(--giro, 0deg)); break-inside: avoid; }
-.acta-postit[data-color='amarillo'] { background: #fac775; }
-.acta-postit[data-color='menta'] { background: #9fe1cb; }
-.acta-postit[data-color='lila'] { background: #cecbf6; }
-.acta-postit[data-color='rosa'] { background: #f4c0d1; }
-.acta-postit[data-color='melocoton'] { background: #f5c4b3; }
-.acta-postit[data-color='blanco'] { background: #fff; border: 1px solid #d3d1c7; }
-.acta-ahers { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0 1rem; }
-.acta-postit-aher { margin-top: .75rem; }
-.acta-punto-boli { break-inside: avoid-page; }
-.acta-etiqueta-punto { display: inline-block; max-width: 100%; padding: .3rem .8rem; }
-.acta-boli { margin: .1rem 0 0 .75rem; color: #185fa5; font-style: italic; line-height: 24px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.acta-seccion { margin-top: 1.5rem; font-weight: 700; color: #854f0b; line-height: 24px; }
+.acta-cinta { position: absolute; top: -4px; left: 40%; width: 7rem; height: 1.4rem; background: #fac775; opacity: .85; transform: rotate(-4deg); }
+.acta-punto-boli { margin-top: 24px; break-inside: avoid-page; }
+.acta-punto-titulo { font-weight: 700; line-height: 24px; }
+.acta-boli { margin-left: 1.1rem; font-style: italic; line-height: 24px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.acta-ahers li { line-height: 24px; }
+.acta-casilla { display: inline-grid; place-items: center; width: .8rem; height: .8rem; margin-right: .45rem; border: 1px solid #2c2c2a; font-size: .7rem; line-height: 1; vertical-align: -1px; }
+.acta-meta-inline { color: #5f5e5a; font-size: .85rem; }
 .acta-pie { margin-top: 1.25rem; text-align: right; color: #888780; font-size: .75rem; }
 
 @media print {
