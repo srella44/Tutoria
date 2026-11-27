@@ -16,7 +16,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   datosIniciales: Record<string, string>
 }) {
   const { t, lang } = useI18n()
-  const { borradores, borradoresListos, estadoBorradores, setBorrador, plantillas, guardarPlantilla, actas, firmarActa, nuevaVersionActa, borrarActa, setNotaPuntoCita } = useStore()
+  const { curso, guardarCurso, borradores, borradoresListos, estadoBorradores, setBorrador, plantillas, guardarPlantilla, actas, firmarActa, nuevaVersionActa, borrarActa, setNotaPuntoCita } = useStore()
   // La plantilla oficial se elige una vez y queda guardada (cifrada y sincronizada).
   const guardadaPlantilla = plantillas.find((p) => p.id === modelo)
   const original = useMemo(() => plantillaIncluida(modelo) ?? (guardadaPlantilla ? deBase64(guardadaPlantilla.pdf) : undefined), [modelo, guardadaPlantilla])
@@ -30,9 +30,9 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   const fechaInicial = datosIniciales.fecha ?? ''
   const valores = { ...datos.valores }
   if (!bloqueada) {
-    // «Mèstre/a» de serie: el nombre usado en otras hojas (el más repetido; si empatan, el más completo).
+    // «Mèstre/a» de serie: el del curso (Ajustes › Cursos) o, si no hay, el usado en otras hojas.
     // No se guarda ningún nombre en el código: el repositorio es público.
-    if (!valores.docente?.trim()) valores.docente = docenteHabitual(Object.values(borradores))
+    if (!valores.docente?.trim()) valores.docente = curso.tutor?.trim() || docenteHabitual(Object.values(borradores))
     // Borradores antiguos: solo el día en la fecha, o el grupo entero («4au B») en «Classa» con «Cors» vacío.
     if (valores.fecha && !valores.fecha.includes(':') && fechaInicial.startsWith(valores.fecha)) valores.fecha = fechaInicial
     const grupoInicial = [datosIniciales.curso, datosIniciales.clase].filter(Boolean).join(' ')
@@ -74,6 +74,8 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   const campo = (id: string, filas?: number) => {
     const cambiar = (valor: string) => {
       setBorrador(cita, { ...datos, valores: { ...valores, [id]: valor } })
+      // Lo que se escribe en «Mèstre/a» queda como el de serie del curso.
+      if (id === 'docente' && valor.trim()) guardarCurso({ ...curso, tutor: valor.trim() })
       invalidar()
     }
     const estilo = 'mt-1 block w-full rounded-xl border border-line bg-bg px-3 py-2 text-base text-ink'

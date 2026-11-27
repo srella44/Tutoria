@@ -19,6 +19,7 @@ function FormCurso({ curso, onClose }: { curso?: CursoEscolar; onClose: () => vo
   const { cursos, alumnosActivos, guardarCurso, activarCurso, moverAlumnos } = useStore()
   const [anyo, setAnyo] = useState(curso?.anyo ?? siguienteAnyo(cursos))
   const [grupos, setGrupos] = useState(curso?.grupos.join(', ') ?? '')
+  const [tutor, setTutor] = useState(curso?.tutor ?? cursos.find((c) => c.estado === 'activo')?.tutor ?? '')
   const [pasar, setPasar] = useState(!curso && alumnosActivos.length > 0)
   const [grupoNuevo, setGrupoNuevo] = useState('')
   const lista = grupos.split(',').map((g) => g.trim()).filter(Boolean)
@@ -29,10 +30,10 @@ function FormCurso({ curso, onClose }: { curso?: CursoEscolar; onClose: () => vo
       puedeGuardar={anyo.trim() !== ''}
       onGuardar={() => {
         if (curso) {
-          guardarCurso({ ...curso, anyo: anyo.trim(), grupos: lista })
+          guardarCurso({ ...curso, anyo: anyo.trim(), grupos: lista, tutor: tutor.trim() || undefined })
         } else {
           const id = crypto.randomUUID()
-          guardarCurso({ id, anyo: anyo.trim(), grupos: lista, estado: 'archivado' })
+          guardarCurso({ id, anyo: anyo.trim(), grupos: lista, estado: 'archivado', tutor: tutor.trim() || undefined })
           if (pasar) moverAlumnos(alumnosActivos.map((a) => a.id), id, grupoNuevo.trim() || undefined)
           activarCurso(id)
         }
@@ -44,6 +45,9 @@ function FormCurso({ curso, onClose }: { curso?: CursoEscolar; onClose: () => vo
       </Campo>
       <Campo label={t.grupos} ayuda={t.separarComasGrupos}>
         <input value={grupos} onChange={(e) => setGrupos(e.target.value)} className={claseInput} />
+      </Campo>
+      <Campo label={t.pdfDocente}>
+        <input value={tutor} onChange={(e) => setTutor(e.target.value)} className={claseInput} />
       </Campo>
       {!curso && alumnosActivos.length > 0 && (
         <>

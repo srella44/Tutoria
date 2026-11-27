@@ -9,6 +9,8 @@ export interface CursoEscolar {
   anyo: string // «2026-27»
   grupos: string[]
   estado: 'activo' | 'archivado'
+  /** Mèstre/a de las hojas oficiales (cifrado y sincronizado con el resto de datos). */
+  tutor?: string
 }
 
 export interface Alumno {
