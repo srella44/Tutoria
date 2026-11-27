@@ -84,6 +84,8 @@ export interface Registro {
   asistentes?: Id[] // contactos y profesionales
   realizada?: boolean
   puntos?: { id: Id; texto: string; hecho: boolean; notas?: string }[]
+  /** Texto de Preparar tal como se escribió; `puntos` se obtiene de él (decisión 0018). */
+  puntosTexto?: string
   titulo?: string
   alumnosOtrosCursos?: { nombre: string; curso: string }[]
   programada?: boolean // reunión futura

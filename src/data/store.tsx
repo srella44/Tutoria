@@ -1,6 +1,7 @@
 // Estado de la app. Fase 1: se carga de IndexedDB (src/data/db.ts) y cada cambio se guarda en el dispositivo.
 // Si el navegador bloquea el almacenamiento, funciona en memoria con el alumnado ficticio.
 // Los borradores oficiales tienen su propio almacén cifrado.
+import { separarPuntos } from '../lib/puntos'
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { BorradorOficial } from './borradoresOficiales'
 import { activarSync, alCambiarLocal, AUTORIZACIONES_INICIALES, cargarDatos, restaurarDatos, conEjemplo, estadoServidor, idsDemo, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
@@ -80,6 +81,7 @@ interface Store {
   toggleAher: (id: string) => void
   toggleCita: (id: string) => void
   addPuntoCita: (id: string, texto: string) => void
+  setPuntosTexto: (id: string, texto: string) => void
   setNotaPuntoCita: (id: string, puntoId: string, notas: string) => void
   togglePuntoCita: (id: string, puntoId: string) => void
   setTextoRegistro: (id: string, texto: string) => void
@@ -503,6 +505,15 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
     setRegistros((items) => items.map((r) => r.id === id && r.visibilidad !== 'protegido'
       ? { ...r, puntos: [...(r.puntos ?? []), punto] } : r))
   }
+  /** Guarda el texto de Preparar y lo separa en puntos; conserva notas e id de cada punto por su posición. */
+  const setPuntosTexto = (id: string, texto: string) => setRegistros((items) => items.map((r) => {
+    if (r.id !== id || r.visibilidad === 'protegido') return r
+    const anteriores = r.puntos ?? []
+    const puntos = separarPuntos(texto).map((p, i) => anteriores[i]
+      ? { ...anteriores[i], texto: p }
+      : { id: crypto.randomUUID(), texto: p, hecho: false })
+    return { ...r, puntosTexto: texto, puntos }
+  }))
   const setNotaPuntoCita = (id: string, puntoId: string, notas: string) =>
     setRegistros((items) => items.map((r) => r.id === id && r.visibilidad !== 'protegido'
       ? { ...r, puntos: r.puntos?.map((p) => p.id === puntoId ? { ...p, notas } : p) } : r))
@@ -578,6 +589,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         toggleAher,
         toggleCita,
         addPuntoCita,
+        setPuntosTexto,
         setNotaPuntoCita,
         togglePuntoCita,
         setTextoRegistro,
