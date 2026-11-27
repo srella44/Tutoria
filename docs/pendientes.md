@@ -3,6 +3,7 @@
 ## Validación del aranés (Sergio)
 
 - [x] 2026-11-27: validados y aplicados firmas y actas, PIN y cerradura, sincronización y copias, autorizaciones, horario, ajustes y Aué. Vocabulario unificado en toda la interfaz: carrèu, chifrar, emprenta, papèr, aparelh, emplegar, aplicacion, escafar, enregistrar.
+- [x] 2026-11-27 (2.ª tanda): hoja oficial, borrador, citas, puntos, actas, Ahèrs, historial, Google Calendar, banco privado. Criterios: firma/firmes/firmar/firmat (no «signatura»), mercar, enregistrar (datos), triar, descargar, classa, d’auti; «guarda-la» solo para conservar algo físicamente.
 
 Todos los textos en aranés del prototipo son **provisionales** y deben revisarse según la normativa del IEA:
 
@@ -89,15 +90,15 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Editar y cerrar incidencias; editar y borrar registros, acuerdos y Ahèrs.
 - [ ] Configurar el cliente OAuth del centro y verificar el acceso real a Google Calendar con una cuenta autorizada.
 - [ ] Automatizar el envío ante cambios locales, una vez que existan edición y persistencia de citas.
-- [ ] Validar las etiquetas de historial, borradores y Ahèrs vinculados en aranés.
+- [x] Validar las etiquetas de historial, borradores y Ahèrs vinculados en aranés.
 - [ ] Desplegar almacenamiento cifrado y autenticado para recuperar el mismo banco y los registros en distintos ordenadores.
-- [ ] Validar las etiquetas del banco privado y la asignación por alumnado en aranés.
+- [x] Validar las etiquetas del banco privado y la asignación por alumnado en aranés.
 - [ ] Integrar la ayuda de IA únicamente tras implementar y validar el flujo de anonimización y revisión local.
-- [ ] Validar las etiquetas de la hoja oficial, las firmas y el guardado del borrador en aranés.
-- [ ] Validar los textos de actas y documentos originales en aranés.
-- [ ] Validar las etiquetas de estado y de puntos de una cita en aranés.
+- [x] Validar las etiquetas de la hoja oficial, las firmas y el guardado del borrador en aranés.
+- [x] Validar los textos de actas y documentos originales en aranés.
+- [x] Validar las etiquetas de estado y de puntos de una cita en aranés.
 - [x] Validar «Anotacions», «Tot eth dia» y las abreviaturas de los días en Aué.
-- [ ] Validar las nuevas etiquetas de Google Calendar, citas personalizadas y alumnado de otros cursos en aranés.
+- [x] Validar las nuevas etiquetas de Google Calendar, citas personalizadas y alumnado de otros cursos en aranés.
 - [x] Validar el nuevo aviso de «Version naua» (firmas conservadas) en aranés.
 - [x] Validar «Logo dera escòla» (Cursos) en aranés.
 - [x] Validar en aranés el aviso del paso PDF del acta propia («Era acta s’enregistre aciu. Cada PDF nau correspon a ua version naua.»).
