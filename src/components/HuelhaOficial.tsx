@@ -26,7 +26,12 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   const [nuevaVersion, setNuevaVersion] = useState(false)
   const datosGuardados = borradores[cita.id]
   const datos = datosGuardados ?? { valores: datosIniciales, motivos: [], firmas: [] }
-  const { valores, motivos, firmas } = datos
+  const { motivos, firmas } = datos
+  // Borradores antiguos guardaban solo el día: se completa con la hora de la cita (salvo actas firmadas).
+  const fechaInicial = datosIniciales.fecha ?? ''
+  const valores = !bloqueada && datos.valores.fecha && !datos.valores.fecha.includes(':') && fechaInicial.startsWith(datos.valores.fecha)
+    ? { ...datos.valores, fecha: fechaInicial }
+    : datos.valores
   const guardado = estadoBorradores[cita.id]
   const [vista, setVista] = useState('')
   const [error, setError] = useState('')
@@ -37,7 +42,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   const grupos = gruposEscoti[lang]
   const preguntas = grupos.flatMap((grupo) => grupo.preguntas)
   const etiquetas: Record<string, string> = {
-    alumno: t.nombreAlumno, fecha: t.fechaLbl, curso: t.pdfCurso, clase: t.pdfClase,
+    alumno: t.nombreAlumno, fecha: t.fechaYHora, curso: t.pdfCurso, clase: t.pdfClase,
     docente: t.pdfDocente, asistentes: t.pdfAsistentes, aspectos: t.pdfAspectos,
     acuerdos: familia ? t.pdfAcuerdosPropuestas : t.pdfAcuerdos, propuestas: t.pdfPropuestas,
     ...Object.fromEntries(preguntas.map((pregunta, i) => [`q${i}`, pregunta])),
@@ -114,7 +119,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
     <>
       {etiquetasFirma.map((titulo, i) => (
         <FirmaPdf key={i} titulo={titulo} imagen={firmas[i] ?? undefined} onChange={(imagen) => {
-          setBorrador(cita, { ...datos, firmas: etiquetasFirma.map((_, indice) =>
+          setBorrador(cita, { ...datos, valores, firmas: etiquetasFirma.map((_, indice) =>
             indice === i ? imagen ?? null : firmas[indice] ?? null) })
           setError('')
         }} />
@@ -187,7 +192,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
                             <input type="checkbox" disabled={bloqueada} checked={motivos.includes(i)} className="size-5 shrink-0 accent-accent"
                               onChange={() => {
                                 setBorrador(cita, {
-                                  ...datos, motivos: motivos.includes(i) ? motivos.filter((m) => m !== i) : [...motivos, i], firmas: [],
+                                  ...datos, valores, motivos: motivos.includes(i) ? motivos.filter((m) => m !== i) : [...motivos, i], firmas: [],
                                 })
                                 invalidar()
                               }} />

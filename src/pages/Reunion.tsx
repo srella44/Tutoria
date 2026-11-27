@@ -13,7 +13,7 @@ import { Card, Empty } from '../components/ui'
 import { useStore } from '../data/store'
 import { citaRealizada, esClaustre } from '../data/types'
 import { descargarCalendario } from '../lib/calendario'
-import { fechaHora } from '../lib/fechas'
+import { fechaHora, hora } from '../lib/fechas'
 import { useI18n } from '../lib/i18n'
 
 export function Reunion() {
@@ -147,7 +147,7 @@ export function Reunion() {
 
           {modelo && <HuelhaOficial key={r.id} cita={r} modelo={modelo} paso={paso} datosIniciales={{
             alumno: alumnoCita ? `${alumnoCita.nombre} ${alumnoCita.apellidos}` : r.alumnosOtrosCursos?.[0]?.nombre ?? '',
-            fecha: new Date(r.fecha).toLocaleDateString('es-ES'),
+            fecha: `${new Date(r.fecha).toLocaleDateString('es-ES')} ${hora(r.fecha)}`,
             curso: r.alumnosOtrosCursos?.[0]?.curso ?? '',
             clase: alumnoCita?.grupo ?? '',
             asistentes: asistentes.join(', '),
