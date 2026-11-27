@@ -82,6 +82,12 @@ export function datosDemo(): Datos {
   }
 }
 
+/** Ids del alumnado de ejemplo (fijos: «a1», «r1»…). Los datos reales usan ids aleatorios (UUID). */
+export function idsDemo(): Record<Coleccion, Set<string>> {
+  const d = datosDemo()
+  return Object.fromEntries(colecciones.map((c) => [c, new Set((d[c] as { id: string }[]).map((x) => x.id))])) as Record<Coleccion, Set<string>>
+}
+
 export function datosVacios(): Datos {
   const anyo = new Date().getMonth() >= 7 ? new Date().getFullYear() : new Date().getFullYear() - 1
   const curso: CursoEscolar = {

@@ -3,7 +3,7 @@
 // Los borradores oficiales tienen su propio almacén cifrado.
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { guardarBorradorOficial, leerBorradoresOficiales, type BorradorOficial } from './borradoresOficiales'
-import { activarSync, alCambiarLocal, cargarDatos, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, servidorDisponible, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
+import { activarSync, alCambiarLocal, cargarDatos, conEjemplo, idsDemo, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, servidorDisponible, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
 import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro } from './types'
 
 interface Store {
@@ -313,6 +313,26 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   usePersistir('registros', registros, guardar)
   usePersistir('acuerdos', acuerdosGuardados, guardar)
   usePersistir('ahers', ahers, guardar)
+
+  // App publicada: borra el alumnado de ejemplo que pudiera quedar (también en el servidor y los demás
+  // dispositivos, porque los borrados se sincronizan). Las frases de ejemplo se conservan.
+  useEffect(() => {
+    if (conEjemplo) return
+    const demo = idsDemo()
+    const fuera = <T extends { id: string }>(c: keyof typeof demo) => (items: T[]) => {
+      const quedan = items.filter((x) => !demo[c].has(x.id))
+      return quedan.length === items.length ? items : quedan
+    }
+    setAlumnos(fuera('alumnos'))
+    setContactos(fuera('contactos'))
+    setProfesionales(fuera('profesionales'))
+    setRegistros(fuera('registros'))
+    setAcuerdos(fuera('acuerdos'))
+    setAhers(fuera('ahers'))
+    // El curso de ejemplo se conserva como curso vacío (sus grupos ficticios se quitan).
+    setCursos((items) => items.map((c) => (demo.cursos.has(c.id) && c.grupos.includes('4t A')
+      ? { ...c, grupos: c.grupos.filter((g) => g !== '4t A') } : c)))
+  }, [])
   const addAher: Store['addAher'] = (texto, fecha, detalle) => {
     const id = crypto.randomUUID()
     setAhers((items) => {

@@ -84,4 +84,4 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 - Registros protegidos: el texto se oculta (••••••) a la espera del desbloqueo extra de la Fase 2.
 - PWA instalable con service worker (actualización automática).
 - Siempre tema claro, aunque el sistema esté en modo oscuro.
-- Ajustes › Donades: indica si los datos se guardan en el dispositivo. Con el ejemplo cargado, **Començar sense exemple** lo borra (también del servidor y de los demás dispositivos). Volver a cargar el ejemplo solo existe en desarrollo y en la vista previa.
+- Ajustes › Donades: indica si los datos se guardan en el dispositivo y permite borrar los datos de este dispositivo. En la app publicada no hay nada del ejemplo: si quedara alumnado de ejemplo (ids fijos «a1», «r1»…), se borra solo al abrir, también del servidor y de los demás dispositivos. Cargar o quitar el ejemplo solo existe en desarrollo y en la vista previa.

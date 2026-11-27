@@ -114,7 +114,7 @@ export function Ajustes() {
               </>
             )}
             <p className="mt-2 border-t border-line px-3 pb-1 pt-3 text-xs font-semibold uppercase text-muted">{t.datos}</p>
-            <p className="px-3 text-sm">{modo === 'demo' ? t.modoDemo : t.modoPropio}</p>
+            {conEjemplo && <p className="px-3 text-sm">{modo === 'demo' ? t.modoDemo : t.modoPropio}</p>}
             <p className={`px-3 pb-1 text-xs ${almacenamiento === 'guardado' ? 'text-muted' : 'text-danger'}`}>
               {almacenamiento === 'guardado' ? t.guardadoLocal : t.soloMemoria}
             </p>
@@ -151,7 +151,7 @@ export function Ajustes() {
               </div>
             ) : (
               // Volver al ejemplo solo en desarrollo y vista previa; empezar sin él, siempre que se esté en el ejemplo.
-              almacenamiento === 'guardado' && (modo === 'demo' || conEjemplo) && (
+              almacenamiento === 'guardado' && conEjemplo && (
                 <button
                   onClick={() => setPendiente(modo === 'demo' ? 'propio' : 'demo')}
                   className="w-full rounded-lg px-3 py-2.5 text-left hover:bg-bg"
