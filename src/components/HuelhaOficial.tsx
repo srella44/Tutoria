@@ -30,6 +30,9 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   const fechaInicial = datosIniciales.fecha ?? ''
   const valores = { ...datos.valores }
   if (!bloqueada) {
+    // «Mèstre/a» de serie: el nombre usado en otras hojas (el más repetido; si empatan, el más completo).
+    // No se guarda ningún nombre en el código: el repositorio es público.
+    if (!valores.docente?.trim()) valores.docente = docenteHabitual(Object.values(borradores))
     // Borradores antiguos: solo el día en la fecha, o el grupo entero («4au B») en «Classa» con «Cors» vacío.
     if (valores.fecha && !valores.fecha.includes(':') && fechaInicial.startsWith(valores.fecha)) valores.fecha = fechaInicial
     const grupoInicial = [datosIniciales.curso, datosIniciales.clase].filter(Boolean).join(' ')
@@ -359,4 +362,13 @@ function BorrarVersion({ onBorrar }: { onBorrar: () => void }) {
       {armado && t.borrar}
     </button>
   )
+}
+
+function docenteHabitual(lista: ({ valores: Record<string, string> } | undefined)[]) {
+  const cuenta = new Map<string, number>()
+  for (const b of lista) {
+    const nombre = b?.valores.docente?.trim()
+    if (nombre) cuenta.set(nombre, (cuenta.get(nombre) ?? 0) + 1)
+  }
+  return [...cuenta].sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)[0]?.[0] ?? ''
 }
