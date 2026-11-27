@@ -18,6 +18,7 @@ export function Ajustes() {
   const sync = useSincronizacion()
   const [errorActivar, setErrorActivar] = useState<string | false>(false)
   const [borrando, setBorrando] = useState(false)
+  const [uniendo, setUniendo] = useState(false)
   const [avisoBiometria, setAvisoBiometria] = useState<string>()
   const [cambiandoPin, setCambiandoPin] = useState(false)
   const cerrar = () => {
@@ -99,33 +100,60 @@ export function Ajustes() {
             {sync.disponible && cerradura.activa && (
               <>
                 <p className="mt-2 border-t border-line px-3 pb-1 pt-3 text-xs font-semibold uppercase text-muted">{t.sincronizacion}</p>
-                <p className={`px-3 text-xs ${sync.estado === 'error' || errorActivar ? 'text-danger' : 'text-muted'}`}>
-                  {sync.estado === 'desactivada' ? t.syncDesactivada
-                    : sync.estado === 'sincronizando' ? t.sincronizando
-                    : sync.estado === 'error' ? t.syncError
-                    : `${t.ultimaSync}: ${sync.ultima ? hora(new Date(sync.ultima).toISOString()) : '—'}`}
-                </p>
-                {sync.estado === 'desactivada' ? (
-                  <button
-                    onClick={async () => {
-                      setErrorActivar(false)
-                      try { await sync.activar() } catch (e) { setErrorActivar(e instanceof Error && e.message === 'cuenta-existente' ? t.cuentaExistente : t.syncError) }
-                    }}
-                    className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg"
-                  >
-                    <CloudUpload size={16} className="text-muted" aria-hidden /> {t.activarSync}
-                  </button>
+                {sync.estado === 'desactivada' && sync.servidor === 'cuenta' ? (
+                  // Ya hay cuenta: este dispositivo tiene otra llave y debe unirse (se borran sus datos locales).
+                  <>
+                    <p className="px-3 pb-1 text-xs text-muted">{t.hayCuenta}</p>
+                    <button
+                      onClick={async () => {
+                        if (!uniendo) return setUniendo(true)
+                        const { borrarDispositivo } = await import('../data/db')
+                        await borrarDispositivo()
+                        window.location.reload()
+                      }}
+                      className={`flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg ${uniendo ? 'font-semibold text-danger' : ''}`}
+                    >
+                      <CloudUpload size={16} className="text-muted" aria-hidden /> {uniendo ? t.tocaConfirmar : t.unirEsteDispositivo}
+                    </button>
+                  </>
+                ) : sync.estado === 'desactivada' && sync.servidor === 'sin-acceso' ? (
+                  <>
+                    <p className="px-3 pb-1 text-xs text-danger">{t.sinAcceso}</p>
+                    <button onClick={() => window.location.reload()} className="mx-3 mb-1 min-h-9 rounded-lg border border-line px-3 text-sm">
+                      {t.volverAEntrar}
+                    </button>
+                  </>
                 ) : (
-                  <button onClick={() => void sync.sincronizar()} disabled={sync.estado === 'sincronizando'} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg disabled:opacity-50">
-                    <RefreshCw size={16} className="text-muted" aria-hidden /> {t.sincronizarAhora}
-                  </button>
-                )}
-                {errorActivar && <p className="px-3 pb-1 text-xs text-danger">{errorActivar}</p>}
-                {(sync.estado === 'error' || errorActivar) && (
-                  // Suele ser que la sesión de Cloudflare Access ha caducado: al recargar, Access pide entrar.
-                  <button onClick={() => window.location.reload()} className="mx-3 mb-1 min-h-9 rounded-lg border border-line px-3 text-sm">
-                    {t.volverAEntrar}
-                  </button>
+                  <>
+                    <p className={`px-3 text-xs ${sync.estado === 'error' || errorActivar ? 'text-danger' : 'text-muted'}`}>
+                      {sync.estado === 'desactivada' ? t.syncDesactivada
+                        : sync.estado === 'sincronizando' ? t.sincronizando
+                        : sync.estado === 'error' ? t.syncError
+                        : `${t.ultimaSync}: ${sync.ultima ? hora(new Date(sync.ultima).toISOString()) : '—'}`}
+                    </p>
+                    {sync.estado === 'desactivada' ? (
+                      <button
+                        onClick={async () => {
+                          setErrorActivar(false)
+                          try { await sync.activar() } catch (e) { setErrorActivar(e instanceof Error && e.message === 'cuenta-existente' ? t.hayCuenta : t.syncError) }
+                        }}
+                        className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg"
+                      >
+                        <CloudUpload size={16} className="text-muted" aria-hidden /> {t.activarSync}
+                      </button>
+                    ) : (
+                      <button onClick={() => void sync.sincronizar()} disabled={sync.estado === 'sincronizando'} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg disabled:opacity-50">
+                        <RefreshCw size={16} className="text-muted" aria-hidden /> {t.sincronizarAhora}
+                      </button>
+                    )}
+                    {errorActivar && <p className="px-3 pb-1 text-xs text-danger">{errorActivar}</p>}
+                    {(sync.estado === 'error' || errorActivar) && (
+                      // Suele ser que la sesión de Cloudflare Access ha caducado: al recargar, Access pide entrar.
+                      <button onClick={() => window.location.reload()} className="mx-3 mb-1 min-h-9 rounded-lg border border-line px-3 text-sm">
+                        {t.volverAEntrar}
+                      </button>
+                    )}
+                  </>
                 )}
                 <p className="px-3 pb-1 text-[11px] text-muted">{t.syncAyuda}</p>
               </>

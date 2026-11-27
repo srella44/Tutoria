@@ -57,7 +57,7 @@ Desde las notas de un punto de Claustre o Cicle se puede crear un Ahèr con resp
 - Recargar la página no pide el PIN mientras la app se haya usado dentro del tiempo de bloqueo. Se bloquea sola tras ese tiempo sin uso (Ajustes › **Blocatge automatic**: 5 min, 15 min, 1 h —por defecto— u 8 h) y desde Ajustes › **Blocar ara**. **Cambiar eth PIN** pide el actual.
 - **Face ID / Windows Hello:** Ajustes › Activar. La pantalla de bloqueo ofrece «Desblocar damb Face ID»; un aparato nuevo con la misma passkey (iCloud) se une sin la clave (decisión 0011).
 - Detalles técnicos: `docs/decisiones/0009`.
-- **Sincronización** (app publicada en Cloudflare; no en la vista previa): Ajustes › Activar era sincronizacion. Los cambios viajan cifrados entre dispositivos (a los 3 s, al abrir, cada minuto). Un dispositivo nuevo se une con la clave de recuperación. Ver `docs/decisiones/0010` y `docs/despliegue.md`.
+- **Sincronización** (app publicada en Cloudflare; no en la vista previa): Ajustes › Activar era sincronizacion. El apartado indica siempre el estado: sin cuenta (Activar), cuenta ya existente (**Unir aguest dispositiu ara compte**: borra los datos locales y lleva a la pantalla de unir) o sin acceso a Cloudflare (**Tornar a entrar**). Los cambios viajan cifrados entre dispositivos (a los 3 s, al abrir, cada minuto). Un dispositivo nuevo se une con la clave de recuperación. Ver `docs/decisiones/0010` y `docs/despliegue.md`.
 
 ## Edición
 

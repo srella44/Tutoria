@@ -290,13 +290,26 @@ async function guardarEstadoSync(e: EstadoSync) {
 }
 
 /** ¿Hay servidor? (la vista previa publicada no lo tiene). */
-export async function servidorDisponible() {
+/**
+ * Estado del servidor visto desde un dispositivo sin sincronización activa:
+ * 'libre' (aún no hay cuenta: se puede activar), 'cuenta' (ya hay cuenta: este dispositivo debe unirse),
+ * 'sin-acceso' (la sesión de Cloudflare Access ha caducado o no hay conexión) o 'sin-servidor' (vista previa).
+ */
+export type EstadoServidor = 'libre' | 'cuenta' | 'sin-acceso' | 'sin-servidor'
+export async function estadoServidor(): Promise<EstadoServidor> {
+  if (import.meta.env.VITE_SINGLEFILE) return 'sin-servidor'
   try {
-    const r = await fetch('/api/sync?desde=0', { method: 'GET', headers: { accept: 'application/json' } })
-    return r.ok && (r.headers.get('content-type') ?? '').includes('json')
+    const r = await fetch('/api/recuperacion', { headers: { accept: 'application/json' } })
+    if (r.status === 404) return 'libre'
+    if (r.ok && (r.headers.get('content-type') ?? '').includes('json')) return 'cuenta'
+    if (r.ok) return 'sin-servidor' // respondió la app en lugar de la API
+    return 'sin-acceso'
   } catch {
-    return false
+    return 'sin-acceso' // Access redirige a su página de inicio de sesión y la petición falla
   }
+}
+export async function servidorDisponible() {
+  return ['libre', 'cuenta'].includes(await estadoServidor())
 }
 
 /** Activa la sincronización en este dispositivo: sube la copia de recuperación y todos los datos. */

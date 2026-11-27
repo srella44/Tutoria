@@ -3,7 +3,7 @@
 // Los borradores oficiales tienen su propio almacén cifrado.
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { guardarBorradorOficial, leerBorradoresOficiales, type BorradorOficial } from './borradoresOficiales'
-import { activarSync, alCambiarLocal, cargarDatos, conEjemplo, idsDemo, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, servidorDisponible, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
+import { activarSync, alCambiarLocal, cargarDatos, conEjemplo, estadoServidor, idsDemo, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
 import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro } from './types'
 
 interface Store {
@@ -93,6 +93,8 @@ function usePersistir<T extends { id: string }>(coleccion: Coleccion, items: T[]
 export interface Sincronizacion {
   /** Hay servidor (la app publicada en Cloudflare; la vista previa no lo tiene). */
   disponible: boolean
+  /** Con la sincronización desactivada: qué pasa con el servidor. */
+  servidor?: import('./db').EstadoServidor
   estado: 'desactivada' | 'sincronizando' | 'ok' | 'error'
   ultima?: number
   activar: () => Promise<void>
@@ -105,7 +107,7 @@ type Inicio = { datos: Datos; modo: 'demo' | 'propio'; almacenamiento: Store['al
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [inicio, setInicio] = useState<Inicio>()
-  const [sync, setSync] = useState<Pick<Sincronizacion, 'disponible' | 'estado' | 'ultima'>>({ disponible: false, estado: 'desactivada' })
+  const [sync, setSync] = useState<Pick<Sincronizacion, 'disponible' | 'estado' | 'ultima' | 'servidor'>>({ disponible: false, estado: 'desactivada' })
   useEffect(() => {
     cargarDatos()
       .then(({ datos, modo }) => setInicio({ datos, modo, almacenamiento: 'guardado', revision: 0 }))
@@ -121,8 +123,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     ciclo.current = async () => {
       const estado = await estadoSync()
       if (!estado.activa) {
-        const disponible = await servidorDisponible()
-        if (vivo) setSync({ disponible, estado: 'desactivada' })
+        const servidor = await estadoServidor()
+        if (vivo) setSync({ disponible: servidor !== 'sin-servidor', estado: 'desactivada', servidor })
         return
       }
       setSync((s) => ({ ...s, disponible: true, estado: 'sincronizando' }))

@@ -40,6 +40,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Cifrado AES-GCM de todos los datos en el dispositivo, PIN, bloqueo automático y clave de recuperación (decisión 0009).
 - [x] Desbloqueo con Face ID / Windows Hello (passkeys con PRF, decisión 0011).
 - [ ] Probar en aparatos reales unir un dispositivo con Face ID (passkey sincronizada por iCloud).
+- [ ] Validar «Non se pòt contactar damb eth servidor…», «Ja i a ua compte de TUTOR-ia…», «Unir aguest dispositiu ara compte».
 - [ ] Validar «Activar/Desactivar Face ID o Windows Hello», «Desblocar damb Face ID», «Utilizar Face ID en lòc dera clau», «Aguest aparelh o navegador non permet…».
 - [ ] Validar «Cifrat damb PIN», «Blocatge automatic sense usatge», «1 ora», «8 ores (tota era jornada)».
 - [x] Sincronización cifrada (Pages Functions + D1), probada en local con dos dispositivos (decisión 0010). Dispositivo nuevo con la clave de recuperación.

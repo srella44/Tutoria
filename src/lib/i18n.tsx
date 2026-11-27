@@ -7,6 +7,9 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  sinAcceso: 'Non se pòt contactar damb eth servidor. Segurament a caducat era session de Cloudflare.',
+  hayCuenta: 'Ja i a ua compte de TUTOR-ia. Entà sincronizar aguest dispositiu, cau unir-lo (damb era clau o Face ID). Es donades d’aguest dispositiu se borraràn e se descargaràn es dera compte.',
+  unirEsteDispositivo: 'Unir aguest dispositiu ara compte',
   biometria: 'Face ID / Windows Hello',
   activarBiometria: 'Activar Face ID o Windows Hello',
   desactivarBiometria: 'Desactivar Face ID o Windows Hello',
@@ -339,6 +342,9 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  sinAcceso: 'No se puede contactar con el servidor. Seguramente ha caducado la sesión de Cloudflare.',
+  hayCuenta: 'Ya hay una cuenta de TUTOR-ia. Para sincronizar este dispositivo hay que unirlo (con la clave o Face ID). Los datos de este dispositivo se borrarán y se descargarán los de la cuenta.',
+  unirEsteDispositivo: 'Unir este dispositivo a la cuenta',
   biometria: 'Face ID / Windows Hello',
   activarBiometria: 'Activar Face ID o Windows Hello',
   desactivarBiometria: 'Desactivar Face ID o Windows Hello',
