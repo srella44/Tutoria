@@ -1,5 +1,5 @@
 // PDF del acta propia («popurrí»): Claustre, Cicle, Mentoria y amassades sin hoja oficial.
-// Libreta pautada con margen rojo, título de etiquetadora, puntos en post-its, notas en tiras de papel pegadas (cursiva),
+// Libreta pautada con margen rojo, título de etiquetadora, puntos en post-its, notas escritas sobre la pauta en cursiva azul,
 // Ahèrs en post-its a dos columnas, logo de la escuela y sello «OK!». Se generan páginas nuevas si hace falta.
 import type { PDFFont, PDFImage, PDFPage, RGB } from 'pdf-lib'
 
@@ -30,7 +30,7 @@ export async function generarActaPropia(datos: DatosActaPropia) {
   const c = {
     papel: hex('#fffdf7'), pauta: hex('#b5d4f4'), margen: hex('#f09595'), cinta: hex('#fac775'),
     tinta: hex('#2c2c2a'), gris: hex('#5f5e5a'), suave: hex('#888780'), titulo: hex('#993c1d'),
-    seccion: hex('#854f0b'), borde: hex('#444441'), blanco: rgb(1, 1, 1), sello: hex('#ed93b1'), selloTexto: hex('#4b1528'),
+    seccion: hex('#854f0b'), boli: hex('#185fa5'), borde: hex('#444441'), blanco: rgb(1, 1, 1), sello: hex('#ed93b1'), selloTexto: hex('#4b1528'),
   }
   const postits = ['#fac775', '#9fe1cb', '#cecbf6', '#f4c0d1', '#f5c4b3'].map(hex)
   const coloresEtiqueta = ['#d85a30', '#185fa5', '#3b6d11'].map(hex)
@@ -157,49 +157,37 @@ export async function generarActaPropia(datos: DatosActaPropia) {
   const tamTitulo = 11
   const tamNota = 10.5
   const interTitulo = 14
-  const interNota = 13.5
-  const postit = (titulo: string, notas: string, color: RGB, giro: number, cinta: RGB) => {
+  // Post-it como etiqueta del punto; lo redactado se escribe debajo, sobre la pauta, en cursiva azul («boli»).
+  const PRIMERA_PAUTA = ALTO - 72
+  const siguientePauta = (desde: number) => PRIMERA_PAUTA - Math.ceil((PRIMERA_PAUTA - desde) / PAUTA) * PAUTA
+  const postit = (titulo: string, notas: string, color: RGB, giro: number) => {
     const lineasTitulo = partir(titulo, negrita, tamTitulo, anchoUtil - 20)
-    const lineasNota = notas.trim() ? partir(notas.trim(), cursiva, tamNota, anchoUtil - 20 - 20) : []
-    let pendientes = lineasNota
-    let primero = true
-    while (primero || pendientes.length) {
-      const altoTitulo = lineasTitulo.length * interTitulo
-      const minimo = 10 + altoTitulo + (pendientes.length ? 14 + interNota + 10 : 0) + 10
-      cabe(minimo)
-      const disponible = y - ABAJO - (10 + altoTitulo + 14 + 10 + 10)
-      const caben = Math.max(1, Math.floor(disponible / interNota))
-      const trozo = pendientes.slice(0, caben)
-      pendientes = pendientes.slice(trozo.length)
-      const altoBocadillo = trozo.length ? trozo.length * interNota + 10 : 0
-      const alto = 10 + altoTitulo + (trozo.length ? 14 + altoBocadillo : 0) + 10
-      pagina.drawRectangle({ x: IZQ, y: y - alto, width: anchoUtil, height: alto, color, rotate: degrees(giro) })
-      let cursor = y - 10 - tamTitulo + 1
-      lineasTitulo.forEach((linea, i) => {
-        const texto = !primero && i === lineasTitulo.length - 1 ? `${linea} (cont.)` : linea
-        pagina.drawText(texto, { x: IZQ + 10, y: cursor, size: tamTitulo, font: negrita, color: c.tinta })
-        cursor -= interTitulo
-      })
-      if (trozo.length) {
-        // Tira de papel blanca pegada con cinta de color dentro del post-it.
-        const bx = IZQ + 10
-        const by = y - 10 - altoTitulo - 10
-        const bw = anchoUtil - 20
-        pagina.drawRectangle({ x: bx, y: by - altoBocadillo, width: bw, height: altoBocadillo, color: c.blanco, rotate: degrees(0.5) })
-        pagina.drawRectangle({ x: bx + 14, y: by - 4, width: 40, height: 10, color: cinta, opacity: 0.9, rotate: degrees(-6) })
-        let yn = by - 5 - tamNota + 1
-        for (const linea of trozo) {
-          pagina.drawText(linea, { x: bx + 10, y: yn, size: tamNota, font: cursiva, color: c.tinta })
-          yn -= interNota
-        }
-      }
-      y -= alto + 14
-      primero = false
+    const altoTitulo = lineasTitulo.length * interTitulo
+    const anchoEtiqueta = Math.min(anchoUtil, Math.max(...lineasTitulo.map((l) => negrita.widthOfTextAtSize(l, tamTitulo))) + 20)
+    const alto = 9 + altoTitulo + 5
+    cabe(alto + PAUTA + 4)
+    pagina.drawRectangle({ x: IZQ, y: y - alto, width: anchoEtiqueta, height: alto, color, rotate: degrees(giro) })
+    let cursor = y - 9 - tamTitulo + 1
+    for (const linea of lineasTitulo) {
+      pagina.drawText(linea, { x: IZQ + 10, y: cursor, size: tamTitulo, font: negrita, color: c.tinta })
+      cursor -= interTitulo
     }
+    y -= alto + 2
+    const lineasNota = notas.trim() ? partir(notas.trim(), cursiva, tamNota, anchoUtil - 12) : []
+    for (const linea of lineasNota) {
+      let base = siguientePauta(y - tamNota) + 3
+      if (base < ABAJO) {
+        nuevaPagina()
+        base = siguientePauta(y - tamNota) + 3
+      }
+      if (linea) pagina.drawText(linea, { x: IZQ + 12, y: base, size: tamNota, font: cursiva, color: c.boli })
+      y = base - 3 - 2
+    }
+    y -= 12
   }
 
-  datos.puntos.forEach((p, i) => postit(`${i + 1}. ${p.titulo}`, p.notas, postits[i % postits.length], [-0.8, 0.6, -0.4, 0.5, -0.7][i % 5], postits[(i + 2) % postits.length]))
-  if (datos.notasGenerales?.texto.trim()) postit(datos.notasGenerales.titulo, datos.notasGenerales.texto, postits[0], 0.4, postits[2])
+  datos.puntos.forEach((p, i) => postit(`${i + 1}. ${p.titulo}`, p.notas, postits[i % postits.length], [-0.8, 0.6, -0.4, 0.5, -0.7][i % 5]))
+  if (datos.notasGenerales?.texto.trim()) postit(datos.notasGenerales.titulo, datos.notasGenerales.texto, postits[0], 0.4)
 
   // Ahèrs: post-its a dos columnas con casilla dibujada.
   if (datos.ahers?.items.length) {

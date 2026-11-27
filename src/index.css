@@ -404,14 +404,9 @@ button.cal-dia:hover {
 .acta-postit[data-color='blanco'] { background: #fff; border: 1px solid #d3d1c7; }
 .acta-ahers { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0 1rem; }
 .acta-postit-aher { margin-top: .75rem; }
-.acta-tira { position: relative; margin-top: .6rem; padding: .45rem .8rem; background: #fff; transform: rotate(.5deg); }
-.acta-tira p { font-style: italic; white-space: pre-wrap; overflow-wrap: anywhere; }
-.acta-tira-cinta { position: absolute; top: -6px; left: 1rem; width: 3rem; height: .8rem; opacity: .9; transform: rotate(-6deg); }
-.acta-tira-cinta[data-color='amarillo'] { background: #fac775; }
-.acta-tira-cinta[data-color='menta'] { background: #9fe1cb; }
-.acta-tira-cinta[data-color='lila'] { background: #cecbf6; }
-.acta-tira-cinta[data-color='rosa'] { background: #f4c0d1; }
-.acta-tira-cinta[data-color='melocoton'] { background: #f5c4b3; }
+.acta-punto-boli { break-inside: avoid-page; }
+.acta-etiqueta-punto { display: inline-block; max-width: 100%; padding: .3rem .8rem; }
+.acta-boli { margin: .1rem 0 0 .75rem; color: #185fa5; font-style: italic; line-height: 24px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .acta-pie { margin-top: 1.25rem; text-align: right; color: #888780; font-size: .75rem; }
 
 @media print {

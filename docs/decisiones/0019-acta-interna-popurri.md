@@ -15,4 +15,4 @@ menos serias, con color y adornos.
 - Los Ahèrs creados desde los puntos también van en post-its, con responsable y fecha.
 - Sello «OK!» cuando la cita está hecha. Se imprime con color (`print-color-adjust: exact`); los post-its no se parten entre páginas.
 - El PDF se genera con pdf-lib (`src/lib/pdfActaPropia.ts`), no con la impresión del navegador, y se guarda en `actas` con versión y huella, sin bloquear la cita. Se usa también en las amassades sin hoja oficial.
-- Revisión (2026-11-27): título de etiquetadora (tira negra con letras blancas espaciadas) y fecha y hora, tipo y mèstre/a en tiras de colores; lo redactado va en una tira de papel blanca pegada con cinta de color dentro del post-it (sin bocadillos).
+- Revisión (2026-11-27): título de etiquetadora (tira negra con letras blancas espaciadas) y fecha y hora, tipo y mèstre/a en tiras de colores; el post-it es la etiqueta del punto y lo redactado se escribe debajo, sobre la pauta, en cursiva azul («boli»); sin bocadillos ni tiras.
