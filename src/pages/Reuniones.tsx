@@ -36,7 +36,7 @@ export function Reuniones({ claustre = false }: { claustre?: boolean }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-sm font-bold">{r.titulo || tipo[r.tipo]}</div>
-          {claustre && r.titulo && <div className="truncate text-xs text-muted">{tipo[r.tipo]}</div>}
+          {r.titulo && <div className="truncate text-xs text-muted">{tipo[r.tipo]}</div>}
           {!claustre && r.alumnoIds.length > 0 && <div className="truncate text-sm text-muted">{r.alumnoIds.map(nombre).join(', ')}</div>}
           {r.estado === 'sinFirmar' && <span className="block text-xs text-warn">{t.actasSinFirmar}</span>}
         </div>
