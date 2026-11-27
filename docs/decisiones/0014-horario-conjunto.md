@@ -16,4 +16,4 @@ pero cuando la clase está con un especialista el tutor tiene otra tarea (refuer
 - En producción empieza vacío; el horario de ejemplo (genérico) solo existe en desarrollo.
 
 ## Consecuencias
-Las franjas no tienen que coincidir entre días ni entre tutor y clase. Importar el horario desde Excel queda pendiente.
+Las franjas no tienen que coincidir entre días ni entre tutor y clase. Se importa desde Excel en cuadrícula (clase arriba, tutor abajo en cada franja).

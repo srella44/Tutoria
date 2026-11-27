@@ -24,6 +24,8 @@ interface Store {
   horario: SesionHorario[]
   guardarSesiones: (sesiones: SesionHorario[]) => void
   borrarSesion: (id: string) => void
+  /** Sustituye el horario del curso activo (importación). */
+  reemplazarHorario: (sesiones: SesionHorario[]) => void
   tiposAutorizacion: TipoAutorizacion[]
   guardarTipoAutorizacion: (t: TipoAutorizacion) => void
   borrarTipoAutorizacion: (id: string) => void
@@ -467,6 +469,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   const horario = horarioTodo.filter((h) => h.cursoId === curso.id)
   const guardarSesiones = (sesiones: SesionHorario[]) => setHorario((items) => sesiones.reduce(upsert, items))
   const borrarSesion = (id: string) => setHorario((items) => items.filter((h) => h.id !== id))
+  const reemplazarHorario = (sesiones: SesionHorario[]) => setHorario((items) => [...items.filter((h) => h.cursoId !== curso.id), ...sesiones])
   const addRegistro = (r: Omit<Registro, 'id'>) =>
     setRegistros((rs) => [{ ...r, id: crypto.randomUUID() }, ...rs])
   return (
@@ -485,6 +488,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         horario,
         guardarSesiones,
         borrarSesion,
+        reemplazarHorario,
         tiposAutorizacion,
         guardarTipoAutorizacion,
         borrarTipoAutorizacion,

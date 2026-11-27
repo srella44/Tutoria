@@ -2,7 +2,7 @@
 // Una sesión «conjunta» ocupa todo el ancho; si cada uno está en un sitio, a la izquierda va la del
 // tutor (Jo) y a la derecha la de la clase (con el especialista).
 import clsx from 'clsx'
-import { CalendarClock, Plus } from 'lucide-react'
+import { CalendarClock, Plus, Upload } from 'lucide-react'
 import { useEffect, useMemo, useState, type MouseEvent } from 'react'
 import { Campo, claseInput, Hoja } from '../components/Hoja'
 import { PageHeader } from '../components/ui'
@@ -11,6 +11,7 @@ import type { QuienHorario, SesionHorario } from '../data/types'
 import { semanaAbreviada } from '../lib/fechas'
 import { colorMateria, diaHorario, minutos, sesionesDelDia } from '../lib/horario'
 import { useI18n } from '../lib/i18n'
+import { leerHorario, type LecturaHorario } from '../lib/importarHorario'
 
 const DIAS = [1, 2, 3, 4, 5]
 const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
@@ -131,6 +132,49 @@ function FormSesion({ sesion, borrador, onClose }: { sesion?: SesionHorario; bor
   )
 }
 
+function ImportarHorario({ onClose }: { onClose: () => void }) {
+  const { t } = useI18n()
+  const { horario, curso, reemplazarHorario } = useStore()
+  const [lectura, setLectura] = useState<LecturaHorario>()
+  const [error, setError] = useState('')
+  const cuenta = (q: QuienHorario) => lectura?.sesiones.filter((s) => s.quien === q).length ?? 0
+  return (
+    <Hoja
+      titulo={t.importarHorario}
+      onClose={onClose}
+      puedeGuardar={!!lectura}
+      onGuardar={() => {
+        if (!lectura) return
+        reemplazarHorario(lectura.sesiones.map((s) => ({ ...s, id: crypto.randomUUID(), cursoId: curso.id })))
+        onClose()
+      }}
+    >
+      <p className="text-sm text-muted">{t.importarHorarioAyuda}</p>
+      <label className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-accent px-4 font-semibold text-accent">
+        <Upload size={18} /> {t.elegirArchivo}
+        <input type="file" className="sr-only"
+          accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (!f) return
+            setError('')
+            setLectura(undefined)
+            leerHorario(f).then(setLectura, (err) => setError(err instanceof Error && err.message === 'sin-horario' ? t.sinHorarioArchivo : t.errorArchivo))
+          }}
+        />
+      </label>
+      {error && <p className="text-sm text-danger">{error}</p>}
+      {lectura && (
+        <div className="rounded-xl bg-bg p-3 text-sm">
+          <p className="font-semibold">{t.sesionesLeidas}: {lectura.sesiones.length}</p>
+          <p className="mt-1 text-muted">{t.quienConjunta}: {cuenta('conjunta')} · {t.quienMia}: {cuenta('mia')} · {t.quienClase}: {cuenta('clase')}</p>
+          {horario.length > 0 && <p className="mt-2 font-medium text-warn">{t.sustituyeHorario}</p>}
+        </div>
+      )}
+    </Hoja>
+  )
+}
+
 function useAhora() {
   const [ahora, setAhora] = useState(() => new Date())
   useEffect(() => {
@@ -219,6 +263,7 @@ export function Horario() {
   const ahoraMin = ahora.getHours() * 60 + ahora.getMinutes()
   const [dia, setDia] = useState(hoy || 1)
   const [editando, setEditando] = useState<SesionHorario | Borrador>()
+  const [importando, setImportando] = useState(false)
   const nombresDias = semanaAbreviada(lang)
 
   // Rango visible: de la primera hora en punto a la última, con un mínimo de 9 a 17.
@@ -248,6 +293,15 @@ export function Horario() {
         color="azul"
         amplio
         right={
+          <>
+          <button
+            onClick={() => setImportando(true)}
+            aria-label={t.importarHorario}
+            title={t.importarHorario}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-accent hover:bg-accent-soft"
+          >
+            <Upload size={18} />
+          </button>
           <button
             onClick={() => setEditando(nueva(dia))}
             aria-label={t.sesionNueva}
@@ -255,6 +309,7 @@ export function Horario() {
           >
             <Plus size={16} /> <span className="hidden sm:inline">{t.sesionNueva}</span>
           </button>
+          </>
         }
       />
       <div className="mx-auto max-w-6xl px-3 pt-3 sm:px-6">
@@ -266,6 +321,12 @@ export function Horario() {
               className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-4 font-semibold text-on-accent"
             >
               <Plus size={18} /> {t.sesionNueva}
+            </button>
+            <button
+              onClick={() => setImportando(true)}
+              className="mt-2 ml-2 inline-flex min-h-11 items-center gap-2 rounded-xl border border-accent px-4 font-semibold text-accent"
+            >
+              <Upload size={18} /> {t.importarHorario}
             </button>
           </div>
         ) : (
@@ -318,6 +379,7 @@ export function Horario() {
           </>
         )}
       </div>
+      {importando && <ImportarHorario onClose={() => setImportando(false)} />}
       {editando && (
         <FormSesion
           key={'id' in editando ? editando.id : 'nueva'}
