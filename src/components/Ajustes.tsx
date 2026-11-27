@@ -1,160 +1,163 @@
-// Botón de ajustes: siempre arriba a la derecha, en todas las secciones y dispositivos.
-import { CalendarRange, CloudUpload, Download, Upload, KeyRound, Lock, MessageSquareQuote, RefreshCw, Settings, ShieldCheck } from 'lucide-react'
-import { useEffect, useState } from 'react'
+// Ajustes: el engranaje (arriba a la derecha en todas las secciones) abre la consola de ajustes,
+// una página con apartados: General, Seguretat, Sincronizacion e Donades.
+import clsx from 'clsx'
+import { BriefcaseBusiness, CalendarRange, ChevronRight, CloudUpload, Database, Download, Globe, KeyRound, Lock, MessageSquareQuote, RefreshCw, Settings, ShieldCheck, Trash2, Upload } from 'lucide-react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { conEjemplo, OPCIONES_BLOQUEO } from '../data/db'
+import { OPCIONES_BLOQUEO } from '../data/db'
 import { useSincronizacion, useStore } from '../data/store'
 import { fechaCorta, hora } from '../lib/fechas'
 import { useCerradura } from './Cerradura'
 import { Campo, Hoja } from './Hoja'
 import { useI18n } from '../lib/i18n'
+import { PageHeader } from './ui'
 
+/** Engranaje que lleva a la consola de ajustes. */
 export function Ajustes() {
-  const { t, toggle } = useI18n()
+  const { t } = useI18n()
+  return (
+    <Link to="/ajustes" aria-label={t.ajustes} title={t.ajustes}
+      className="ajustes-boton flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-surface">
+      <Settings size={20} />
+    </Link>
+  )
+}
+
+function Apartado({ titulo, icono: Icono, children }: { titulo: string; icono: typeof Settings; children: ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-line bg-surface">
+      <h2 className="flex items-center gap-2 border-b border-line px-4 py-3 text-sm font-semibold uppercase tracking-wide text-muted">
+        <Icono size={16} aria-hidden /> {titulo}
+      </h2>
+      <div className="divide-y divide-line">{children}</div>
+    </section>
+  )
+}
+
+const claseFila = 'flex min-h-12 w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-bg'
+
+function FilaEnlace({ to, icono: Icono, children }: { to: string; icono: typeof Settings; children: ReactNode }) {
+  return (
+    <Link to={to} className={claseFila}>
+      <Icono size={18} className="shrink-0 text-muted" aria-hidden />
+      <span className="flex-1">{children}</span>
+      <ChevronRight size={16} className="text-muted" aria-hidden />
+    </Link>
+  )
+}
+
+/** Consola de ajustes (ruta /ajustes). */
+export function PaginaAjustes() {
+  const { t, lang, toggle } = useI18n()
   const { almacenamiento, modo, reiniciar } = useStore()
-  const [open, setOpen] = useState(false)
-  const [pendiente, setPendiente] = useState<'demo' | 'propio'>()
   const cerradura = useCerradura()
   const sync = useSincronizacion()
   const [errorActivar, setErrorActivar] = useState<string | false>(false)
   const [borrando, setBorrando] = useState(false)
+  const [quitandoEjemplo, setQuitandoEjemplo] = useState(false)
   const [pidiendoPin, setPidiendoPin] = useState(false)
   const [cambiandoPin, setCambiandoPin] = useState(false)
-  const cerrar = () => {
-    setOpen(false)
-    setPendiente(undefined)
-  }
-  return (
-    <div className="relative">
-      <button
-        onClick={() => (open ? cerrar() : setOpen(true))}
-        aria-label={t.ajustes}
-        aria-expanded={open}
-        className="ajustes-boton flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-surface"
-      >
-        <Settings size={20} />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-30" onClick={cerrar} />
-          <div className="absolute right-0 z-40 mt-1 w-72 rounded-2xl border border-line bg-surface p-2 text-ink shadow-lg">
-            <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase text-muted">{t.ajustes}</p>
-            <button
-              onClick={() => {
-                toggle()
-                cerrar()
-              }}
-              className="w-full rounded-lg px-3 py-2.5 text-left hover:bg-bg"
-            >
-              {t.lengua}: {t.idioma}
-            </button>
-            <Link to="/cursos" onClick={cerrar} className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-bg">
-              <CalendarRange size={16} className="text-muted" aria-hidden /> {t.cursos}
-            </Link>
-            <Link to="/frases" onClick={cerrar} className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-bg">
-              <MessageSquareQuote size={16} className="text-muted" aria-hidden /> {t.frases}
-            </Link>
 
-            {cerradura.activa && (
-              <>
-                <p className="mt-2 flex items-center gap-1.5 border-t border-line px-3 pt-3 text-xs text-accent">
-                  <ShieldCheck size={14} aria-hidden /> {t.cifradoActivo}
-                </p>
-                <label className="flex min-h-11 items-center justify-between gap-2 px-3 text-sm">
-                  <span className="min-w-0">{t.bloqueoAutomatico}</span>
-                  <select
-                    value={cerradura.minutos}
-                    onChange={(e) => cerradura.cambiarMinutos(Number(e.target.value))}
-                    className="w-28 shrink-0 rounded-lg border border-line bg-bg px-2 py-1.5"
-                  >
-                    {OPCIONES_BLOQUEO.map((m) => (
-                      <option key={m} value={m}>{m === 60 ? t.hora1 : m === 480 ? t.horas8 : `${m} min`}</option>
-                    ))}
-                  </select>
-                </label>
-                <button onClick={() => { cerrar(); cerradura.bloquear() }} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
-                  <Lock size={16} className="text-muted" aria-hidden /> {t.bloquearAhora}
+  return (
+    <>
+      <PageHeader title={t.ajustes} icon={Settings} />
+      <div className="mx-auto grid max-w-3xl gap-4 px-4 py-4 md:grid-cols-2 md:items-start">
+        <Apartado titulo={t.general} icono={Globe}>
+          <div className="flex min-h-12 items-center gap-3 px-4 py-2.5">
+            <Globe size={18} className="shrink-0 text-muted" aria-hidden />
+            <span className="flex-1">{t.lengua}</span>
+            <div className="flex rounded-lg border border-line p-0.5 text-sm">
+              {(['oc', 'es'] as const).map((l) => (
+                <button key={l} onClick={() => l !== lang && toggle()}
+                  className={clsx('rounded-md px-3 py-1', lang === l ? 'bg-accent text-on-accent' : 'text-muted')}>
+                  {l === 'oc' ? 'Aranés' : 'Castellano'}
                 </button>
-                <button onClick={() => setCambiandoPin(true)} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
-                  <KeyRound size={16} className="text-muted" aria-hidden /> {t.cambiarPin}
-                </button>
-              </>
-            )}
-            {sync.disponible && cerradura.activa && (
-              <>
-                <p className="mt-2 border-t border-line px-3 pb-1 pt-3 text-xs font-semibold uppercase text-muted">{t.sincronizacion}</p>
-                <p className={`px-3 text-xs ${sync.estado === 'error' || errorActivar ? 'text-danger' : 'text-muted'}`}>
-                  {errorActivar ? errorActivar
-                    : sync.estado === 'desactivada' ? t.syncDesactivada
-                    : sync.estado === 'sincronizando' ? t.sincronizando
-                    : sync.estado === 'error' ? t.syncError
-                    : `${t.ultimaSync}: ${sync.ultima ? hora(new Date(sync.ultima).toISOString()) : '—'}`}
-                </p>
-                {sync.estado === 'desactivada' ? (
-                  <button onClick={() => { setErrorActivar(false); setPidiendoPin(true) }} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
-                    <CloudUpload size={16} className="text-muted" aria-hidden /> {t.activarSync}
-                  </button>
-                ) : (
-                  <button onClick={() => void sync.sincronizar()} disabled={sync.estado === 'sincronizando'} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg disabled:opacity-50">
-                    <RefreshCw size={16} className="text-muted" aria-hidden /> {t.sincronizarAhora}
-                  </button>
-                )}
-                {(sync.estado === 'error' || (sync.estado === 'desactivada' && sync.servidor === 'sin-acceso')) && (
-                  // Suele ser que la sesión de Cloudflare Access ha caducado: al recargar, Access pide entrar.
-                  <button onClick={() => window.location.reload()} className="mx-3 mb-1 min-h-9 rounded-lg border border-line px-3 text-sm">
-                    {t.volverAEntrar}
-                  </button>
-                )}
-              </>
-            )}
-            <p className="mt-2 border-t border-line px-3 pb-1 pt-3 text-xs font-semibold uppercase text-muted">{t.datos}</p>
-            {conEjemplo && <p className="px-3 text-sm">{modo === 'demo' ? t.modoDemo : t.modoPropio}</p>}
-            <p className={`px-3 pb-1 text-xs ${almacenamiento === 'guardado' ? 'text-muted' : 'text-danger'}`}>
-              {almacenamiento === 'guardado' ? t.guardadoLocal : t.soloMemoria}
+              ))}
+            </div>
+          </div>
+          <FilaEnlace to="/cursos" icono={CalendarRange}>{t.cursos}</FilaEnlace>
+          <FilaEnlace to="/frases" icono={MessageSquareQuote}>{t.frases}</FilaEnlace>
+          <FilaEnlace to="/profesionales" icono={BriefcaseBusiness}>{t.profesionales}</FilaEnlace>
+        </Apartado>
+
+        {cerradura.activa && (
+          <Apartado titulo={t.seguridad} icono={ShieldCheck}>
+            <p className="flex items-center gap-2 px-4 py-2.5 text-sm text-accent">
+              <ShieldCheck size={16} aria-hidden /> {t.cifradoActivo}
             </p>
-            {cerradura.activa && almacenamiento === 'guardado' && <CopiasSeguridad onCerrar={cerrar} />}
-            {cerradura.activa && (
-              <button
-                onClick={async () => {
-                  if (!borrando) return setBorrando(true)
-                  const { borrarDispositivo } = await import('../data/db')
-                  await borrarDispositivo()
-                  window.location.reload()
-                }}
-                className={`w-full rounded-lg px-3 py-2.5 text-left text-sm hover:bg-bg ${borrando ? 'font-semibold text-danger' : 'text-muted'}`}
-              >
-                {borrando ? `${t.borrarTodoAviso} ${t.tocaConfirmar}` : t.borrarEsteDispositivo}
+            <label className="flex min-h-12 items-center gap-3 px-4 py-2.5">
+              <span className="min-w-0 flex-1">{t.bloqueoAutomatico}</span>
+              <select value={cerradura.minutos} onChange={(e) => cerradura.cambiarMinutos(Number(e.target.value))}
+                className="w-32 shrink-0 rounded-lg border border-line bg-bg px-2 py-1.5">
+                {OPCIONES_BLOQUEO.map((m) => (
+                  <option key={m} value={m}>{m === 60 ? t.hora1 : m === 480 ? t.horas8 : `${m} min`}</option>
+                ))}
+              </select>
+            </label>
+            <button onClick={() => setCambiandoPin(true)} className={claseFila}>
+              <KeyRound size={18} className="shrink-0 text-muted" aria-hidden /> {t.cambiarPin}
+            </button>
+            <button onClick={() => cerradura.bloquear()} className={claseFila}>
+              <Lock size={18} className="shrink-0 text-muted" aria-hidden /> {t.bloquearAhora}
+            </button>
+          </Apartado>
+        )}
+
+        {sync.disponible && cerradura.activa && (
+          <Apartado titulo={t.sincronizacion} icono={RefreshCw}>
+            <p className={`px-4 py-2.5 text-sm ${sync.estado === 'error' || errorActivar ? 'text-danger' : 'text-muted'}`}>
+              {errorActivar ? errorActivar
+                : sync.estado === 'desactivada' ? t.syncDesactivada
+                : sync.estado === 'sincronizando' ? t.sincronizando
+                : sync.estado === 'error' ? t.syncError
+                : `${t.ultimaSync}: ${sync.ultima ? hora(new Date(sync.ultima).toISOString()) : '—'}`}
+            </p>
+            {sync.estado === 'desactivada' ? (
+              <button onClick={() => { setErrorActivar(false); setPidiendoPin(true) }} className={claseFila}>
+                <CloudUpload size={18} className="shrink-0 text-muted" aria-hidden /> {t.activarSync}
+              </button>
+            ) : (
+              <button onClick={() => void sync.sincronizar()} disabled={sync.estado === 'sincronizando'} className={`${claseFila} disabled:opacity-50`}>
+                <RefreshCw size={18} className="shrink-0 text-muted" aria-hidden /> {t.sincronizarAhora}
               </button>
             )}
-            {pendiente ? (
-              <div className="m-1 rounded-xl bg-danger-soft p-3 text-sm">
-                <p className="text-danger">{t.confirmarBorrado}</p>
-                <div className="mt-2 flex gap-2">
-                  <button onClick={() => setPendiente(undefined)} className="min-h-10 flex-1 rounded-lg border border-line bg-surface">
-                    {t.cancelar}
-                  </button>
-                  <button
-                    onClick={async () => {
-                      await reiniciar(pendiente)
-                      cerrar()
-                    }}
-                    className="min-h-10 flex-1 rounded-lg bg-danger font-semibold text-white"
-                  >
-                    {t.confirmar}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              // Solo con el ejemplo cargado (vista previa): quitarlo. Volver a cargarlo ya no existe.
-              almacenamiento === 'guardado' && modo === 'demo' && (
-                <button onClick={() => setPendiente('propio')} className="w-full rounded-lg px-3 py-2.5 text-left hover:bg-bg">
-                  {t.empezarLimpio}
-                </button>
-              )
+            {(sync.estado === 'error' || (sync.estado === 'desactivada' && sync.servidor === 'sin-acceso')) && (
+              // Suele ser que la sesión de Cloudflare Access ha caducado: al recargar, Access pide entrar.
+              <button onClick={() => window.location.reload()} className={claseFila}>
+                <RefreshCw size={18} className="shrink-0 text-muted" aria-hidden /> {t.volverAEntrar}
+              </button>
             )}
-          </div>
-        </>
-      )}
+          </Apartado>
+        )}
+
+        <Apartado titulo={t.datos} icono={Database}>
+          <p className={`px-4 py-2.5 text-sm ${almacenamiento === 'guardado' ? 'text-muted' : 'text-danger'}`}>
+            {almacenamiento === 'guardado' ? t.guardadoLocal : t.soloMemoria}
+          </p>
+          {cerradura.activa && almacenamiento === 'guardado' && <CopiasSeguridad />}
+          {almacenamiento === 'guardado' && modo === 'demo' && (
+            // Solo con el ejemplo cargado (vista previa): quitarlo.
+            <button onClick={async () => { if (!quitandoEjemplo) return setQuitandoEjemplo(true); await reiniciar('propio') }}
+              className={clsx(claseFila, quitandoEjemplo && 'font-semibold text-danger')}>
+              <Trash2 size={18} className="shrink-0 text-muted" aria-hidden /> {quitandoEjemplo ? `${t.confirmarBorrado} ${t.tocaConfirmar}` : t.empezarLimpio}
+            </button>
+          )}
+          {cerradura.activa && (
+            <button
+              onClick={async () => {
+                if (!borrando) return setBorrando(true)
+                const { borrarDispositivo } = await import('../data/db')
+                await borrarDispositivo()
+                window.location.reload()
+              }}
+              className={clsx(claseFila, 'text-danger', borrando && 'font-semibold')}
+            >
+              <Trash2 size={18} className="shrink-0" aria-hidden /> {borrando ? `${t.borrarTodoAviso} ${t.tocaConfirmar}` : t.borrarEsteDispositivo}
+            </button>
+          )}
+        </Apartado>
+      </div>
+
       {pidiendoPin && (
         <PedirPinActivar
           onClose={() => setPidiendoPin(false)}
@@ -175,8 +178,8 @@ export function Ajustes() {
           }}
         />
       )}
-      {cambiandoPin && <CambiarPin onClose={() => { setCambiandoPin(false); cerrar() }} />}
-    </div>
+      {cambiandoPin && <CambiarPin onClose={() => setCambiandoPin(false)} />}
+    </>
   )
 }
 
@@ -231,7 +234,7 @@ function PedirPinActivar({ onClose, onActivar }: { onClose: () => void; onActiva
 }
 
 /** Descargar y restaurar copias de seguridad cifradas (decisión 0013). */
-function CopiasSeguridad({ onCerrar }: { onCerrar: () => void }) {
+function CopiasSeguridad() {
   const { t, lang } = useI18n()
   const { llave } = useCerradura()
   const { restaurar } = useStore()
@@ -267,22 +270,22 @@ function CopiasSeguridad({ onCerrar }: { onCerrar: () => void }) {
 
   return (
     <>
-      <button onClick={() => void descargar()} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
-        <Download size={16} className="text-muted" aria-hidden /> {t.descargarCopia}
+      <button onClick={() => void descargar()} className={claseFila}>
+        <Download size={18} className="shrink-0 text-muted" aria-hidden />
+        <span className="flex-1">{t.descargarCopia}{ultima && <span className="block text-xs text-muted">{t.ultimaCopia}: {fechaCorta(ultima, lang)}</span>}</span>
       </button>
-      {ultima && <p className="px-3 text-xs text-muted">{t.ultimaCopia}: {fechaCorta(ultima, lang)}</p>}
-      <label className="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
-        <Upload size={16} className="text-muted" aria-hidden /> {t.restaurarCopia}
+      <label className={`${claseFila} cursor-pointer`}>
+        <Upload size={18} className="shrink-0 text-muted" aria-hidden /> {t.restaurarCopia}
         <input type="file" accept=".json,application/json" className="sr-only" onChange={(e) => { void elegir(e.target.files?.[0]); e.target.value = '' }} />
       </label>
-      {error && <p className="px-3 pb-1 text-xs text-danger">{error}</p>}
+      {error && <p className="px-4 py-2 text-sm text-danger">{error}</p>}
       {copia && (
         <RestaurarCopia
           copia={copia}
           datos={datos ?? null}
           onDatos={setDatos}
           onClose={() => { setCopia(undefined); setDatos(undefined) }}
-          onRestaurar={async (d) => { await restaurar(d); onCerrar() }}
+          onRestaurar={async (d) => { await restaurar(d) }}
         />
       )}
     </>

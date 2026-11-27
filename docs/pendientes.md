@@ -48,6 +48,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Vincular por QR (opcional: llevaría la clave de recuperación).
 - [ ] Validar «Sincronizacion», «Activar era sincronizacion», «Sincronizar ara», «Darrèra sincronizacion», «Ja utilizi TUTOR-ia en un aute dispositiu», «Descargant es donades…».
 - [x] Copia de seguridad cifrada descargable y restaurable, con prueba de restauración (decisión 0013).
+- [ ] Validar «Generau» y «Seguretat» (apartados de la consola de ajustes).
 - [ ] Validar «Descargar còpia de seguretat», «Restaurar ua còpia», «Darrèra còpia», «Còpia comprovada…», «Aguesta còpia ei d’un aute aparelh…», «Se substituiràn totes es donades…».
 - [ ] Unificar los borradores oficiales con la llave de datos.
 - [ ] Validar los textos de la cerradura: «Crea eth tèn PIN», «Repetís eth PIN», «Desblocar», «Clau de recuperacion», «L’è apuntada en paper», «Contunhar», «Massa intents…», «Utilizar era clau de recuperacion», «Blocar ara», «Cambiar eth PIN», «Cifrant es donades…», «Borrar tot e començar de nau».

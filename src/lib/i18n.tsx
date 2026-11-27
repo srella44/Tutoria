@@ -7,6 +7,8 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  general: 'Generau',
+  seguridad: 'Seguretat',
   descargarCopia: 'Descargar còpia de seguretat',
   restaurarCopia: 'Restaurar ua còpia',
   ultimaCopia: 'Darrèra còpia',
@@ -346,6 +348,8 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  general: 'General',
+  seguridad: 'Seguridad',
   descargarCopia: 'Descargar copia de seguridad',
   restaurarCopia: 'Restaurar una copia',
   ultimaCopia: 'Última copia',

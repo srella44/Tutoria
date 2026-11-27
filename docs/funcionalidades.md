@@ -12,7 +12,7 @@ Siempre tema claro: barra lateral y cabeceras blancas, un color de acento y cora
 
 Al abrir la app se ve **Inici**: saludo con acceso a Registre nau, próxima reunión, tareas personales con revisión pendiente o vencida y accesos diferenciados por color a Aué, Alumnat, Amassades, Claustre y Seguiment. En móvil, la barra inferior aparece dentro de las secciones.
 Al entrar en una sección aparece la barra **Inici (casa) · Alumnat · + · Amassades · Seguiment** (en iPad/ordenador, barra lateral siempre visible).
-Ajustes (idioma) en el engranaje de arriba a la derecha, en todas las secciones.
+El engranaje de arriba a la derecha abre la **consola de ajustes** (`/ajustes`), con apartados: Generau (lengua, cursos, frases, profesionales), Seguretat (cifrado, bloqueo automático, cambiar PIN, bloquear), Sincronizacion y Donades (copias de seguridad y borrar los datos del aparato).
 
 | Sección | Ruta | Qué hace hoy |
 | --- | --- | --- |

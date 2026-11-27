@@ -10,6 +10,7 @@ import { Hoy } from './pages/Hoy'
 import { InformesPrivados } from './pages/InformesPrivados'
 import { Inicio } from './pages/Inicio'
 import { Reunion } from './pages/Reunion'
+import { PaginaAjustes } from './components/Ajustes'
 import { Cursos } from './pages/Cursos'
 import { Frases } from './pages/Frases'
 import { Importar } from './pages/Importar'
@@ -37,6 +38,7 @@ export default function App() {
                 <Route path="importar" element={<Importar />} />
                 <Route path="cursos" element={<Cursos />} />
                 <Route path="frases" element={<Frases />} />
+                <Route path="ajustes" element={<PaginaAjustes />} />
                 <Route path="reuniones" element={<Reuniones key="amassades" />} />
                 <Route path="claustre" element={<Reuniones key="claustre" claustre />} />
                 <Route path="seguimiento" element={<Seguimiento />} />
