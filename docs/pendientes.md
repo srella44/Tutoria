@@ -88,7 +88,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Importación del alumnado desde Excel (.xlsx) o CSV, con vista previa (`src/lib/importar.ts`, `src/pages/Importar.tsx`).
 - [x] Formularios y diálogos con componentes propios (`src/components/Hoja.tsx`); shadcn/ui no ha hecho falta (ver `docs/decisiones/0002`).
 - [x] Editar y cerrar incidencias; editar y borrar registros, acuerdos y Ahèrs.
-- [ ] Configurar el cliente OAuth del centro y verificar el acceso real a Google Calendar con una cuenta autorizada.
+- [ ] Configurar el cliente OAuth (cuenta personal del tutor, el centro le comparte su calendario) y verificar el acceso real a Google Calendar.
 - [ ] Automatizar el envío ante cambios locales, una vez que existan edición y persistencia de citas.
 - [x] Validar las etiquetas de historial, borradores y Ahèrs vinculados en aranés.
 - [ ] Desplegar almacenamiento cifrado y autenticado para recuperar el mismo banco y los registros en distintos ordenadores.

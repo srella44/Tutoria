@@ -17,10 +17,14 @@ export interface EventoGoogle {
   start: { date?: string; dateTime?: string }
   end: { date?: string; dateTime?: string }
   extendedProperties?: { private?: { tutoriaRegistro?: string } }
+  /** Nombre del calendario de origen (p. ej. uno compartido por el centro). */
+  calendario?: string
 }
 
 export const googleConfigurado = Boolean(import.meta.env.VITE_GOOGLE_CALENDAR_CLIENT_ID) && !import.meta.env.VITE_SINGLEFILE
-const base = 'https://www.googleapis.com/calendar/v3/calendars/primary/events'
+const api = 'https://www.googleapis.com/calendar/v3'
+const eventosDe = (calendario: string) => `${api}/calendars/${encodeURIComponent(calendario)}/events`
+const base = eventosDe('primary')
 const google = () => (window as GoogleWindow).google
 let carga: Promise<void> | undefined
 
@@ -49,7 +53,12 @@ export function autorizarGoogle() {
     }
     identidad.accounts.oauth2.initTokenClient({
       client_id: import.meta.env.VITE_GOOGLE_CALENDAR_CLIENT_ID,
-      scope: 'https://www.googleapis.com/auth/calendar.events.owned',
+      // Escribe solo eventos propios; lee también los calendarios compartidos contigo (p. ej. el del centro).
+      scope: [
+        'https://www.googleapis.com/auth/calendar.events.owned',
+        'https://www.googleapis.com/auth/calendar.calendarlist.readonly',
+        'https://www.googleapis.com/auth/calendar.events.readonly',
+      ].join(' '),
       callback: ({ access_token, expires_in }) => {
         if (access_token) resolve({ token: access_token, expira: Date.now() + Number(expires_in ?? 3600) * 1000 })
         else reject(new Error('Google OAuth'))
@@ -80,8 +89,8 @@ async function consultar(token: string, url: URL | string, options: RequestInit 
   return response
 }
 
-async function listar(token: string, filtros: Record<string, string>, signal?: AbortSignal) {
-  const url = new URL(base)
+async function listar(token: string, filtros: Record<string, string>, signal?: AbortSignal, desde = base) {
+  const url = new URL(desde)
   for (const [key, value] of Object.entries(filtros)) url.searchParams.set(key, value)
   const eventos: EventoGoogle[] = []
   let pagina: string | undefined
@@ -95,14 +104,33 @@ async function listar(token: string, filtros: Record<string, string>, signal?: A
   return eventos
 }
 
-export function listarMesGoogle(token: string, mes: Date, signal: AbortSignal) {
+type CalendarioGoogle = { id: string; summary?: string; summaryOverride?: string; primary?: boolean; selected?: boolean; hidden?: boolean }
+
+/** Calendarios visibles de la cuenta (el principal y los compartidos). Si no hay permiso, solo el principal. */
+async function calendariosVisibles(token: string, signal: AbortSignal): Promise<CalendarioGoogle[]> {
+  try {
+    const response = await consultar(token, `${api}/users/me/calendarList?minAccessRole=reader`, { signal })
+    const datos: { items?: CalendarioGoogle[] } = await response.json()
+    const visibles = (datos.items ?? []).filter((c) => c.primary || (c.selected && !c.hidden))
+    return visibles.length ? visibles : [{ id: 'primary', primary: true }]
+  } catch (error) {
+    if (signal.aborted) throw error
+    return [{ id: 'primary', primary: true }]
+  }
+}
+
+export async function listarMesGoogle(token: string, mes: Date, signal: AbortSignal) {
   const siguiente = new Date(mes.getFullYear(), mes.getMonth() + 1, 1)
-  return listar(token, {
-    timeMin: mes.toISOString(),
-    timeMax: siguiente.toISOString(),
-    singleEvents: 'true',
-    orderBy: 'startTime',
-  }, signal)
+  const filtros = { timeMin: mes.toISOString(), timeMax: siguiente.toISOString(), singleEvents: 'true', orderBy: 'startTime' }
+  const calendarios = await calendariosVisibles(token, signal)
+  const listas = await Promise.all(calendarios.map(async (c) => {
+    const eventos = await listar(token, filtros, signal, c.primary ? base : eventosDe(c.id)).catch((error: unknown) => {
+      if (c.primary || signal.aborted) throw error
+      return [] as EventoGoogle[]
+    })
+    return eventos.map((e) => c.primary ? e : { ...e, id: `${c.id}:${e.id}`, calendario: c.summaryOverride || c.summary })
+  }))
+  return listas.flat().sort((a, b) => (a.start.dateTime ?? a.start.date ?? '').localeCompare(b.start.dateTime ?? b.start.date ?? ''))
 }
 
 function eventosDeCita(token: string, id: string, signal?: AbortSignal) {

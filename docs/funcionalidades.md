@@ -76,7 +76,7 @@ El registro aparece al instante en la cronología y, si es incidencia, en «Aué
 
 ## Google Calendar
 
-En la versión web configurada, Aué permite conectar la cuenta escolar y consultar su calendario principal. Las citas de Google se muestran con su origen, sin convertirse en registros de tutoría. En una cita de Tutoria se puede enviar, actualizar o quitar su evento de Google. Solo se envían un título, la hora, una duración de 30 minutos y un identificador de vínculo. Las amassades del alumnado usan un título genérico. Las tareas y las notas permanecen en Tutoria.
+En la versión web configurada, Aué permite conectar una cuenta de Google y consultar su calendario principal y los calendarios compartidos con ella (por ejemplo, el del centro), con el nombre del calendario en cada evento. Las citas de Google se muestran con su origen, sin convertirse en registros de tutoría. En una cita de Tutoria se puede enviar, actualizar o quitar su evento de Google (solo en el calendario principal; los compartidos son de solo lectura). Solo se envían un título, la hora, una duración de 30 minutos y un identificador de vínculo. Las amassades del alumnado usan un título genérico. Las tareas y las notas permanecen en Tutoria.
 
 Para activar la función, habilita Google Calendar API en un proyecto de Google Cloud y crea un cliente OAuth de tipo aplicación web. Autoriza el origen exacto de la app y compílala con `VITE_GOOGLE_CALENDAR_CLIENT_ID` apuntando al ID público del cliente. El centro puede requerir su aprobación para cuentas de Google Workspace. No se requiere un secreto de cliente. La autorización se conserva en memoria durante la sesión.
 

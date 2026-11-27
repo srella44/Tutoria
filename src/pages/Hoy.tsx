@@ -185,7 +185,7 @@ export function Hoy() {
                       <span data-marca="google" className="cal-icono-fila"><CalendarDays size={19} aria-hidden /></span>
                       <span className="min-w-0 flex-1">
                         <span className="block text-xs text-muted">
-                          Google Calendar
+                          {evento.calendario || 'Google Calendar'}
                           {evento.start.date && ` · ${t.calTotEthDia}`}
                           {evento.start.dateTime && diaLocal(evento.start.dateTime) === seleccion && ` · ${hora(evento.start.dateTime)}`}
                         </span>
