@@ -37,6 +37,8 @@ export default defineConfig(({ mode }) => {
             },
           ],
         },
+        // Con Cloudflare Access delante, el manifiesto se pide con la cookie de sesión.
+        useCredentials: true,
         includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'pretzhet-digitau.webp'],
         manifest: {
           name: 'TUTOR-ia',

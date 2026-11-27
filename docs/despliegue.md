@@ -28,6 +28,11 @@ TUTOR-ia se publica en **Cloudflare Pages** (app + API de sincronización) con u
 4. En Pages › **Settings › Variables**: `ACCESS_TEAM_DOMAIN` = `<equipo>.cloudflareaccess.com` y
    `ACCESS_AUD` = el AUD copiado. Vuelve a desplegar.
 
+5. **Icono del iPhone:** al añadir a la pantalla de inicio, iOS pide `/apple-touch-icon.png` sin la sesión de Access y
+   recibe la página de acceso, así que pone una «T». Crear otra aplicación *Self-hosted* con dominio
+   `tutoria.pretzhet.app` y ruta `apple-touch-icon.png` (repetir para `favicon.svg` y `manifest.webmanifest`),
+   con una política **Bypass › Everyone**. Son archivos públicos sin datos.
+
 ## 4. Primer uso
 
 1. En el aparato principal: crear el PIN (6 cifras recomendado) y guardar la clave de emergencia en papel.

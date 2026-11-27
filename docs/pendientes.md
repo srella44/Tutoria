@@ -66,6 +66,7 @@ y escribe solo en el principal (`src/lib/googleCalendar.ts`). Falta la configura
 
 - [ ] Probar en el iPhone real (instalar como PWA desde Safari) y anotar ajustes táctiles.
 - [ ] Publicar en Cloudflare Pages (`tutoria.pretzhet.app`) detrás de Cloudflare Access.
+- [ ] Access: reglas Bypass para `apple-touch-icon.png`, `favicon.svg` y `manifest.webmanifest` (el icono del iPhone sale como «T» sin ellas). Ver `docs/despliegue.md` §3.5.
 - [x] Icono PNG 180×180 para `apple-touch-icon` (`public/apple-touch-icon.png`, generado del favicon).
 
 ## Fase 2 · Seguridad y sincronización (en curso)
