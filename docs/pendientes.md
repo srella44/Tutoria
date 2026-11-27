@@ -28,6 +28,20 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 
 - [x] Validar «Religion», «Hè religion», «Marcar qui hè religion», «Tòca es alumnes que hèn religion», «Marcar ara classe», «Pendents», «Exportar PDF», «Descargar», «Marca es donades que vòs que gessen en PDF…», «Era religion ei ua donada sensibla…». **Validado por Sergio (27/11/2026) y aplicado.**
 
+## Fase 4 · Google Calendar (siguiente, sesión guiada)
+
+Cuenta personal de Gmail del tutor; el centro le comparte su calendario. La app ya lee el principal y los compartidos
+y escribe solo en el principal (`src/lib/googleCalendar.ts`). Falta la configuración:
+
+- [ ] Google Cloud: crear proyecto «Tutoria».
+- [ ] Activar Google Calendar API.
+- [ ] Pantalla de consentimiento OAuth: Externo, modo de prueba, correo del tutor como usuario de prueba.
+- [ ] Credenciales: ID de cliente OAuth tipo «Aplicación web», origen `https://tutoria.pretzhet.app`.
+- [ ] Cloudflare Pages › tutoria › Variables: `VITE_GOOGLE_CALENDAR_CLIENT_ID` y volver a desplegar.
+- [ ] Conectar en Aué, aceptar permisos y comprobar que salen el calendario principal y el del centro.
+- [ ] Enviar una cita de prueba a Google, actualizarla y quitarla.
+- [ ] Decidir si se automatiza el envío de citas al cambiarlas (ahora es manual).
+
 ## Fase 3 · Reuniones (completada 2026-11-27)
 
 - [x] Plantilla oficial guardada una vez y sincronizada; borradores sincronizados (sustituye «Unificar los borradores oficiales con la llave de datos»).
@@ -88,7 +102,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Importación del alumnado desde Excel (.xlsx) o CSV, con vista previa (`src/lib/importar.ts`, `src/pages/Importar.tsx`).
 - [x] Formularios y diálogos con componentes propios (`src/components/Hoja.tsx`); shadcn/ui no ha hecho falta (ver `docs/decisiones/0002`).
 - [x] Editar y cerrar incidencias; editar y borrar registros, acuerdos y Ahèrs.
-- [ ] Configurar el cliente OAuth (cuenta personal del tutor, el centro le comparte su calendario) y verificar el acceso real a Google Calendar.
+- [ ] Google Calendar: pasa a la Fase 4.
 - [ ] Automatizar el envío ante cambios locales, una vez que existan edición y persistencia de citas.
 - [x] Validar las etiquetas de historial, borradores y Ahèrs vinculados en aranés.
 - [ ] Desplegar almacenamiento cifrado y autenticado para recuperar el mismo banco y los registros en distintos ordenadores.
