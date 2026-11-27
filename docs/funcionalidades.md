@@ -126,3 +126,5 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 - Límite: un PDF de más de ~1 MB se guarda en el aparato pero no se sincroniza (límite de D1).
 
 Las amassades sin hoja oficial (EAP, logopeda, profesionales y otras) usan el mismo flujo que Claustre: puntos en Preparar, notas por punto y Ahèrs en Anotar, y acta «popurrí» en PDF (sin firmas). En el acta aparecen el tipo de reunión, el alumnado y los asistentes.
+
+Cualquier cita puede llevar un título propio (al crearla o en Preparar). Es obligatorio solo en «Ua auta session» y «Ua auta amassada»; en las listas, la cabecera y el acta aparece el título con el tipo debajo.

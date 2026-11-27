@@ -36,6 +36,7 @@ export function Reuniones({ claustre = false }: { claustre?: boolean }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-sm font-bold">{r.titulo || tipo[r.tipo]}</div>
+          {claustre && r.titulo && <div className="truncate text-xs text-muted">{tipo[r.tipo]}</div>}
           {!claustre && r.alumnoIds.length > 0 && <div className="truncate text-sm text-muted">{r.alumnoIds.map(nombre).join(', ')}</div>}
           {r.estado === 'sinFirmar' && <span className="block text-xs text-warn">{t.actasSinFirmar}</span>}
         </div>
@@ -151,7 +152,7 @@ function NuevaReunion({ claustre, tiposReunion, tituloNueva, onClose }: {
       tipo,
       fecha: instante.toISOString(),
       alumnoIds: sel,
-      titulo: tituloPropio ? titulo.trim() : undefined,
+      titulo: titulo.trim() || undefined,
       alumnosOtrosCursos: teEscoti && otros.length > 0
         ? otros.map((a) => ({ nombre: a.nombre.trim(), curso: a.curso.trim() }))
         : undefined,
@@ -192,12 +193,10 @@ function NuevaReunion({ claustre, tiposReunion, tituloNueva, onClose }: {
               ))}
             </div>
           </Campos>
-          {tituloPropio && (
-            <Campos titulo={t.tituloCita} resumen={titulo}>
-              <input aria-label={t.tituloCita} value={titulo} onChange={(e) => setTitulo(e.target.value)}
-                className="h-11 w-full rounded-xl border border-line bg-bg px-3" />
-            </Campos>
-          )}
+          <Campos titulo={tituloPropio ? `${t.tituloCita} *` : t.tituloCita} resumen={titulo}>
+            <input aria-label={t.tituloCita} value={titulo} onChange={(e) => setTitulo(e.target.value)}
+              className="h-11 w-full rounded-xl border border-line bg-bg px-3" />
+          </Campos>
           <Campos titulo={t.fechaYHora} resumen={[fecha, horaVal].filter(Boolean).join(' · ')}>
             <div className="grid grid-cols-2 gap-2">
               <label className="min-w-0 text-xs font-semibold text-muted">

@@ -22,7 +22,7 @@ export function Reunion() {
   const nav = useNavigate()
   const location = useLocation()
   const { t, lang, tipo } = useI18n()
-  const { registros, borradoresListos, acuerdos, alumnos, contactos, profesionales, curso } = useStore()
+  const { registros, borradoresListos, acuerdos, alumnos, contactos, profesionales, curso, guardarRegistro } = useStore()
   const [paso, setPaso] = useState(0)
   const r = registros.find((x) => x.id === id)
   if (!r) return <Empty>{borradoresListos ? '404' : t.pdfCargando}</Empty>
@@ -65,7 +65,7 @@ export function Reunion() {
           <div className="min-w-0 flex-1">
             <div className="truncate font-semibold">{titulo}</div>
             <div className="truncate text-xs text-muted">
-              {!interna && `${tipo[r.tipo]} · `}{fechaHora(r.fecha, lang)}
+              {(!interna || r.titulo) && `${tipo[r.tipo]} · `}{fechaHora(r.fecha, lang)}
             </div>
           </div>
           <button
@@ -94,7 +94,15 @@ export function Reunion() {
       <div className="cita-contenido flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl space-y-4 px-4 py-4">
           {paso === 0 && <>
-            <div className="flex justify-end"><EstadoCita cita={r} /></div>
+            <div className="flex items-end gap-3">
+              <label className="min-w-0 flex-1 text-sm font-semibold text-muted">
+                {t.tituloCita}
+                <input value={r.titulo ?? ''} placeholder={tipo[r.tipo]} disabled={r.estado === 'firmado'}
+                  onChange={(e) => guardarRegistro({ ...r, titulo: e.target.value || undefined })}
+                  className="mt-1 h-11 w-full rounded-xl border border-line bg-surface px-3 text-base font-normal text-ink" />
+              </label>
+              <EstadoCita cita={r} />
+            </div>
             {!protegido && <PuntosCita key={r.id} cita={r} />}
           </>}
           {paso === 0 && <ControlGoogleCalendar cita={r} titulo={interna ? tipo[r.tipo] : t.eventoPrivado} />}
@@ -157,10 +165,10 @@ export function Reunion() {
           {actaPropia && paso === 1 && (protegido ? <Card><Empty>{t.protegido}</Empty></Card> : <NotasInternas cita={r} />)}
 
           {actaPropia && paso >= 2 && <>
-            <ActaInterna cita={r} titulo={interna ? titulo : r.titulo || tipo[r.tipo]} fecha={fechaHora(r.fecha, lang)}
-              detalle={interna ? undefined : [nombres, asistentes.join(', ')].filter(Boolean).join(' · ')} />
-            {paso === 3 && <PdfActaPropia cita={r} titulo={interna ? titulo : r.titulo || tipo[r.tipo]}
-              lineas={[fechaHora(r.fecha, lang), curso.tutor ?? '', interna ? '' : [nombres, asistentes.join(', ')].filter(Boolean).join(' · ')]} />}
+            <ActaInterna cita={r} titulo={r.titulo || tipo[r.tipo]} fecha={fechaHora(r.fecha, lang)}
+              detalle={[r.titulo ? tipo[r.tipo] : '', interna ? '' : nombres, interna ? '' : asistentes.join(', ')].filter(Boolean).join(' · ') || undefined} />
+            {paso === 3 && <PdfActaPropia cita={r} titulo={r.titulo || tipo[r.tipo]}
+              lineas={[fechaHora(r.fecha, lang), curso.tutor ?? '', [r.titulo ? tipo[r.tipo] : '', interna ? '' : nombres, interna ? '' : asistentes.join(', ')].filter(Boolean).join(' · ')]} />}
           </>}
 
         </div>
