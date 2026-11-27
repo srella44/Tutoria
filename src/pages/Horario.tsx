@@ -1,8 +1,8 @@
 // Horario conjunto: en una sola cuadrícula, las sesiones del tutor y las de su clase.
-// Una sesión «conjunta» ocupa todo el ancho; si cada uno está en un sitio, a la izquierda va la del
-// tutor (Jo) y a la derecha la de la clase (con el especialista).
+// Lo del tutor manda: en grande lo que hago yo (con mi clase o en otro sitio) y, debajo y en pequeño,
+// lo que hace la clase cuando está con otro maestro.
 import clsx from 'clsx'
-import { CalendarClock, Plus, Upload } from 'lucide-react'
+import { CalendarClock, Plus, Upload, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Campo, claseInput, Hoja } from '../components/Hoja'
 import { PageHeader } from '../components/ui'
@@ -208,46 +208,47 @@ function banda(horario: SesionHorario[], f: Franja) {
   return m && cs.every((c) => c.conjunta?.materia === m && !c.clase && !c.mia && !c.otras.length) ? cs.map((c) => c.conjunta!) : null
 }
 
-/** Lo mío cuando no estoy con la clase: una pastilla de color. */
-function Pastilla({ s, onClick, grande }: { s: SesionHorario; onClick: () => void; grande?: boolean }) {
+/** Contenido de una casilla: arriba, en grande, lo mío (con la clase o en otro sitio);
+ * debajo, en pequeño, lo que hace la clase cuando no estoy con ella. */
+function ContenidoCasilla({ c, onSesion, grande, grupo }: { c: Casilla; onSesion: (s: SesionHorario) => void; grande?: boolean; grupo: string }) {
   const { t } = useI18n()
+  const mias = [c.mia, ...c.otras].filter((x): x is SesionHorario => !!x)
+  const abrir = (s: SesionHorario) => (e: { stopPropagation: () => void }) => { e.stopPropagation(); onSesion(s) }
+  const detalle = (s: SesionHorario) => [s.docente, s.lugar].filter(Boolean).join(' · ')
   return (
-    <button
-      type="button"
-      data-color={colorMateria(s.materia)}
-      onClick={(e) => { e.stopPropagation(); onClick() }}
-      className={clsx('flex max-w-full items-center gap-1.5 rounded-lg px-2 text-left font-semibold', grande ? 'min-h-9 text-sm' : 'min-h-7 text-xs')}
-      style={{ background: 'var(--seccion-fondo)', color: 'var(--seccion-tinta)' }}
-    >
-      <span className="shrink-0 font-normal opacity-75">{t.yo}:</span>
-      <span className="truncate">{s.materia}</span>
-    </button>
-  )
-}
-
-/** Contenido de una casilla: arriba la clase (o la sesión conjunta), debajo lo mío si estoy en otro sitio. */
-function ContenidoCasilla({ c, onSesion, grande }: { c: Casilla; onSesion: (s: SesionHorario) => void; grande?: boolean }) {
-  const deClase = c.conjunta ?? c.clase
-  return (
-    <>
-      {deClase && (
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); onSesion(deClase) }}
-          className="block w-full text-left"
-        >
-          <span className={clsx('block font-bold leading-tight', grande ? 'text-lg' : 'text-[15px]')}>{deClase.materia}</span>
-          {(deClase.docente || deClase.lugar) && (
-            <span className={clsx('block truncate text-muted', grande ? 'text-sm' : 'text-xs')}>{[deClase.docente, deClase.lugar].filter(Boolean).join(' · ')}</span>
-          )}
+    <div className="space-y-1.5">
+      {c.conjunta && (
+        <button type="button" onClick={abrir(c.conjunta)} className="block w-full text-left">
+          <span className="inline-block rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent">
+            {t.conClase} {grupo}
+          </span>
+          <span className={clsx('mt-0.5 block font-bold leading-tight', grande ? 'text-lg' : 'text-[15px]')}>{c.conjunta.materia}</span>
+          {c.conjunta.lugar && <span className={clsx('block truncate text-muted', grande ? 'text-sm' : 'text-xs')}>{c.conjunta.lugar}</span>}
         </button>
       )}
-      {(c.mia || c.otras.length > 0) && (
-        <div className={clsx('flex flex-wrap gap-1', deClase && 'mt-1.5')}>
-          {[c.mia, ...c.otras].filter((x): x is SesionHorario => !!x).map((s) => <Pastilla key={s.id} s={s} grande={grande} onClick={() => onSesion(s)} />)}
-        </div>
+      {mias.map((s) => (
+        <button
+          key={s.id}
+          type="button"
+          data-color={colorMateria(s.materia)}
+          onClick={abrir(s)}
+          className={clsx('block w-full rounded-xl px-2.5 text-left', grande ? 'py-2' : 'py-1.5')}
+          style={{ background: 'var(--seccion-fondo)', color: 'var(--seccion-tinta)' }}
+        >
+          <span className={clsx('block font-bold leading-tight', grande ? 'text-lg' : 'text-[15px]')}>{s.materia}</span>
+          {s.lugar && <span className={clsx('block truncate opacity-80', grande ? 'text-sm' : 'text-xs')}>{s.lugar}</span>}
+        </button>
+      ))}
+      {c.clase && (
+        <button type="button" onClick={abrir(c.clase)} className={clsx('flex w-full min-w-0 items-center gap-1.5 text-left text-muted', grande ? 'text-sm' : 'text-xs')}>
+          <Users size={grande ? 14 : 12} className="shrink-0" aria-hidden />
+          <span className="truncate">
+            {grupo}: <span className="font-medium text-ink">{c.clase.materia}</span>
+            {detalle(c.clase) && ` · ${detalle(c.clase)}`}
+          </span>
+        </button>
       )}
-    </>
+    </div>
   )
 }
 
@@ -255,7 +256,8 @@ const enFranja = (f: Franja, m: number) => minutos(f.inicio) <= m && m < minutos
 
 export function Horario() {
   const { t, lang } = useI18n()
-  const { horario } = useStore()
+  const { horario, curso } = useStore()
+  const grupo = curso.grupos[0] ?? t.laClase
   const ahora = useAhora()
   const hoy = diaHorario(ahora)
   const ahoraMin = ahora.getHours() * 60 + ahora.getMinutes()
@@ -363,7 +365,7 @@ export function Horario() {
                           {actual && <span className="mb-1 inline-block rounded-full bg-accent px-2 text-[11px] font-semibold text-on-accent">{t.ahora}</span>}
                           {vacia ? <span className="text-sm text-muted">—</span> : corta
                             ? <span className="text-sm font-medium">{c.conjunta?.materia}</span>
-                            : <ContenidoCasilla c={c} onSesion={onSesion} grande />}
+                            : <ContenidoCasilla c={c} onSesion={onSesion} grupo={grupo} grande />}
                         </div>
                       </div>
                     </li>
@@ -411,7 +413,7 @@ export function Horario() {
                                 actual && 'outline-2 -outline-offset-2 outline-accent',
                               )}
                             >
-                              <ContenidoCasilla c={c} onSesion={onSesion} />
+                              <ContenidoCasilla c={c} onSesion={onSesion} grupo={grupo} />
                             </td>
                           )
                         })}

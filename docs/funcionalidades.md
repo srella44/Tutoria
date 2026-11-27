@@ -93,7 +93,7 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 ## Orari (horario conjunto)
 
 - Pantalla `/horario` (Inici y barra lateral): en una sola cuadrícula, las sesiones del tutor y las de su clase.
-  Formato tabla, como el horario en papel: en cada casilla, en grande lo que hace la clase y debajo, en una pastilla de color, lo que hace el tutor cuando no está con ella. La franja de patio común se pinta como una banda.
+  Formato tabla, como el horario en papel, con el horario del tutor como principal: en cada casilla, en grande lo que hace el tutor (con su clase, etiquetado «Damb 4au B», o en color cuando está en otro sitio) y debajo, en pequeño, lo que hace la clase cuando está con otro maestro. La franja de patio común se pinta como una banda.
 - Añadir, editar y borrar sesiones; al crear se pueden marcar varios días a la vez. Tocar un hueco crea una sesión a esa hora.
 - iPhone: día a día (hoy por defecto); iPad/ordenador: semana completa. Línea de la hora actual.
 - En Inici, la tarjeta «Orari» dice qué toca ahora (y hasta cuándo) o lo siguiente.

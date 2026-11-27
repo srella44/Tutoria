@@ -56,6 +56,8 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Copia de seguridad cifrada descargable y restaurable, con prueba de restauración (decisión 0013).
 - [ ] Validar «Importar autorizacions», «Alumnes reconeishudi», «Non reconeishudi…», «Naua», «Ignorar», «Aplicar a», «Es caselhes vuedes…».
 - [ ] Validar «Autorizacions», «Autorizacion naua», «Gestionar autorizacions», «Icòna», «Òc», «Non», «A viatges», «Tostemp», «Tres opcions…», «Tòca ua tarja entà cambiar…».
+- [ ] Validar «Damb» (etiqueta «Damb 4au B» del horario) y la nueva ayuda del Orari: «En cada franja, en gròs çò que hès tu; dejós, mès petit, çò que hè era classe quan non ès damb era».
+- [ ] Comprobar en el iPhone que el valor de los campos de fecha y hora queda centrado (ajuste en `src/index.css`).
 - [ ] Validar «Generau» y «Seguretat» (apartados de la consola de ajustes).
 - [ ] Validar «Descargar còpia de seguretat», «Restaurar ua còpia», «Darrèra còpia», «Còpia comprovada…», «Aguesta còpia ei d’un aute aparelh…», «Se substituiràn totes es donades…».
 - [ ] Unificar los borradores oficiales con la llave de datos.
