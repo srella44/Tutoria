@@ -6,10 +6,10 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 
 - [x] Etiquetas de interfaz en `src/lib/i18n.tsx` (objeto `oc`), en especial: «Enregistrar» (guardar), «Registre nau», «Donades», «Tipe», «Escríuer», «Trucar», «Neishement», «Pròximes amassades», «Daurir amassada», «Toti», «Inici», «Amassada naua», «Passades», «Pendents», «Ajustaments», «Data», «Ora», «vençut», «Bon dia», «Ahèrs pendents». **Validado por Sergio (27/11/2026) y aplicado.**
 - [x] Validar los nuevos textos del calendario, las amassades, Claustre y los Ahèrs, incluidas las formas de los meses. Revisar también «Cercar alumnes». **Validado por Sergio (27/11/2026) y aplicado.**
-- [ ] Nombres de tipos de registro (`tipoLabel.oc`). La lista validada («Amassada», «Entrevista», «Telefonada», «Corrèu electronic», «Acòrd», «Seguiment», «Avaloracion», «Tutoria», «Comportament», «Aprenedissatge», «Conviuença», «Assisténcia», «Auti») no coincide con los tipos actuales de la app (Observacion, Incidéncia, Comunicacion, Amassada damb era familha…, Claustre, Cicle, Mentor, Te escoti, Avaluacion, Informe): pendiente de decidir con Sergio.
+- [x] Nombres de tipos de registro (`tipoLabel.oc`). **Validados por Sergio (27/11/2026)**: «Amassada damb eth logopèda», «Mentoria», «T’escoti», «Avaloracion» (también en la pestaña de la ficha y «T’escoti en seguiment»). Sin tipos nuevos.
 - [x] Días de la semana en `src/lib/fechas.ts`. **Validado por Sergio (27/11/2026) y aplicado.**
-- [ ] Revisar también el aranés de las observaciones, los acuerdos y las fichas ficticias de `src/data/demo.ts`.
-- [ ] Frases frecuentes de ejemplo en `src/data/demo.ts` (sustituir por las validadas del banco de expresiones).
+- [x] Revisar también el aranés de las observaciones, los acuerdos y las fichas ficticias de `src/data/demo.ts`. **Validado por Sergio (27/11/2026) y aplicado** (también el horario de ejemplo).
+- [x] Frases frecuentes de ejemplo en `src/data/demo.ts` (sustituir por las validadas del banco de expresiones). **Corregidas por Sergio (27/11/2026)**; las ya guardadas en los aparatos se actualizan solas si no se habían editado.
 
 - [x] Validar «Véder eth calendari» y «Ahèrs vençuts». **Validado por Sergio (27/11/2026) y aplicado.**
 - [x] Validar los textos de cursos, frases y orden: «Corses escolars», «Cors nau», «Grops», «Actiu», «Passar er alumnat actiu a aguest cors», «Grop nau entar alumnat (opcionau)», «Frasa naua», «Àrea», «Ton», «Lograt», «Progrès», «Dificultat», «Prepausa», «Pujar», «Baishar», «Fet», «Ordenar per», «Nº de lista». **Validado por Sergio (27/11/2026) y aplicado.**

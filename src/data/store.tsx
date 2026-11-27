@@ -252,6 +252,18 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   const [frases, setFrases] = useState(() =>
     [...datos.frases].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)))
   usePersistir('frases', frases, guardar)
+  // Las frases iniciales (f1…f5) se corrigieron en aranés: se actualizan si el tutor no las ha cambiado.
+  useEffect(() => {
+    const antiguas: Record<string, [string, string]> = {
+      f1: ['Participe activament ena classa.', 'Participe activament ena classe.'],
+      f2: ['A milhorat era sua autonomia en trabalh.', 'A melhorat era sua autonomia en trabalh.'],
+      f4: ['Ajude as companhs sense que se li demane.', 'Ajude as companhs sense que l’ac demanen.'],
+    }
+    setFrases((items) => {
+      const nuevas = items.map((f) => (antiguas[f.id]?.[0] === f.texto ? { ...f, texto: antiguas[f.id][1] } : f))
+      return nuevas.some((f, i) => f !== items[i]) ? nuevas : items
+    })
+  }, [])
   const [horarioTodo, setHorario] = useState<SesionHorario[]>(() => datos.horario ?? [])
   usePersistir('horario', horarioTodo, guardar)
   usePersistir('cursos', cursos, guardar)
