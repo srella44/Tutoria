@@ -99,4 +99,4 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Validar el nuevo aviso de «Version naua» (firmas conservadas) en aranés.
 - [ ] Validar «Logo dera escòla» (Cursos) en aranés.
 - [ ] Validar en aranés el aviso del paso PDF del acta propia («Er acta se guarde aciu; cada PDF nau ei ua version.»).
-- [ ] Revisar en un iPhone el PDF «popurrí» generado (pauta, post-its, bocadillos, logo y páginas de continuación).
+- [ ] Revisar en un iPhone el PDF «popurrí» generado: título de etiquetadora y tiras de colores, post-its, notas en tiras de papel pegadas, Ahèrs, logo, sello y páginas de continuación.
