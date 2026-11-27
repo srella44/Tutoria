@@ -70,8 +70,14 @@ export function Cerradura({ children }: { children: ReactNode }) {
     void guardarMinutosBloqueo(m)
   }
 
-  // Sesión abierta: se crea al desbloquear y se renueva mientras se usa la app (cada 30 s como mucho).
   const dekAbierta = estado.fase === 'abierta' ? estado.dek : null
+
+  // Pide almacenamiento persistente: así el navegador no borra los datos por su cuenta cuando le falta espacio.
+  useEffect(() => {
+    if (dekAbierta) void navigator.storage?.persist?.().catch(() => {})
+  }, [dekAbierta])
+
+  // Sesión abierta: se crea al desbloquear y se renueva mientras se usa la app (cada 30 s como mucho).
   useEffect(() => {
     if (!dekAbierta) return
     leerSesion().then(async (s) => {
