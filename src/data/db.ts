@@ -69,9 +69,8 @@ const colecciones: Coleccion[] = ['cursos', 'alumnos', 'contactos', 'profesional
 export const AUTORIZACIONES_INICIALES: TipoAutorizacion[] = [
   { id: 'gessuda', nombre: 'Gessuda', icono: 'bus', orden: 0 },
   { id: 'solet', nombre: 'Solet', icono: 'sol', orden: 1 },
-  { id: 'control3', nombre: 'Control 3', icono: 'casa', orden: 2 },
-  { id: 'minjador', nombre: 'Minjador', icono: 'cubiertos', orden: 3 },
-  { id: 'foto', nombre: 'Fòto', icono: 'camara', orden: 4 },
+  { id: 'minjador', nombre: 'Minjador', icono: 'cubiertos', orden: 2, tresEstados: true },
+  { id: 'foto', nombre: 'Fòto', icono: 'camara', orden: 3 },
 ]
 
 /** Ahèrs iniciales: los acuerdos de ejemplo asignados al tutor. */

@@ -2,7 +2,7 @@
 import clsx from 'clsx'
 import { ArrowDown, ArrowUp, Pencil, Plus, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
-import { estiloEstado } from '../components/Autorizaciones'
+import { estiloEstado, useEtiquetaEstado } from '../components/Autorizaciones'
 import { Campo, claseInput, Hoja } from '../components/Hoja'
 import { Card, PageHeader } from '../components/ui'
 import { useStore } from '../data/store'
@@ -15,6 +15,7 @@ function FormTipo({ tipo, onClose }: { tipo?: TipoAutorizacion; onClose: () => v
   const { tiposAutorizacion, guardarTipoAutorizacion, borrarTipoAutorizacion } = useStore()
   const [nombre, setNombre] = useState(tipo?.nombre ?? '')
   const [icono, setIcono] = useState(tipo?.icono ?? 'escudo')
+  const [tres, setTres] = useState(tipo?.tresEstados ?? false)
   const [borrar, setBorrar] = useState(false)
   return (
     <Hoja
@@ -22,7 +23,7 @@ function FormTipo({ tipo, onClose }: { tipo?: TipoAutorizacion; onClose: () => v
       onClose={onClose}
       puedeGuardar={nombre.trim() !== ''}
       onGuardar={() => {
-        guardarTipoAutorizacion({ id: tipo?.id ?? crypto.randomUUID(), nombre: nombre.trim(), icono, orden: tipo?.orden ?? tiposAutorizacion.length })
+        guardarTipoAutorizacion({ id: tipo?.id ?? crypto.randomUUID(), nombre: nombre.trim(), icono, orden: tipo?.orden ?? tiposAutorizacion.length, tresEstados: tres || undefined })
         onClose()
       }}
       pie={tipo && (
@@ -35,6 +36,10 @@ function FormTipo({ tipo, onClose }: { tipo?: TipoAutorizacion; onClose: () => v
       <Campo label={t.nombre}>
         <input autoFocus value={nombre} onChange={(e) => setNombre(e.target.value)} className={claseInput} />
       </Campo>
+      <label className="flex min-h-11 items-center gap-3">
+        <input type="checkbox" checked={tres} onChange={(e) => setTres(e.target.checked)} className="size-5 accent-[var(--color-accent)]" />
+        <span>{t.tresOpciones}</span>
+      </label>
       <fieldset>
         <legend className="mb-2 text-xs font-semibold uppercase text-muted">{t.icono}</legend>
         <div className="grid grid-cols-8 gap-2">
@@ -53,6 +58,7 @@ function FormTipo({ tipo, onClose }: { tipo?: TipoAutorizacion; onClose: () => v
 export function Autorizaciones() {
   const { t } = useI18n()
   const { tiposAutorizacion, moverTipoAutorizacion, alumnosActivos } = useStore()
+  const etiqueta = useEtiquetaEstado()
   const [editando, setEditando] = useState<TipoAutorizacion | 'nueva'>()
   return (
     <>
@@ -82,7 +88,7 @@ export function Autorizaciones() {
                     <p className="flex flex-wrap gap-x-2 text-xs">
                       {(['si', 'aviatges', 'no', 'pendiente'] as const).filter((k) => cuenta[k] > 0).map((k) => (
                         <span key={k} className={estiloEstado[k].marca}>
-                          {k === 'si' ? t.estadoSi : k === 'no' ? t.estadoNo : k === 'aviatges' ? t.estadoAViatges : t.pendiente} {cuenta[k]}
+                          {etiqueta(k, tipo.tresEstados)} {cuenta[k]}
                         </span>
                       ))}
                     </p>

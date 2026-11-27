@@ -139,4 +139,6 @@ export interface TipoAutorizacion {
   /** Nombre de un icono de la lista ICONOS_AUTORIZACION. */
   icono: string
   orden: number
+  /** Tres opciones (Tostemp · A viatges · Non) en lugar de dos (Òc · Non). */
+  tresEstados?: boolean
 }

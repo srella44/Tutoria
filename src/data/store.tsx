@@ -213,6 +213,18 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   const [tiposAutorizacion, setTiposAutorizacion] = useState(() =>
     [...(datos.autorizaciones?.length ? datos.autorizaciones : AUTORIZACIONES_INICIALES)].sort((a, b) => a.orden - b.orden))
   usePersistir('autorizaciones', tiposAutorizacion, guardar)
+  // Corrección única de la lista inicial: «Control 3» estaba vacía en el control en papel (se quita si nadie
+  // la usa) y Minjador es de tres opciones. Se hace tras montar para que el cambio se guarde y se sincronice.
+  useEffect(() => {
+    setTiposAutorizacion((items) => {
+      const sinUso = !datos.alumnos.some((a) => a.autorizaciones?.control3)
+      const nuevos = items
+        .filter((x) => !(x.id === 'control3' && sinUso))
+        .map((x) => (x.id === 'minjador' && x.tresEstados === undefined ? { ...x, tresEstados: true } : x))
+        .map((x, i) => (x.orden === i ? x : { ...x, orden: i }))
+      return nuevos.length === items.length && nuevos.every((x, i) => x === items[i]) ? items : nuevos
+    })
+  }, [datos.alumnos])
   const [contactos, setContactos] = useState(datos.contactos)
   const [profesionales, setProfesionales] = useState(datos.profesionales)
   const [frases, setFrases] = useState(() =>

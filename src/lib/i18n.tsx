@@ -7,6 +7,8 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  estadoTostemp: 'Tostemp',
+  tresOpciones: 'Tres opcions: tostemp · a viatges · non',
   autorizaciones: 'Autorizacions',
   autorizacionNueva: 'Autorizacion naua',
   gestionarAutorizaciones: 'Gestionar autorizacions',
@@ -14,7 +16,7 @@ const oc = {
   estadoSi: 'Òc',
   estadoNo: 'Non',
   estadoAViatges: 'A viatges',
-  tocaCambiar: 'Tòca ua tarja entà cambiar: òc · non · a viatges · pendent.',
+  tocaCambiar: 'Tòca ua tarja entà cambiar er estat.',
   general: 'Generau',
   seguridad: 'Seguretat',
   descargarCopia: 'Descargar còpia de seguretat',
@@ -356,6 +358,8 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  estadoTostemp: 'Siempre',
+  tresOpciones: 'Tres opciones: siempre · a veces · no',
   autorizaciones: 'Autorizaciones',
   autorizacionNueva: 'Autorización nueva',
   gestionarAutorizaciones: 'Gestionar autorizaciones',
@@ -363,7 +367,7 @@ const es: Dict = {
   estadoSi: 'Sí',
   estadoNo: 'No',
   estadoAViatges: 'A veces',
-  tocaCambiar: 'Toca una tarjeta para cambiar: sí · no · a veces · pendiente.',
+  tocaCambiar: 'Toca una tarjeta para cambiar el estado.',
   general: 'General',
   seguridad: 'Seguridad',
   descargarCopia: 'Descargar copia de seguridad',

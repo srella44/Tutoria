@@ -7,7 +7,16 @@ import type { Alumno, EstadoAutorizacion } from '../data/types'
 import { iconoAutorizacion } from '../lib/iconos'
 import { useI18n } from '../lib/i18n'
 
-const SIGUIENTE: Record<string, EstadoAutorizacion | undefined> = { pendiente: 'si', si: 'no', no: 'aviatges', aviatges: undefined }
+// Dos opciones: pendent → òc → non → pendent. Tres: pendent → tostemp → a viatges → non → pendent.
+const SIGUIENTE_2: Record<string, EstadoAutorizacion | undefined> = { pendiente: 'si', si: 'no', no: undefined, aviatges: 'no' }
+const SIGUIENTE_3: Record<string, EstadoAutorizacion | undefined> = { pendiente: 'si', si: 'aviatges', aviatges: 'no', no: undefined }
+
+/** Texto de cada estado según el tipo de autorización. */
+export function useEtiquetaEstado() {
+  const { t } = useI18n()
+  return (estado: EstadoAutorizacion | 'pendiente', tres?: boolean) =>
+    estado === 'si' ? (tres ? t.estadoTostemp : t.estadoSi) : estado === 'no' ? t.estadoNo : estado === 'aviatges' ? t.estadoAViatges : t.pendiente
+}
 
 export const estiloEstado: Record<EstadoAutorizacion | 'pendiente', { tarjeta: string; icono: string; marca: string }> = {
   si: { tarjeta: 'border-emerald-300 bg-emerald-50', icono: 'bg-emerald-600 text-white', marca: 'text-emerald-700' },
@@ -19,7 +28,7 @@ export const estiloEstado: Record<EstadoAutorizacion | 'pendiente', { tarjeta: s
 export function TarjetasAutorizacion({ alumno }: { alumno: Alumno }) {
   const { t } = useI18n()
   const { tiposAutorizacion, setAutorizacion } = useStore()
-  const etiqueta = { si: t.estadoSi, no: t.estadoNo, aviatges: t.estadoAViatges, pendiente: t.pendiente }
+  const etiqueta = useEtiquetaEstado()
   return (
     <div>
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -31,8 +40,8 @@ export function TarjetasAutorizacion({ alumno }: { alumno: Alumno }) {
           return (
             <li key={tipo.id}>
               <button
-                onClick={() => setAutorizacion(alumno.id, tipo.id, SIGUIENTE[estado])}
-                aria-label={`${tipo.nombre}: ${etiqueta[estado]}`}
+                onClick={() => setAutorizacion(alumno.id, tipo.id, (tipo.tresEstados ? SIGUIENTE_3 : SIGUIENTE_2)[estado])}
+                aria-label={`${tipo.nombre}: ${etiqueta(estado, tipo.tresEstados)}`}
                 className={clsx('relative flex w-full flex-col items-center gap-2 rounded-2xl border-2 px-3 py-4 text-center transition active:scale-[0.97]', estilo.tarjeta)}
               >
                 <span className={clsx('grid size-12 place-items-center rounded-full', estilo.icono)}>
@@ -40,7 +49,7 @@ export function TarjetasAutorizacion({ alumno }: { alumno: Alumno }) {
                 </span>
                 <span className="font-semibold leading-tight">{tipo.nombre}</span>
                 <span className={clsx('flex items-center gap-1 text-sm font-medium', estilo.marca)}>
-                  {Marca && <Marca size={15} strokeWidth={3} aria-hidden />} {etiqueta[estado]}
+                  {Marca && <Marca size={15} strokeWidth={3} aria-hidden />} {etiqueta(estado, tipo.tresEstados)}
                 </span>
               </button>
             </li>
