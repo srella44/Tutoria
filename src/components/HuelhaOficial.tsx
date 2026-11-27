@@ -42,6 +42,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   const puntos = modelo === 'familia' ? cita.puntos ?? [] : []
   const valoresPdf = valores
   const puntosPdf = puntos.length > 0 ? puntos.map((p) => ({ titulo: p.texto, notas: p.notas ?? '' })) : undefined
+  const encabezadoPuntos = [`${t.pdfAspectos} (cont.)`, valores.alumno, valores.fecha].filter(Boolean).join(' · ')
   const guardado = estadoBorradores[cita.id]
   const [vista, setVista] = useState('')
   const [error, setError] = useState('')
@@ -87,7 +88,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
     setError('')
     setOcupado(true)
     try {
-      const bytes = await rellenarPdfOficial(modelo, original, valoresPdf, motivos, [], undefined, puntosPdf)
+      const bytes = await rellenarPdfOficial(modelo, original, valoresPdf, motivos, [], undefined, puntosPdf, encabezadoPuntos)
       setVista(URL.createObjectURL(new Blob([bytes.slice().buffer], { type: 'application/pdf' })))
     } catch (fallo) {
       setError(fallo instanceof CampoPdfError
@@ -108,7 +109,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
       const ahora = new Date()
       const fecha = ahora.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
       const sello = `TUTOR-ia · ${t.version} ${version} · ${t.firmadoEl} ${fecha}`
-      const bytes = await rellenarPdfOficial(modelo, original, valoresPdf, motivos, firmas.map((firma) => firma ?? undefined), sello, puntosPdf)
+      const bytes = await rellenarPdfOficial(modelo, original, valoresPdf, motivos, firmas.map((firma) => firma ?? undefined), sello, puntosPdf, encabezadoPuntos)
       const nombre = `${base} - v${version}.pdf`
       firmarActa({
         id: crypto.randomUUID(), registroId: cita.id, version, fecha: ahora.toISOString(),

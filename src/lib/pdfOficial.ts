@@ -1,4 +1,4 @@
-import type { PDFFont, PDFPage, RGB } from 'pdf-lib'
+import type { PDFDocument, PDFFont, PDFPage, RGB } from 'pdf-lib'
 
 export type ModeloOficial = 'familia' | 'escoti'
 type Caja = readonly [pagina: number, x: number, y: number, ancho: number, alto: number]
@@ -126,32 +126,57 @@ export type PuntoPdf = { titulo: string; notas: string }
 
 type Fuentes = { normal: PDFFont; negrita: PDFFont; cursiva: PDFFont }
 
-/** «Aspèctes a tractar» por puntos: título numerado en negrita y desarrollo sangrado en cursiva. */
-function escribirPuntos(pagina: PDFPage, caja: Caja, puntos: PuntoPdf[], fuentes: Fuentes, clave: string, tinta: RGB) {
+/** «Aspèctes a tractar» por puntos: título numerado en negrita y desarrollo sangrado en cursiva.
+ *  Si no cabe en el recuadro, se llena hasta su borde (sin tocar «Acòrds») y sigue en páginas nuevas al final. */
+function escribirPuntos(
+  documento: PDFDocument, pagina: PDFPage, caja: Caja, puntos: PuntoPdf[], fuentes: Fuentes, clave: string, tinta: RGB,
+  encabezado: string,
+) {
   const { x, y, ancho, alto } = medidas(pagina, caja)
+  type Fila = { texto: string; fuente: PDFFont; x: number; hueco?: boolean }
+  const maquetar = (tamano: number): Fila[] => {
+    const sangria = tamano * 1.6
+    return puntos.flatMap((p, i) => [
+      ...(i > 0 ? [{ texto: '', fuente: fuentes.normal, x, hueco: true }] : []),
+      ...lineas(`${i + 1}. ${p.titulo}`.normalize('NFC'), fuentes.negrita, tamano, ancho)
+        .map((texto) => ({ texto, fuente: fuentes.negrita, x })),
+      ...(p.notas.trim() ? lineas(p.notas.trim().normalize('NFC'), fuentes.cursiva, tamano, ancho - sangria) : [])
+        .map((texto) => ({ texto, fuente: fuentes.cursiva, x: x + sangria })),
+    ])
+  }
+  const altoFila = (f: Fila, interlinea: number) => (f.hueco ? interlinea * 0.5 : interlinea)
   try {
-    for (let tamano = 10; tamano >= 7; tamano -= 0.5) {
+    // 1) Todo en el recuadro, reduciendo la letra hasta 8 pt.
+    for (let tamano = 10; tamano >= 8; tamano -= 0.5) {
       const interlinea = tamano * 1.08
-      const sangria = tamano * 1.6
-      const filas: { texto: string; fuente: PDFFont; x: number }[][] = puntos.map((p, i) => [
-        ...lineas(`${i + 1}. ${p.titulo}`.normalize('NFC'), fuentes.negrita, tamano, ancho)
-          .map((texto) => ({ texto, fuente: fuentes.negrita, x })),
-        ...(p.notas.trim() ? lineas(p.notas.trim().normalize('NFC'), fuentes.cursiva, tamano, ancho - sangria) : [])
-          .map((texto) => ({ texto, fuente: fuentes.cursiva, x: x + sangria })),
-      ])
-      const separacion = interlinea * 0.5
-      const total = filas.reduce((suma, f) => suma + f.length * interlinea, 0) + separacion * (filas.length - 1)
-      if (total > alto) continue
+      const filas = maquetar(tamano)
+      if (filas.reduce((suma, f) => suma + altoFila(f, interlinea), 0) > alto) continue
       let cursor = y - tamano
-      filas.forEach((punto) => {
-        punto.forEach((fila) => {
-          if (fila.texto) pagina.drawText(fila.texto, { x: fila.x, y: cursor, font: fila.fuente, size: tamano, color: tinta })
-          cursor -= interlinea
-        })
-        cursor -= separacion
-      })
+      for (const f of filas) {
+        if (f.texto) pagina.drawText(f.texto, { x: f.x, y: cursor, font: f.fuente, size: tamano, color: tinta })
+        cursor -= altoFila(f, interlinea)
+      }
       return
     }
+    // 2) No cabe: se llena el recuadro y se continúa en páginas añadidas.
+    const tamano = 9
+    const interlinea = tamano * 1.08
+    const { width, height } = pagina.getSize()
+    let hoja = pagina
+    let cursor = y - tamano
+    let limite = y - alto
+    for (const f of maquetar(tamano)) {
+      if (cursor < limite + 2) {
+        hoja = documento.addPage([width, height])
+        hoja.drawText(encabezado.normalize('NFC'), { x, y: height - 50, font: fuentes.negrita, size: 10, color: tinta })
+        cursor = height - 50 - 2 * interlinea - tamano
+        limite = 50
+        if (f.hueco) continue
+      }
+      if (f.texto) hoja.drawText(f.texto, { x: f.x, y: cursor, font: f.fuente, size: tamano, color: tinta })
+      cursor -= altoFila(f, interlinea)
+    }
+    return
   } catch {
     // Carácter no representable: se señala como campo inválido.
   }
@@ -168,6 +193,8 @@ export async function rellenarPdfOficial(
   sello?: string,
   /** Puntos preparados: sustituyen el texto de «aspectos» con formato propio. */
   puntos?: PuntoPdf[],
+  /** Título de las páginas de continuación de los puntos. */
+  encabezadoPuntos = '',
 ) {
   const { PDFDocument, StandardFonts, rgb } = await import('pdf-lib')
   const tinta = rgb(0.07, 0.18, 0.31)
@@ -181,7 +208,7 @@ export async function rellenarPdfOficial(
         negrita: await documento.embedFont(StandardFonts.HelveticaBold),
         cursiva: await documento.embedFont(StandardFonts.HelveticaOblique),
       }
-      escribirPuntos(paginas[caja[0]], caja, puntos, fuentes, clave, tinta)
+      escribirPuntos(documento, paginas[caja[0]], caja, puntos, fuentes, clave, tinta, encabezadoPuntos)
       continue
     }
     escribir(paginas[caja[0]], caja, valores[clave] ?? '', fuente, clave, tinta)
@@ -208,7 +235,7 @@ export async function rellenarPdfOficial(
     pagina.drawImage(imagen, { x: m.x, y: m.y - tamano.height, ...tamano })
   }
   if (sello) {
-    for (const pagina of paginas) {
+    for (const pagina of documento.getPages()) {
       const { x, y, width } = pagina.getCropBox()
       const texto = sello.normalize('NFC').replace(/[^\x20-\x7E\xA0-\xFF]/g, '')
       const ancho = fuente.widthOfTextAtSize(texto, 7)
