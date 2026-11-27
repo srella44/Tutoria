@@ -1,6 +1,6 @@
 // Listado y alta de amassades del alumnado o sesiones internas del centro.
 import clsx from 'clsx'
-import { Building2, CalendarPlus, Handshake, ChevronDown, ChevronRight, Plus, Trash2, X } from 'lucide-react'
+import { Building2, CalendarPlus, Handshake, ChevronDown, ChevronRight, Folder, Plus, Trash2, X } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { DocumentosClaustre } from '../components/DocumentosClaustre'
@@ -81,7 +81,26 @@ export function Reuniones({ claustre = false }: { claustre?: boolean }) {
           <Card><ul>{atrasadas.map(fila)}</ul></Card>
         </>}
         <SectionTitle count={realizadas.length}>{t.citasHechas}</SectionTitle>
-        <Card>{realizadas.length === 0 ? <Empty>{t.sinRegistros}</Empty> : <ul>{realizadas.map(fila)}</ul>}</Card>
+        {realizadas.length === 0 ? <Card><Empty>{t.sinRegistros}</Empty></Card> : (
+          // Carpetas automáticas por tipo (Claustre, Cicle, Mentoria…); dentro, cada cita con su título.
+          <div className="space-y-2">
+            {tiposReunion.map((tp) => {
+              const dentro = realizadas.filter((r) => r.tipo === tp)
+              if (dentro.length === 0) return null
+              return (
+                <details key={tp} className="carpeta-citas group rounded-2xl border border-line bg-surface">
+                  <summary className="flex min-h-12 cursor-pointer list-none items-center gap-3 px-4">
+                    <Folder size={19} className="shrink-0 text-accent" aria-hidden />
+                    <span className="flex-1 font-semibold">{tipo[tp]}</span>
+                    <span className="rounded-full bg-bg px-2.5 py-0.5 text-xs font-semibold text-muted">{dentro.length}</span>
+                    <ChevronDown size={17} className="shrink-0 text-muted transition-transform group-open:rotate-180" aria-hidden />
+                  </summary>
+                  <ul className="border-t border-line">{dentro.map(fila)}</ul>
+                </details>
+              )
+            })}
+          </div>
+        )}
         {claustre && <DocumentosClaustre />}
       </div>
       {nueva && <NuevaReunion claustre={claustre} tituloNueva={tituloNueva} tiposReunion={tiposReunion} onClose={() => setNueva(false)} />}
