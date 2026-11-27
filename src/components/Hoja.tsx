@@ -31,7 +31,7 @@ export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children
         aria-label={titulo}
         onSubmit={enviar}
         onClick={(e) => e.stopPropagation()}
-        className="pb-safe max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-surface md:max-w-lg md:rounded-3xl"
+        className="pb-safe max-h-[92vh] max-h-[92dvh] w-full overflow-x-hidden overflow-y-auto overscroll-contain rounded-t-3xl bg-surface md:max-w-lg md:rounded-3xl"
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-surface px-4 py-3">
           <button type="button" onClick={onClose} className="text-muted" aria-label={t.cancelar}>
@@ -47,7 +47,17 @@ export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children
           </button>
         </div>
         <div className="space-y-4 p-4">{children}</div>
-        {pie && <div className="flex flex-wrap gap-2 border-t border-line px-4 py-3">{pie}</div>}
+        {/* Guardar también al pie: en el iPhone la barra de arriba puede quedar fuera de la vista al desplazarse. */}
+        <div className="flex flex-wrap items-center gap-2 border-t border-line px-4 py-3">
+          {pie}
+          <button
+            type="submit"
+            disabled={!puedeGuardar}
+            className="ml-auto min-h-11 rounded-xl bg-accent px-5 font-semibold text-on-accent disabled:opacity-40"
+          >
+            {t.guardar}
+          </button>
+        </div>
       </form>
     </div>,
     document.body,

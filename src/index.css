@@ -400,3 +400,18 @@ button.cal-dia:hover {
 
   @page { margin: 18mm; }
 }
+
+/* iOS Safari: los campos de fecha y hora tienen un ancho propio y se salían de la hoja. */
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+  max-width: 100%;
+  display: block;
+  text-align: left;
+}
+input::-webkit-date-and-time-value {
+  text-align: left;
+}
