@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useStore } from '../data/store'
 import { esClaustre, type Registro } from '../data/types'
 import { useI18n } from '../lib/i18n'
+import { separarPuntos } from '../lib/puntos'
 import { Card } from './ui'
 
 export function PuntosCita({ cita }: { cita: Registro }) {
@@ -33,11 +34,19 @@ export function PuntosCita({ cita }: { cita: Registro }) {
       )}
       <form onSubmit={(e) => {
         e.preventDefault()
-        addPuntoCita(cita.id, texto)
+        // Se puede pegar el orden del día entero: cada punto numerado (o cada línea) se añade por separado.
+        separarPuntos(texto).forEach((punto) => addPuntoCita(cita.id, punto))
         setTexto('')
-      }} className="flex gap-2 border-t border-line p-3">
-        <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder={t.nuevoPunto}
-          aria-label={t.nuevoPunto} className="h-11 min-w-0 flex-1 rounded-xl border border-line bg-bg px-3" />
+      }} className="flex items-end gap-2 border-t border-line p-3">
+        <textarea value={texto} onChange={(e) => setTexto(e.target.value)} placeholder={t.nuevoPunto}
+          aria-label={t.nuevoPunto} rows={Math.min(6, Math.max(1, texto.split('\n').length))}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+              e.preventDefault()
+              e.currentTarget.form?.requestSubmit()
+            }
+          }}
+          className="min-h-11 min-w-0 flex-1 resize-none rounded-xl border border-line bg-bg px-3 py-2.5 text-base leading-snug" />
         <button type="submit" disabled={!texto.trim()} aria-label={t.anadirPunto}
           className="grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-on-accent disabled:opacity-40">
           <Plus size={20} aria-hidden />

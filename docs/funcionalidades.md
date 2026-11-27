@@ -33,7 +33,7 @@ El engranaje de arriba a la derecha abre la **consola de ajustes** (`/ajustes`),
 
 En Amassades y Claustre se puede crear una cita con un título propio. Los campos de alta se organizan en bloques plegables y conservan lo introducido al contraerlos. En Te Escoti se pueden añadir participantes de otros cursos por nombre y grupo, incluso sin seleccionar a nadie de la clase del tutor.
 
-Amassades y Claustre agrupan las citas en próximas, pendientes de fechas pasadas y realizadas. El estado se puede cambiar desde la lista o la ficha. Cada cita se puede borrar desde la lista con la papelera (dos toques para confirmar), también las firmadas: se borran su borrador y sus actas. La ficha permite añadir puntos y marcarlos como hechos. Los puntos de citas protegidas se reservan para cuando esté disponible el desbloqueo.
+Amassades y Claustre agrupan las citas en próximas, pendientes de fechas pasadas y realizadas. El estado se puede cambiar desde la lista o la ficha. Cada cita se puede borrar desde la lista con la papelera (dos toques para confirmar), también las firmadas: se borran su borrador y sus actas. La ficha permite añadir puntos y marcarlos como hechos. En «Punt nau» se puede pegar el orden del día entero (p. ej. desde un correo): los puntos numerados (1. … 2. … aunque vayan seguidos) o cada línea se añaden por separado. Los puntos de citas protegidas se reservan para cuando esté disponible el desbloqueo.
 
 En Claustre, Cicle y Mentor, los puntos añadidos en Preparar generan un campo plegable de notas por punto en Anotar. El borrador de acta combina título, fecha, puntos y notas generales. El paso PDF abre la impresión del navegador con un diseño limpio para guardar el acta como PDF.
 
