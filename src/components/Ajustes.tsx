@@ -2,7 +2,7 @@
 import { CalendarRange, CloudUpload, KeyRound, Lock, MessageSquareQuote, RefreshCw, Settings, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { OPCIONES_BLOQUEO } from '../data/db'
+import { conEjemplo, OPCIONES_BLOQUEO } from '../data/db'
 import { useSincronizacion, useStore } from '../data/store'
 import { hora } from '../lib/fechas'
 import { useCerradura } from './Cerradura'
@@ -150,7 +150,8 @@ export function Ajustes() {
                 </div>
               </div>
             ) : (
-              almacenamiento === 'guardado' && (
+              // Volver al ejemplo solo en desarrollo y vista previa; empezar sin él, siempre que se esté en el ejemplo.
+              almacenamiento === 'guardado' && (modo === 'demo' || conEjemplo) && (
                 <button
                   onClick={() => setPendiente(modo === 'demo' ? 'propio' : 'demo')}
                   className="w-full rounded-lg px-3 py-2.5 text-left hover:bg-bg"

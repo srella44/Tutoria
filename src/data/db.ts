@@ -199,12 +199,16 @@ async function escribirTodo(datos: Datos, modo: 'demo' | 'propio') {
 }
 
 /** Abre la base de datos. La primera vez la rellena con el alumnado ficticio. */
+/** El alumnado ficticio solo existe en desarrollo y en la vista previa; la app publicada empieza vacía. */
+export const conEjemplo = import.meta.env.DEV || Boolean(import.meta.env.VITE_SINGLEFILE)
+
 export async function cargarDatos(): Promise<{ datos: Datos; modo: 'demo' | 'propio' }> {
   const modo = (await db.meta.get('modo'))?.valor as 'demo' | 'propio' | undefined
   if (!modo) {
-    const datos = datosDemo()
-    await escribirTodo(datos, 'demo')
-    return { datos, modo: 'demo' }
+    const nuevo = conEjemplo ? 'demo' : 'propio'
+    const datos = nuevo === 'demo' ? datosDemo() : datosVacios()
+    await escribirTodo(datos, nuevo)
+    return { datos, modo: nuevo }
   }
   await corregirContactosImportados()
   const leidos = await Promise.all(colecciones.map((c) => leer(c)))

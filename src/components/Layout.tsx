@@ -9,7 +9,7 @@ import { QuickCapture } from './QuickCapture'
 
 export function Layout() {
   const { t } = useI18n()
-  const { curso } = useStore()
+  const { curso, modo } = useStore()
   const [captureOpen, setCaptureOpen] = useState(false)
   // En la pantalla de inicio no hay barra inferior: los botones grandes hacen de menú.
   const enInicio = useLocation().pathname === '/'
@@ -52,7 +52,7 @@ export function Layout() {
             </NavLink>
           ))}
         </nav>
-        <p className="mt-auto px-2 text-xs text-muted">{t.prototipo}</p>
+        {modo === 'demo' && <p className="mt-auto px-2 text-xs text-muted">{t.prototipo}</p>}
       </aside>
 
       <main className={clsx('min-w-0 flex-1 overflow-y-auto md:pb-8', enInicio ? 'pb-8' : 'pb-28')}>
