@@ -383,7 +383,16 @@ button.cal-dia:hover {
 }
 .acta-cabecera { display: flex; align-items: center; gap: 1rem; margin-right: 4rem; }
 .acta-logo { width: 7.5rem; max-height: 4rem; flex-shrink: 0; object-fit: contain; }
-.acta-titulo { font-size: 1.6rem; font-weight: 800; letter-spacing: .03em; color: #993c1d; line-height: 1.15; }
+.acta-titulo { line-height: 1.6; }
+.acta-dymo {
+  display: inline; padding: .15rem .7rem; background: #2c2c2a; color: #fff; font-family: ui-monospace, 'Courier New', monospace;
+  font-weight: 700; font-size: 1.35rem; letter-spacing: .14em; box-decoration-break: clone; -webkit-box-decoration-break: clone;
+}
+.acta-etiquetas { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.acta-dymo-mini { display: inline-block; padding: .1rem .5rem; font-size: .72rem; letter-spacing: .08em; }
+.acta-dymo-mini[data-color='0'] { background: #d85a30; }
+.acta-dymo-mini[data-color='1'] { background: #185fa5; }
+.acta-dymo-mini[data-color='2'] { background: #3b6d11; }
 .acta-meta { margin-top: .25rem; color: #5f5e5a; font-size: .9rem; }
 .acta-seccion { margin-top: 1.5rem; font-weight: 700; color: #854f0b; }
 .acta-postit { margin-top: 1rem; padding: .7rem .9rem; border-radius: 2px; transform: rotate(var(--giro, 0deg)); break-inside: avoid; }
@@ -403,7 +412,6 @@ button.cal-dia:hover {
 .acta-tira-cinta[data-color='lila'] { background: #cecbf6; }
 .acta-tira-cinta[data-color='rosa'] { background: #f4c0d1; }
 .acta-tira-cinta[data-color='melocoton'] { background: #f5c4b3; }
-.acta-banderines { display: block; width: calc(100% - 4rem); height: 1.8rem; margin: -1rem 0 .75rem; }
 .acta-pie { margin-top: 1.25rem; text-align: right; color: #888780; font-size: .75rem; }
 
 @media print {

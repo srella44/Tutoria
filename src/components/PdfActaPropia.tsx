@@ -9,7 +9,7 @@ import { generarActaPropia } from '../lib/pdfActaPropia'
 import { BorrarVersion } from './HuelhaOficial'
 import { Card } from './ui'
 
-export function PdfActaPropia({ cita, titulo, lineas }: { cita: Registro; titulo: string; lineas: string[] }) {
+export function PdfActaPropia({ cita, titulo, etiquetas, lineas }: { cita: Registro; titulo: string; etiquetas: string[]; lineas: string[] }) {
   const { t } = useI18n()
   const { actas, ahers, curso, guardarActaPropia, borrarActa } = useStore()
   const [ocupado, setOcupado] = useState(false)
@@ -23,6 +23,7 @@ export function PdfActaPropia({ cita, titulo, lineas }: { cita: Registro; titulo
       const tareas = ahers.filter((a) => a.origen?.citaId === cita.id)
       const bytes = await generarActaPropia({
         titulo,
+        etiquetas,
         lineas,
         puntos: (cita.puntos ?? []).map((p) => ({ titulo: p.texto, notas: p.notas ?? '' })),
         notasGenerales: { titulo: t.notasGenerales, texto: cita.texto },

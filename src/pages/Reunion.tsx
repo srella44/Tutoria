@@ -42,6 +42,9 @@ export function Reunion() {
   const asistentes = (r.asistentes ?? []).map(
     (a) => contactos.find((c) => c.id === a)?.nombre ?? profesionales.find((p) => p.id === a)?.nombre ?? a,
   )
+  // Acta propia: tiras de etiquetadora (fecha y hora, tipo, mèstre/a) y, en amassades, alumnado y asistentes.
+  const etiquetasActa = [fechaHora(r.fecha, lang), r.titulo ? tipo[r.tipo] : '', curso.tutor ?? ''].filter(Boolean)
+  const detalleActa = interna ? [] : [nombres, asistentes.join(', ')].filter(Boolean)
   const alumnoCita = alumnos.find((a) => a.id === r.alumnoIds[0])
   const relacionados = registros.filter((x) => x.id !== r.id && (interna ? x.tipo === r.tipo : x.alumnoIds.some((a) => r.alumnoIds.includes(a))))
   const anteriores = relacionados
@@ -165,10 +168,8 @@ export function Reunion() {
           {actaPropia && paso === 1 && (protegido ? <Card><Empty>{t.protegido}</Empty></Card> : <NotasInternas cita={r} />)}
 
           {actaPropia && paso >= 2 && <>
-            <ActaInterna cita={r} titulo={r.titulo || tipo[r.tipo]} fecha={fechaHora(r.fecha, lang)}
-              detalle={[r.titulo ? tipo[r.tipo] : '', interna ? '' : nombres, interna ? '' : asistentes.join(', ')].filter(Boolean).join(' · ') || undefined} />
-            {paso === 3 && <PdfActaPropia cita={r} titulo={r.titulo || tipo[r.tipo]}
-              lineas={[fechaHora(r.fecha, lang), curso.tutor ?? '', [r.titulo ? tipo[r.tipo] : '', interna ? '' : nombres, interna ? '' : asistentes.join(', ')].filter(Boolean).join(' · ')]} />}
+            <ActaInterna cita={r} titulo={r.titulo || tipo[r.tipo]} etiquetas={etiquetasActa} detalle={detalleActa} />
+            {paso === 3 && <PdfActaPropia cita={r} titulo={r.titulo || tipo[r.tipo]} etiquetas={etiquetasActa} lineas={detalleActa} />}
           </>}
 
         </div>

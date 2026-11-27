@@ -38,7 +38,7 @@ const coloresPostit = ['amarillo', 'menta', 'lila', 'rosa', 'melocoton'] as cons
 
 // Acta interna (Claustre, Cicle, Mentoria, otras): diseño «popurrí» para uso propio.
 // Libreta pautada con margen y cinta, puntos y Ahèrs en post-its, notas en bocadillo y sello.
-export function ActaInterna({ cita, titulo, fecha, detalle }: { cita: Registro; titulo: string; fecha: string; detalle?: string }) {
+export function ActaInterna({ cita, titulo, etiquetas, detalle }: { cita: Registro; titulo: string; etiquetas: string[]; detalle: string[] }) {
   const { t } = useI18n()
   const { ahers, curso } = useStore()
   const tareas = ahers.filter((a) => a.origen?.citaId === cita.id)
@@ -46,14 +46,15 @@ export function ActaInterna({ cita, titulo, fecha, detalle }: { cita: Registro; 
 
   return (
     <article className="acta-impresion acta-popurri">
-      <Banderines />
       {citaRealizada(cita) && <span className="acta-sello" aria-hidden>OK!</span>}
       <header className="acta-cabecera">
         {curso.logo && <img src={curso.logo} alt="" className="acta-logo" />}
         <div className="min-w-0">
-          <h1 className="acta-titulo">{titulo.toLocaleUpperCase()}!</h1>
-          <p className="acta-meta capitalize">{[fecha, curso.tutor].filter(Boolean).join(' · ')}</p>
-          {detalle && <p className="acta-meta">{detalle}</p>}
+          <h1 className="acta-titulo"><span className="acta-dymo">{titulo.toLocaleUpperCase()}!</span></h1>
+          <p className="acta-etiquetas">
+            {etiquetas.map((e, i) => <span key={i} className="acta-dymo acta-dymo-mini" data-color={i % 3}>{e.toLocaleUpperCase()}</span>)}
+          </p>
+          {detalle.map((d) => <p key={d} className="acta-meta">{d}</p>)}
         </div>
       </header>
 
@@ -95,20 +96,5 @@ function Tira({ color, children }: { color: string; children: string }) {
       <span className="acta-tira-cinta" data-color={color} aria-hidden />
       <p>{children}</p>
     </div>
-  )
-}
-
-const coloresBanderin = ['#fac775', '#9fe1cb', '#cecbf6', '#f4c0d1', '#f5c4b3']
-
-function Banderines() {
-  return (
-    <svg className="acta-banderines" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden>
-      <path d="M0 2 Q150 16 300 2" fill="none" stroke="#888780" strokeWidth="0.8" vectorEffect="non-scaling-stroke" />
-      {Array.from({ length: 12 }, (_, i) => {
-        const x0 = 4 + i * 24.5
-        const y = (x: number) => 2 + 14 * (1 - (x / 150 - 1) ** 2) / 2
-        return <polygon key={i} points={`${x0},${y(x0)} ${x0 + 16},${y(x0 + 16)} ${x0 + 8},${y(x0 + 8) + 13}`} fill={coloresBanderin[i % 5]} />
-      })}
-    </svg>
   )
 }

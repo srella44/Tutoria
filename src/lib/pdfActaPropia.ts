@@ -1,10 +1,12 @@
 // PDF del acta propia («popurrí»): Claustre, Cicle, Mentoria y amassades sin hoja oficial.
-// Libreta pautada con margen rojo y banderines, puntos en post-its, notas en tiras de papel pegadas (cursiva),
+// Libreta pautada con margen rojo, título de etiquetadora, puntos en post-its, notas en tiras de papel pegadas (cursiva),
 // Ahèrs en post-its a dos columnas, logo de la escuela y sello «OK!». Se generan páginas nuevas si hace falta.
 import type { PDFFont, PDFImage, PDFPage, RGB } from 'pdf-lib'
 
 export interface DatosActaPropia {
   titulo: string
+  /** Tiras de colores bajo el título: fecha y hora, tipo, mèstre/a. */
+  etiquetas: string[]
   lineas: string[]
   puntos: { titulo: string; notas: string }[]
   notasGenerales?: { titulo: string; texto: string }
@@ -18,7 +20,7 @@ const ANCHO = 595.28
 const ALTO = 841.89
 const IZQ = 56
 const DER = 40
-const ARRIBA = 78
+const ARRIBA = 50
 const ABAJO = 56
 const PAUTA = 18
 
@@ -31,6 +33,7 @@ export async function generarActaPropia(datos: DatosActaPropia) {
     seccion: hex('#854f0b'), borde: hex('#444441'), blanco: rgb(1, 1, 1), sello: hex('#ed93b1'), selloTexto: hex('#4b1528'),
   }
   const postits = ['#fac775', '#9fe1cb', '#cecbf6', '#f4c0d1', '#f5c4b3'].map(hex)
+  const coloresEtiqueta = ['#d85a30', '#185fa5', '#3b6d11'].map(hex)
 
   const doc = await PDFDocument.create()
   doc.setTitle(datos.titulo)
@@ -77,26 +80,10 @@ export async function generarActaPropia(datos: DatosActaPropia) {
   const anchoUtil = ANCHO - IZQ - DER
 
   nuevaPagina()
-  // Banderines de los colores de los post-its y sello.
-  {
-    const desde = IZQ - 6
-    const hasta = ANCHO - DER - (datos.sello ? 70 : 0)
-    const ancho = hasta - desde
-    const altura = (x: number) => 30 + 10 * (1 - ((2 * (x - desde)) / ancho - 1) ** 2)
-    pagina.drawSvgPath(`M 0 30 Q ${ancho / 2} 50 ${ancho} 30`, { x: desde, y: ALTO, borderColor: c.suave, borderWidth: 0.8 })
-    const n = Math.floor(ancho / 30)
-    for (let i = 0; i < n; i++) {
-      const x0 = desde + 6 + i * (ancho - 12) / n
-      const x1 = x0 + 18
-      const y0 = altura(x0)
-      const y1 = altura(x1)
-      pagina.drawSvgPath(`M ${x0 - desde} ${y0} L ${x1 - desde} ${y1} L ${(x0 + x1) / 2 - desde} ${(y0 + y1) / 2 + 20} Z`,
-        { x: desde, y: ALTO, color: postits[i % postits.length] })
-    }
-  }
+  // Sello.
   if (datos.sello) {
     const cx = ANCHO - DER - 26
-    const cy = ALTO - 52
+    const cy = ALTO - ARRIBA - 22
     pagina.drawEllipse({ x: cx, y: cy, xScale: 27, yScale: 27, color: c.sello, borderColor: c.blanco, borderWidth: 2 })
     const ancho = negrita.widthOfTextAtSize('OK!', 13)
     pagina.drawText('OK!', { x: cx - ancho / 2 + 2, y: cy - 6, size: 13, font: negrita, color: c.selloTexto, rotate: degrees(12) })
@@ -116,16 +103,55 @@ export async function generarActaPropia(datos: DatosActaPropia) {
   }
   const anchoTitulo = ANCHO - DER - 70 - xTitulo
   const inicioCabecera = y
-  let yt = y - 20
-  for (const linea of partir(`${datos.titulo.toLocaleUpperCase()}!`, negrita, 20, anchoTitulo)) {
-    pagina.drawText(linea, { x: xTitulo, y: yt, size: 20, font: negrita, color: c.titulo })
-    yt -= 23
+  // Título de etiquetadora: tira negra con letras blancas espaciadas (Courier); datos en tiras de colores.
+  const dymo = await doc.embedFont(StandardFonts.CourierBold)
+  const espaciado = (texto: string, tam: number, extra: number) => dymo.widthOfTextAtSize(texto, tam) + extra * Math.max(0, texto.length - 1)
+  const tira = (texto: string, x: number, yArriba: number, tam: number, extra: number, fondo: RGB, alto: number) => {
+    const ancho = espaciado(texto, tam, extra) + 2 * (tam * 0.7)
+    pagina.drawRectangle({ x, y: yArriba - alto, width: ancho, height: alto, color: fondo })
+    let cx = x + tam * 0.7
+    for (const ch of texto) {
+      pagina.drawText(ch, { x: cx, y: yArriba - alto / 2 - tam * 0.33, size: tam, font: dymo, color: c.blanco })
+      cx += dymo.widthOfTextAtSize(ch, tam) + extra
+    }
+    return ancho
   }
+  const palabrasEnTiras = (texto: string, tam: number, extra: number, ancho: number) => {
+    const resultado: string[] = []
+    let linea = ''
+    for (const palabra of limpio(texto).split(/\s+/).filter(Boolean)) {
+      const candidata = linea ? `${linea} ${palabra}` : palabra
+      if (linea && espaciado(candidata, tam, extra) + 2 * tam * 0.7 > ancho) {
+        resultado.push(linea)
+        linea = palabra
+      } else linea = candidata
+    }
+    if (linea) resultado.push(linea)
+    return resultado
+  }
+  let yt = y
+  for (const linea of palabrasEnTiras(`${datos.titulo.toLocaleUpperCase()}!`, 18, 2.2, anchoTitulo)) {
+    tira(linea, xTitulo, yt, 18, 2.2, c.tinta, 28)
+    yt -= 32
+  }
+  yt -= 2
+  let xe = xTitulo
+  for (const [i, etiqueta] of datos.etiquetas.filter(Boolean).entries()) {
+    const texto = limpio(etiqueta.toLocaleUpperCase())
+    const ancho = espaciado(texto, 9, 0.9) + 2 * 9 * 0.7
+    if (xe > xTitulo && xe + ancho > xTitulo + anchoTitulo) {
+      xe = xTitulo
+      yt -= 19
+    }
+    tira(texto, xe, yt, 9, 0.9, coloresEtiqueta[i % coloresEtiqueta.length], 15)
+    xe += ancho + 6
+  }
+  yt -= 19
   for (const linea of datos.lineas.filter(Boolean).flatMap((l) => partir(l, normal, 10, anchoTitulo))) {
-    pagina.drawText(linea, { x: xTitulo, y: yt + 6, size: 10, font: normal, color: c.gris })
+    pagina.drawText(linea, { x: xTitulo, y: yt - 10, size: 10, font: normal, color: c.gris })
     yt -= 13
   }
-  y = Math.min(yt, inicioCabecera - 62) - 8
+  y = Math.min(yt, inicioCabecera - 62) - 12
 
   // Post-it con título en negrita y notas en bocadillo; se parte entre páginas si es muy largo.
   const tamTitulo = 11
