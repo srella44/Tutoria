@@ -11,6 +11,8 @@ export interface CursoEscolar {
   estado: 'activo' | 'archivado'
   /** Mèstre/a de las hojas oficiales (cifrado y sincronizado con el resto de datos). */
   tutor?: string
+  /** Logo de la escuela (data URL PNG reducida), para las actas internas. Nunca en el repositorio. */
+  logo?: string
 }
 
 export interface Alumno {

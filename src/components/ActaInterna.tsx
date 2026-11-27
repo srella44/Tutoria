@@ -48,8 +48,13 @@ export function ActaInterna({ cita, titulo, fecha }: { cita: Registro; titulo: s
     <article className="acta-impresion acta-popurri">
       <span className="acta-cinta" aria-hidden />
       {citaRealizada(cita) && <span className="acta-sello" aria-hidden>OK!</span>}
-      <h1 className="acta-titulo">{titulo.toLocaleUpperCase()}!</h1>
-      <p className="acta-meta capitalize">{[fecha, curso.tutor].filter(Boolean).join(' · ')}</p>
+      <header className="acta-cabecera">
+        {curso.logo && <img src={curso.logo} alt="" className="acta-logo" />}
+        <div className="min-w-0">
+          <h1 className="acta-titulo">{titulo.toLocaleUpperCase()}!</h1>
+          <p className="acta-meta capitalize">{[fecha, curso.tutor].filter(Boolean).join(' · ')}</p>
+        </div>
+      </header>
 
       {cita.puntos?.map((punto, i) => (
         <section key={punto.id} className="acta-postit" data-color={coloresPostit[i % coloresPostit.length]} style={giro(i)}>

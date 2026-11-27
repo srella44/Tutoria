@@ -382,7 +382,9 @@ button.cal-dia:hover {
   position: absolute; top: 1rem; right: 1rem; display: grid; place-items: center; width: 3.6rem; height: 3.6rem;
   border: 2px dashed #fff; border-radius: 50%; background: #ed93b1; color: #4b1528; font-weight: 700; transform: rotate(12deg);
 }
-.acta-titulo { margin-right: 4rem; font-size: 1.6rem; font-weight: 800; letter-spacing: .03em; color: #993c1d; line-height: 1.15; }
+.acta-cabecera { display: flex; align-items: center; gap: 1rem; margin-right: 4rem; }
+.acta-logo { width: 7.5rem; max-height: 4rem; flex-shrink: 0; object-fit: contain; }
+.acta-titulo { font-size: 1.6rem; font-weight: 800; letter-spacing: .03em; color: #993c1d; line-height: 1.15; }
 .acta-meta { margin-top: .25rem; color: #5f5e5a; font-size: .9rem; }
 .acta-seccion { margin-top: 1.5rem; font-weight: 700; color: #854f0b; }
 .acta-postit { margin-top: 1rem; padding: .7rem .9rem; border-radius: 2px; transform: rotate(var(--giro, 0deg)); break-inside: avoid; }

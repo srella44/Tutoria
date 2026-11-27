@@ -1,7 +1,7 @@
 // Cursos escolares: crear el curso siguiente (pasa a ser el activo), cambiar el activo y editar sus grupos.
 // El alumnado puede pasar al curso nuevo conservando su ficha e historial.
 import clsx from 'clsx'
-import { CalendarRange, Pencil, Plus } from 'lucide-react'
+import { CalendarRange, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Campo, claseInput, Hoja } from '../components/Hoja'
 import { Card, PageHeader } from '../components/ui'
@@ -14,11 +14,23 @@ function siguienteAnyo(cursos: CursoEscolar[]) {
   return `${inicio + 1}-${String(inicio + 2).slice(2)}`
 }
 
+/** Reduce la imagen (máx. 600 px) y la devuelve como PNG en data URL; conserva la transparencia. */
+async function reducirLogo(archivo: File) {
+  const imagen = await createImageBitmap(archivo)
+  const escala = Math.min(1, 600 / Math.max(imagen.width, imagen.height))
+  const lienzo = document.createElement('canvas')
+  lienzo.width = Math.round(imagen.width * escala)
+  lienzo.height = Math.round(imagen.height * escala)
+  lienzo.getContext('2d')?.drawImage(imagen, 0, 0, lienzo.width, lienzo.height)
+  return lienzo.toDataURL('image/png')
+}
+
 function FormCurso({ curso, onClose }: { curso?: CursoEscolar; onClose: () => void }) {
   const { t } = useI18n()
   const { cursos, alumnosActivos, guardarCurso, activarCurso, moverAlumnos } = useStore()
   const [anyo, setAnyo] = useState(curso?.anyo ?? siguienteAnyo(cursos))
   const [grupos, setGrupos] = useState(curso?.grupos.join(', ') ?? '')
+  const [logo, setLogo] = useState(curso?.logo ?? cursos.find((c) => c.estado === 'activo')?.logo)
   const [tutor, setTutor] = useState(curso?.tutor ?? cursos.find((c) => c.estado === 'activo')?.tutor ?? '')
   const [pasar, setPasar] = useState(!curso && alumnosActivos.length > 0)
   const [grupoNuevo, setGrupoNuevo] = useState('')
@@ -30,10 +42,10 @@ function FormCurso({ curso, onClose }: { curso?: CursoEscolar; onClose: () => vo
       puedeGuardar={anyo.trim() !== ''}
       onGuardar={() => {
         if (curso) {
-          guardarCurso({ ...curso, anyo: anyo.trim(), grupos: lista, tutor: tutor.trim() || undefined })
+          guardarCurso({ ...curso, anyo: anyo.trim(), grupos: lista, tutor: tutor.trim() || undefined, logo })
         } else {
           const id = crypto.randomUUID()
-          guardarCurso({ id, anyo: anyo.trim(), grupos: lista, estado: 'archivado', tutor: tutor.trim() || undefined })
+          guardarCurso({ id, anyo: anyo.trim(), grupos: lista, estado: 'archivado', tutor: tutor.trim() || undefined, logo })
           if (pasar) moverAlumnos(alumnosActivos.map((a) => a.id), id, grupoNuevo.trim() || undefined)
           activarCurso(id)
         }
@@ -48,6 +60,23 @@ function FormCurso({ curso, onClose }: { curso?: CursoEscolar; onClose: () => vo
       </Campo>
       <Campo label={t.pdfDocente}>
         <input value={tutor} onChange={(e) => setTutor(e.target.value)} className={claseInput} />
+      </Campo>
+      <Campo label={t.logoEscuela}>
+        {logo ? (
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="" className="h-16 max-w-48 rounded-lg border border-line bg-white object-contain p-1" />
+            <button type="button" onClick={() => setLogo(undefined)} aria-label={t.borrar} title={t.borrar}
+              className="grid size-11 place-items-center rounded-xl text-muted hover:bg-bg hover:text-danger">
+              <Trash2 size={18} aria-hidden />
+            </button>
+          </div>
+        ) : (
+          <input type="file" accept="image/png,image/jpeg,image/webp" className="block w-full text-sm"
+            onChange={async (e) => {
+              const archivo = e.currentTarget.files?.[0]
+              if (archivo) setLogo(await reducirLogo(archivo))
+            }} />
+        )}
       </Campo>
       {!curso && alumnosActivos.length > 0 && (
         <>
