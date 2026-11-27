@@ -1,9 +1,10 @@
-// Importa un horario en cuadrícula (Excel o CSV), como el que reparte el centro:
+// Importa un horario en cuadrícula (Word, Excel o CSV), como el que reparte el centro:
 // una fila de cabecera con los días; en la primera columna las horas; en cada franja, la primera fila es
 // lo que hace la clase y la segunda (si la hay) lo que hace el tutor. Si la segunda está vacía, la sesión es conjunta.
 // Una franja con un solo texto (p. ej. «Recreacion» en celdas combinadas) vale para todos los días.
 import type { SesionHorario } from '../data/types'
 import { leerHojas, normalizar, texto, type Celda } from './importar'
+import { leerTablasWord } from './leerWord'
 
 const DIAS: [number, RegExp][] = [
   [1, /^(de?l+uns?|dilluns|lunes|lun|dl|dlu|monday|mon)$/],
@@ -81,7 +82,8 @@ export function interpretarHorario(filas: Celda[][]): Omit<SesionHorario, 'id' |
 }
 
 export async function leerHorario(archivo: File): Promise<LecturaHorario> {
-  for (const { hoja, filas } of await leerHojas(archivo)) {
+  const esWord = /\.docx$/i.test(archivo.name)
+  for (const { hoja, filas } of esWord ? await leerTablasWord(archivo) : await leerHojas(archivo)) {
     const sesiones = interpretarHorario(filas)
     if (sesiones) return { hoja, sesiones }
   }

@@ -153,7 +153,7 @@ function ImportarHorario({ onClose }: { onClose: () => void }) {
       <label className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-accent px-4 font-semibold text-accent">
         <Upload size={18} /> {t.elegirArchivo}
         <input type="file" className="sr-only"
-          accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          accept=".docx,.xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           onChange={(e) => {
             const f = e.target.files?.[0]
             if (!f) return

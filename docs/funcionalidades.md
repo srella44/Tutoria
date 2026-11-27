@@ -97,7 +97,7 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 - Añadir, editar y borrar sesiones; al crear se pueden marcar varios días a la vez. Tocar un hueco crea una sesión a esa hora.
 - iPhone: día a día (hoy por defecto); iPad/ordenador: semana completa. Línea de la hora actual.
 - En Inici, la tarjeta «Orari» dice qué toca ahora (y hasta cuándo) o lo siguiente.
-- Importar el horario desde Excel o CSV en cuadrícula (`src/lib/importarHorario.ts`): fila de días, horas en la primera columna; en cada franja, primera fila = clase y segunda = tutor (vacía = conjunta); una franja con un solo texto (Recreacion) vale para toda la semana. Sustituye el horario del curso activo.
+- Importar el horario desde Word (.docx), Excel o CSV en cuadrícula (`src/lib/importarHorario.ts`, tablas de Word con `src/lib/leerWord.ts`): fila de días, horas en la primera columna; en cada franja, primera fila = clase y segunda = tutor (vacía = conjunta); una franja con un solo texto (Recreacion) vale para toda la semana. Sustituye el horario del curso activo.
 - Cifrado y sincronizado; cada curso escolar tiene su horario (decisión 0014).
 
 ## Religión
