@@ -2,6 +2,7 @@
 // En la Fase 2 el contenido se cifrará (AES-GCM) antes de guardarse. Ver docs/decisiones/0008.
 import Dexie, { type Table } from 'dexie'
 import { cifrar, descifrar, generarLlaveDispositivo, type Candado, type Cifrado, type Sesion } from '../lib/cripto'
+import { envoltorioAJson, envoltorioDeJson, type EnvoltorioPasskey } from '../lib/passkey'
 import * as demo from './demo'
 import type { Acuerdo, Aher, Alumno, ContactoFamiliar, CursoEscolar, FraseFrecuente, Profesional, Registro } from './types'
 
@@ -316,7 +317,21 @@ export async function activarSync(candado: Candado) {
     await encolar(c, filas.filter((f) => f.c), [])
   }
   await guardarEstadoSync({ activa: true, version: 0 })
+  if (candado.passkey) await subirPasskey(candado.passkey).catch(() => {})
   return sincronizarAhora()
+}
+
+/** Sube al servidor la DEK envuelta con una passkey (para unir dispositivos con Face ID). */
+export async function subirPasskey(env: EnvoltorioPasskey) {
+  const r = await fetch('/api/passkey', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(envoltorioAJson(env)) })
+  if (!r.ok) throw new Error(`passkey ${r.status}`)
+}
+export async function borrarPasskeyServidor(id: string) {
+  await fetch(`/api/passkey?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {})
+}
+export async function buscarPasskey(id: string) {
+  const r = await fetch(`/api/passkey?id=${encodeURIComponent(id)}`)
+  return r.ok ? envoltorioDeJson(await r.json()) : null
 }
 
 /** Descarga del servidor la copia de recuperación (para unir un dispositivo nuevo). */

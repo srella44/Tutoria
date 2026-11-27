@@ -1,10 +1,11 @@
 // Cerradura de la app (Fase 2): crear el PIN, desbloquear, recuperar con la clave y bloqueo automático.
 // Mientras está bloqueada, los datos descifrados no existen en memoria: el store ni siquiera se monta.
-import { CloudDownload, KeyRound, Lock, ShieldCheck } from 'lucide-react'
+import { CloudDownload, KeyRound, Lock, ScanFace, ShieldCheck } from 'lucide-react'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { borrarDispositivo, borrarSesion, cifrarTodo, guardarMinutosBloqueo, guardarSesion, leerMinutosBloqueo, leerSesion, tocarSesion, descargarRecuperacion, guardarCandado, leerCandado, llaveDispositivo, prepararDispositivoUnido, sincronizarAhora, usarLlave } from '../data/db'
+import { borrarDispositivo, borrarPasskeyServidor, borrarSesion, buscarPasskey, subirPasskey, syncActiva, cifrarTodo, guardarMinutosBloqueo, guardarSesion, leerMinutosBloqueo, leerSesion, tocarSesion, descargarRecuperacion, guardarCandado, leerCandado, llaveDispositivo, prepararDispositivoUnido, sincronizarAhora, usarLlave } from '../data/db'
 import { abrirConPin, abrirSesion, cambiarPin as recambiarPin, crearCandado, crearSesion, MAX_INTENTOS, recuperar, type Candado } from '../lib/cripto'
 import { useI18n } from '../lib/i18n'
+import { abrirConPasskey, passkeyPosible, registrarPasskey } from '../lib/passkey'
 import { MarcaTutoria } from './MarcaTutoria'
 
 const pinValido = (pin: string) => /^\d{4,8}$/.test(pin)
@@ -18,8 +19,11 @@ interface CerraduraCtx {
   /** Minutos sin uso hasta el bloqueo automático. */
   minutos: number
   cambiarMinutos: (minutos: number) => void
+  /** Desbloqueo con passkey (Face ID / Windows Hello). */
+  biometria: { posible: boolean; activa: boolean; activar: () => Promise<'ok' | 'sin-prf' | 'error'>; desactivar: () => Promise<void> }
 }
-const Ctx = createContext<CerraduraCtx>({ activa: false, bloquear: () => {}, cambiarPin: async () => false, minutos: 5, cambiarMinutos: () => {} })
+const sinBiometria = { posible: false, activa: false, activar: async () => 'error' as const, desactivar: async () => {} }
+const Ctx = createContext<CerraduraCtx>({ activa: false, bloquear: () => {}, cambiarPin: async () => false, minutos: 5, cambiarMinutos: () => {}, biometria: sinBiometria })
 export const useCerradura = () => useContext(Ctx)
 
 type Estado =
@@ -111,6 +115,38 @@ export function Cerradura({ children }: { children: ReactNode }) {
     }
   }, [abierta, bloquear, limite])
 
+  // Face ID / Windows Hello
+  const [passkeyActiva, setPasskeyActiva] = useState(false)
+  useEffect(() => {
+    if (dekAbierta) leerCandado().then((c) => setPasskeyActiva(Boolean(c?.passkey))).catch(() => {})
+  }, [dekAbierta])
+  const biometria = {
+    posible: passkeyPosible(),
+    activa: passkeyActiva,
+    activar: async (): Promise<'ok' | 'sin-prf' | 'error'> => {
+      if (estado.fase !== 'abierta') return 'error'
+      try {
+        const env = await registrarPasskey(estado.dek)
+        const candado = await leerCandado()
+        if (!candado) return 'error'
+        await guardarCandado({ ...candado, passkey: env })
+        if (await syncActiva()) await subirPasskey(env).catch(() => {})
+        setPasskeyActiva(true)
+        return 'ok'
+      } catch (e) {
+        return e instanceof Error && e.message === 'sin-prf' ? 'sin-prf' : 'error'
+      }
+    },
+    desactivar: async () => {
+      const candado = await leerCandado()
+      if (candado?.passkey) {
+        await borrarPasskeyServidor(candado.passkey.id)
+        await guardarCandado({ ...candado, passkey: undefined })
+      }
+      setPasskeyActiva(false)
+    },
+  }
+
   const cambiarPin = async (actual: string, nuevo: string) => {
     if (estado.fase !== 'abierta' || !pinValido(nuevo)) return false
     const candado = await leerCandado()
@@ -121,10 +157,10 @@ export function Cerradura({ children }: { children: ReactNode }) {
   }
 
   if (estado.fase === 'sin-almacenamiento') {
-    return <Ctx.Provider value={{ activa: false, bloquear: () => {}, cambiarPin: async () => false, minutos, cambiarMinutos }}>{children}</Ctx.Provider>
+    return <Ctx.Provider value={{ activa: false, bloquear: () => {}, cambiarPin: async () => false, minutos, cambiarMinutos, biometria: sinBiometria }}>{children}</Ctx.Provider>
   }
   if (estado.fase === 'abierta') {
-    return <Ctx.Provider value={{ activa: true, bloquear, cambiarPin, minutos, cambiarMinutos }}>{children}</Ctx.Provider>
+    return <Ctx.Provider value={{ activa: true, bloquear, cambiarPin, minutos, cambiarMinutos, biometria }}>{children}</Ctx.Provider>
   }
   return (
     <div className="pt-safe pb-safe grid min-h-full place-items-center bg-bg px-4 py-8">
@@ -278,6 +314,37 @@ function Unirse({ onAbierta, onVolver }: { onAbierta: (dek: CryptoKey) => void; 
       <CampoPin label={t.repetirPin} value={repetido} onChange={setRepetido} />
       {error && <p className="text-center text-sm text-danger">{error}</p>}
       <Boton ocupado={ocupado} disabled={!clave || !pin || !repetido}>{ocupado ? t.descargando : t.continuar}</Boton>
+      {passkeyPosible() && (
+        <button
+          type="button"
+          disabled={ocupado || !pin || !repetido}
+          onClick={async () => {
+            if (!pinValido(pin)) return setError(t.pinCorto)
+            if (pin !== repetido) return setError(t.pinNoCoincide)
+            setOcupado(true)
+            setError(undefined)
+            try {
+              const remota = await descargarRecuperacion()
+              if (!remota) throw new Error('sin cuenta')
+              // La passkey (sincronizada por el llavero) abre la llave guardada en el servidor.
+              const { dek, envoltorio } = await abrirConPasskey(undefined, buscarPasskey)
+              const base: Candado = { version: 1, ...remota, saltPin: new Uint8Array(16), ivPin: new Uint8Array(12), ivDispositivo: new Uint8Array(12), intentos: 0 }
+              const candado = await recambiarPin(base, dek, pin, await llaveDispositivo())
+              await guardarCandado({ ...candado, passkey: envoltorio })
+              usarLlave(dek)
+              await prepararDispositivoUnido()
+              await sincronizarAhora()
+              onAbierta(dek)
+            } catch {
+              setError(t.biometriaError)
+              setOcupado(false)
+            }
+          }}
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-accent font-semibold text-accent disabled:opacity-40"
+        >
+          <ScanFace size={20} aria-hidden /> {t.entrarBiometria}
+        </button>
+      )}
       <button type="button" onClick={onVolver} className="w-full text-center text-sm text-accent underline">{t.volver}</button>
     </form>
   )
@@ -345,6 +412,26 @@ function PedirPin({ candado, onAbierta, onAgotado, onRecuperar }: {
       <CampoPin label={t.pin} value={pin} onChange={setPin} autoFocus />
       {error && <p className="text-center text-sm text-danger">{error}</p>}
       <Boton ocupado={ocupado} disabled={pin.length < 4}>{t.desbloquear}</Boton>
+      {candado.passkey && candado.dekPin && (
+        <button
+          type="button"
+          onClick={async () => {
+            setError(undefined)
+            try {
+              const { dek } = await abrirConPasskey(candado.passkey)
+              const actual = (await leerCandado()) ?? candado
+              if (actual.intentos) await guardarCandado({ ...actual, intentos: 0 })
+              usarLlave(dek)
+              onAbierta(dek)
+            } catch {
+              setError(t.biometriaError)
+            }
+          }}
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-accent font-semibold text-accent"
+        >
+          <ScanFace size={20} aria-hidden /> {t.desbloquearBiometria}
+        </button>
+      )}
       <button type="button" onClick={onRecuperar} className="w-full text-center text-sm text-accent underline">{t.usarClave}</button>
     </form>
   )

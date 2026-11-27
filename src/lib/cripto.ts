@@ -23,6 +23,8 @@ export interface Candado {
   saltRecuperacion: Bytes
   ivRecuperacion: Bytes
   dekRecuperacion: ArrayBuffer
+  /** Desbloqueo con Face ID / Windows Hello en este dispositivo (decisión 0011). */
+  passkey?: import('./passkey').EnvoltorioPasskey
 }
 
 export interface Cifrado {

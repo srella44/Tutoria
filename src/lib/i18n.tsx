@@ -7,6 +7,14 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  biometria: 'Face ID / Windows Hello',
+  activarBiometria: 'Activar Face ID o Windows Hello',
+  desactivarBiometria: 'Desactivar Face ID o Windows Hello',
+  biometriaActiva: 'Desblocatge damb Face ID o Windows Hello actiu',
+  desbloquearBiometria: 'Desblocar damb Face ID',
+  entrarBiometria: 'Utilizar Face ID en lòc dera clau',
+  biometriaNoDisponible: 'Aguest aparelh o navegador non permet desblocar damb Face ID o Windows Hello.',
+  biometriaError: 'Non s’a pogut utilizar Face ID o Windows Hello.',
   cuentaExistente: 'Ja i a ua compte de TUTOR-ia en servidor. Entad aguest dispositiu: Ajustaments › Donades › borrar es donades d’aguest dispositiu e unir-lo damb era clau de recuperacion.',
   borrarEsteDispositivo: 'Borrar es donades d’aguest dispositiu',
   volverAEntrar: 'Tornar a entrar',
@@ -331,6 +339,14 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  biometria: 'Face ID / Windows Hello',
+  activarBiometria: 'Activar Face ID o Windows Hello',
+  desactivarBiometria: 'Desactivar Face ID o Windows Hello',
+  biometriaActiva: 'Desbloqueo con Face ID o Windows Hello activo',
+  desbloquearBiometria: 'Desbloquear con Face ID',
+  entrarBiometria: 'Usar Face ID en lugar de la clave',
+  biometriaNoDisponible: 'Este aparato o navegador no permite desbloquear con Face ID o Windows Hello.',
+  biometriaError: 'No se ha podido usar Face ID o Windows Hello.',
   cuentaExistente: 'Ya hay una cuenta de TUTOR-ia en el servidor. Para este dispositivo: borra sus datos y únelo con la clave de recuperación.',
   borrarEsteDispositivo: 'Borrar los datos de este dispositivo',
   volverAEntrar: 'Volver a entrar',

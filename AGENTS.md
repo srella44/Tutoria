@@ -40,7 +40,7 @@ PWA para un solo usuario, en `tutoria.pretzhet.app`, sin cuotas.
 | Iconos | `lucide-react` |
 | Datos locales | IndexedDB con Dexie; cada fila cifrada con AES-GCM (`src/lib/cripto.ts`, PIN y clave de recuperación, decisión 0009) |
 | Sincronización | Pages Functions (`functions/api/`) + D1 (`migrations/`), solo filas cifradas (decisión 0010) |
-| Acceso | Cloudflare Access + passkey (Fase 2) |
+| Acceso | Cloudflare Access; desbloqueo con PIN o passkey con PRF (Face ID / Windows Hello, `src/lib/passkey.ts`, decisión 0011) |
 | Firma / PDF | `signature_pad`, `pdf-lib` o `pdfmake` (Fase 3) |
 
 ## Estructura
