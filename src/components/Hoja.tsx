@@ -34,7 +34,7 @@ export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children
       className="fixed inset-0 z-40 flex flex-col bg-surface"
     >
       <div className="pt-safe shrink-0 border-b border-line bg-surface">
-        <div className="mx-auto flex h-14 max-w-2xl items-center justify-between gap-3 px-2 sm:px-4">
+        <div className="mx-auto flex h-14 max-w-2xl items-center justify-between gap-3 pr-4 pl-2">
           <button type="button" onClick={onClose} className="grid size-11 shrink-0 place-items-center rounded-xl text-muted hover:bg-bg" aria-label={t.cancelar}>
             <X size={22} />
           </button>
