@@ -1,10 +1,10 @@
 // Botón de ajustes: siempre arriba a la derecha, en todas las secciones y dispositivos.
-import { CalendarRange, CloudUpload, KeyRound, Lock, MessageSquareQuote, RefreshCw, Settings, ShieldCheck } from 'lucide-react'
-import { useState } from 'react'
+import { CalendarRange, CloudUpload, Download, Upload, KeyRound, Lock, MessageSquareQuote, RefreshCw, Settings, ShieldCheck } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { conEjemplo, OPCIONES_BLOQUEO } from '../data/db'
 import { useSincronizacion, useStore } from '../data/store'
-import { hora } from '../lib/fechas'
+import { fechaCorta, hora } from '../lib/fechas'
 import { useCerradura } from './Cerradura'
 import { Campo, Hoja } from './Hoja'
 import { useI18n } from '../lib/i18n'
@@ -112,6 +112,7 @@ export function Ajustes() {
             <p className={`px-3 pb-1 text-xs ${almacenamiento === 'guardado' ? 'text-muted' : 'text-danger'}`}>
               {almacenamiento === 'guardado' ? t.guardadoLocal : t.soloMemoria}
             </p>
+            {cerradura.activa && almacenamiento === 'guardado' && <CopiasSeguridad onCerrar={cerrar} />}
             {cerradura.activa && (
               <button
                 onClick={async () => {
@@ -224,6 +225,117 @@ function PedirPinActivar({ onClose, onActivar }: { onClose: () => void; onActiva
           onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
           className="h-12 w-full rounded-xl border border-line bg-bg px-3 text-center text-xl tracking-[0.4em] outline-none focus:border-accent" />
       </Campo>
+      {error && <p className="text-danger">{error}</p>}
+    </Hoja>
+  )
+}
+
+/** Descargar y restaurar copias de seguridad cifradas (decisión 0013). */
+function CopiasSeguridad({ onCerrar }: { onCerrar: () => void }) {
+  const { t, lang } = useI18n()
+  const { llave } = useCerradura()
+  const { restaurar } = useStore()
+  const [ultima, setUltima] = useState<string>()
+  const [copia, setCopia] = useState<import('../data/db').CopiaSeguridad>()
+  const [datos, setDatos] = useState<import('../data/db').Datos | null>()
+  const [error, setError] = useState<string>()
+  useEffect(() => { void import('../data/db').then((m) => m.ultimaCopia()).then(setUltima) }, [])
+
+  const descargar = async () => {
+    const { crearCopia, leerCandado } = await import('../data/db')
+    const candado = await leerCandado()
+    if (!candado) return
+    const blob = await crearCopia(candado)
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `tutoria-copia-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 10_000)
+    setUltima(new Date().toISOString())
+  }
+
+  const elegir = async (archivo?: File) => {
+    if (!archivo) return
+    const { leerCopia, abrirCopia } = await import('../data/db')
+    const c = leerCopia(await archivo.text())
+    setError(undefined)
+    if (!c) return setError(t.copiaNoValida)
+    setCopia(c)
+    // Prueba de restauración con la llave de este aparato; si no abre, se pedirá la clave de papel.
+    setDatos(llave ? await abrirCopia(c, llave) : null)
+  }
+
+  return (
+    <>
+      <button onClick={() => void descargar()} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
+        <Download size={16} className="text-muted" aria-hidden /> {t.descargarCopia}
+      </button>
+      {ultima && <p className="px-3 text-xs text-muted">{t.ultimaCopia}: {fechaCorta(ultima, lang)}</p>}
+      <label className="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
+        <Upload size={16} className="text-muted" aria-hidden /> {t.restaurarCopia}
+        <input type="file" accept=".json,application/json" className="sr-only" onChange={(e) => { void elegir(e.target.files?.[0]); e.target.value = '' }} />
+      </label>
+      {error && <p className="px-3 pb-1 text-xs text-danger">{error}</p>}
+      {copia && (
+        <RestaurarCopia
+          copia={copia}
+          datos={datos ?? null}
+          onDatos={setDatos}
+          onClose={() => { setCopia(undefined); setDatos(undefined) }}
+          onRestaurar={async (d) => { await restaurar(d); onCerrar() }}
+        />
+      )}
+    </>
+  )
+}
+
+function RestaurarCopia({ copia, datos, onDatos, onClose, onRestaurar }: {
+  copia: import('../data/db').CopiaSeguridad
+  datos: import('../data/db').Datos | null
+  onDatos: (d: import('../data/db').Datos | null) => void
+  onClose: () => void
+  onRestaurar: (d: import('../data/db').Datos) => Promise<void>
+}) {
+  const { t, lang } = useI18n()
+  const [clave, setClave] = useState('')
+  const [error, setError] = useState<string>()
+  const [confirmar, setConfirmar] = useState(false)
+  const abrirConClaveDePapel = async () => {
+    const { abrirCopia, recuperacionDeCopia } = await import('../data/db')
+    const { abrirConClave } = await import('../lib/cripto')
+    const r = recuperacionDeCopia(copia)
+    const dek = await abrirConClave(r.salt, r.iv, r.dek, clave)
+    const d = dek && (await abrirCopia(copia, dek))
+    if (!d) return setError(t.claveIncorrecta)
+    onDatos(d)
+  }
+  return (
+    <Hoja
+      titulo={t.restaurarCopia}
+      onClose={onClose}
+      puedeGuardar={datos ? true : clave.trim().length > 0}
+      onGuardar={async () => {
+        if (!datos) return abrirConClaveDePapel()
+        if (!confirmar) return setConfirmar(true)
+        await onRestaurar(datos)
+      }}
+    >
+      <p className="text-sm text-muted">{t.copiaDe} {fechaCorta(copia.fecha, lang)} · {hora(copia.fecha)}</p>
+      {datos ? (
+        <>
+          <p className="text-accent">{t.copiaOk}</p>
+          <p className="text-sm">{t.alumnado}: {datos.alumnos.length} · {t.cronologia}: {datos.registros.length} · {t.contactos}: {datos.contactos.length}</p>
+          <p className={`rounded-lg px-3 py-2 text-sm ${confirmar ? 'bg-danger-soft font-semibold text-danger' : 'bg-warn-soft text-warn'}`}>
+            {t.copiaAviso} {confirmar && t.tocaConfirmar}
+          </p>
+        </>
+      ) : (
+        <Campo label={t.claveRecuperacion} ayuda={t.copiaNecesitaClave}>
+          <input autoFocus autoCapitalize="characters" autoComplete="off" value={clave} onChange={(e) => setClave(e.target.value)}
+            placeholder="XXXX-XXXX-XXXX-XXXX-XXXX"
+            className="h-12 w-full rounded-xl border border-line bg-bg px-3 text-center font-mono outline-none focus:border-accent" />
+        </Campo>
+      )}
       {error && <p className="text-danger">{error}</p>}
     </Hoja>
   )

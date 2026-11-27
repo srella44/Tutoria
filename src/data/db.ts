@@ -440,3 +440,64 @@ async function corregirContactosImportados() {
     await db.meta.put({ clave: 'migracion-contactos-1', valor: true })
   })
 }
+
+// ── Copia de seguridad (decisión 0013) ───────────────────────────────────
+// Un archivo .json con las filas tal como están guardadas (cifradas) y la copia de la llave envuelta con la
+// clave de recuperación. Sin la llave del dispositivo ni la clave de papel, el archivo no se puede leer.
+export interface CopiaSeguridad {
+  formato: 'tutoria-copia'
+  version: 1
+  fecha: string
+  recuperacion: { salt: string; iv: string; dek: string }
+  filas: Record<string, { id: string; iv: string; c: string }[]>
+}
+
+export async function crearCopia(candado: Candado): Promise<Blob> {
+  const filas: CopiaSeguridad['filas'] = {}
+  for (const c of colecciones) {
+    filas[c] = ((await db[c].toArray()) as Fila[]).filter((f) => f.iv && f.c).map((f) => ({ id: f.id, iv: aB64(f.iv!), c: aB64(f.c!) }))
+  }
+  const copia: CopiaSeguridad = {
+    formato: 'tutoria-copia', version: 1, fecha: new Date().toISOString(),
+    recuperacion: { salt: aB64(candado.saltRecuperacion), iv: aB64(candado.ivRecuperacion), dek: aB64(candado.dekRecuperacion) },
+    filas,
+  }
+  await db.meta.put({ clave: 'ultima-copia', valor: copia.fecha })
+  return new Blob([JSON.stringify(copia)], { type: 'application/json' })
+}
+
+export async function ultimaCopia() {
+  return (await db.meta.get('ultima-copia'))?.valor as string | undefined
+}
+
+export function leerCopia(texto: string): CopiaSeguridad | null {
+  try {
+    const c = JSON.parse(texto) as CopiaSeguridad
+    return c.formato === 'tutoria-copia' && c.version === 1 && c.filas && c.recuperacion ? c : null
+  } catch {
+    return null
+  }
+}
+
+export const recuperacionDeCopia = (c: CopiaSeguridad) =>
+  ({ salt: deB64(c.recuperacion.salt), iv: deB64(c.recuperacion.iv), dek: deB64(c.recuperacion.dek).buffer as ArrayBuffer })
+
+/** Prueba de restauración: descifra todo con la llave dada. Devuelve los datos o null si alguna fila falla. */
+export async function abrirCopia(copia: CopiaSeguridad, dek: CryptoKey): Promise<Datos | null> {
+  try {
+    const datos = {} as Record<Coleccion, unknown[]>
+    for (const c of colecciones) {
+      datos[c] = await Promise.all((copia.filas[c] ?? []).map((f) =>
+        descifrar(dek, `${c}:${f.id}`, { iv: deB64(f.iv), c: deB64(f.c).buffer as ArrayBuffer })))
+    }
+    return datos as unknown as Datos
+  } catch {
+    return null
+  }
+}
+
+/** Sustituye todos los datos por los de una copia (se vuelven a cifrar con la llave actual y se sincronizan). */
+export async function restaurarDatos(datos: Datos) {
+  await escribirTodo(datos, 'propio')
+  return datos
+}

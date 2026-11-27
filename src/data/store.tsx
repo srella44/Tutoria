@@ -3,7 +3,7 @@
 // Los borradores oficiales tienen su propio almacén cifrado.
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { guardarBorradorOficial, leerBorradoresOficiales, type BorradorOficial } from './borradoresOficiales'
-import { activarSync, alCambiarLocal, cargarDatos, conEjemplo, estadoServidor, idsDemo, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
+import { activarSync, alCambiarLocal, cargarDatos, restaurarDatos, conEjemplo, estadoServidor, idsDemo, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
 import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro } from './types'
 
 interface Store {
@@ -12,6 +12,8 @@ interface Store {
   /** 'demo': alumnado ficticio · 'propio': empezado en limpio */
   modo: 'demo' | 'propio'
   reiniciar: (modo: 'demo' | 'propio') => Promise<void>
+  /** Sustituye todo por los datos de una copia de seguridad. */
+  restaurar: (datos: Datos) => Promise<void>
   cursos: CursoEscolar[]
   curso: CursoEscolar
   alumnos: Alumno[]
@@ -21,6 +23,8 @@ interface Store {
   /** Alumnado activo (sin archivados): para listas y selectores. `alumnos` incluye los archivados. */
   alumnosActivos: Alumno[]
   guardarAlumno: (a: Alumno) => void
+  /** Borra un alumno y lo que es solo suyo (contactos, registros y acuerdos); de lo compartido solo se quita. */
+  borrarAlumno: (id: string) => void
   guardarContacto: (c: ContactoFamiliar) => void
   borrarContacto: (id: string) => void
   guardarProfesional: (p: Profesional) => void
@@ -254,10 +258,25 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
     ;[copia[i], copia[j]] = [copia[j], copia[i]]
     return numerar(copia)
   })
+  const borrarAlumno = (id: string) => {
+    const quitar = <T extends { alumnoIds: string[] }>(items: T[]) => items
+      .filter((x) => !(x.alumnoIds.length === 1 && x.alumnoIds[0] === id))
+      .map((x) => (x.alumnoIds.includes(id) ? { ...x, alumnoIds: x.alumnoIds.filter((a) => a !== id) } : x))
+    setAlumnos((items) => items.filter((a) => a.id !== id))
+    setContactos(quitar)
+    setRegistros(quitar)
+    const fuera = new Set(acuerdosGuardados.filter((a) => a.alumnoIds.length === 1 && a.alumnoIds[0] === id).map((a) => a.id))
+    setAcuerdos(quitar)
+    setAhers((hs) => hs.filter((h) => !fuera.has(h.id)))
+  }
   const guardarContacto = (c: ContactoFamiliar) => setContactos((items) => upsert(items, c))
   const borrarContacto = (id: string) => setContactos((items) => items.filter((c) => c.id !== id))
   const guardarProfesional = (p: Profesional) => setProfesionales((items) => upsert(items, p))
   const borrarProfesional = (id: string) => setProfesionales((items) => items.filter((p) => p.id !== id))
+  const restaurar = async (nuevos: Datos) => {
+    await restaurarDatos(nuevos)
+    onReiniciar({ datos: nuevos, modo: 'propio', almacenamiento })
+  }
   const reiniciar = async (nuevo: 'demo' | 'propio') => {
     const nuevos = guardar ? await reiniciarDatos(nuevo) : datosDemo()
     onReiniciar({ datos: nuevos, modo: nuevo, almacenamiento })
@@ -395,6 +414,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         almacenamiento,
         modo,
         reiniciar,
+        restaurar,
         cursos,
         curso,
         alumnos,
@@ -403,6 +423,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         frases,
         alumnosActivos,
         guardarAlumno,
+        borrarAlumno,
         guardarContacto,
         borrarContacto,
         guardarProfesional,

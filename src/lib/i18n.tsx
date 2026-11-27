@@ -7,6 +7,15 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  descargarCopia: 'Descargar còpia de seguretat',
+  restaurarCopia: 'Restaurar ua còpia',
+  ultimaCopia: 'Darrèra còpia',
+  copiaNoValida: 'Aguest fichèr non ei ua còpia de TUTOR-ia.',
+  copiaOk: 'Còpia comprovada: se pòt restaurar sancera.',
+  copiaDe: 'Còpia de',
+  copiaNecesitaClave: 'Aguesta còpia ei d’un aute aparelh: escriu era clau de recuperacion de papèr.',
+  copiaAviso: 'Se substituiràn totes es donades actuaus (tanben en es auti aparelhs sincronizadi).',
+  restaurar: 'Restaurar',
   unirseConPin: 'Escriu eth PIN de TUTOR-ia (eth madeish des auti aparelhs). Es donades se descarguen cifrades.',
   pinNoPreparado: 'Encara non se pòt entrar damb eth PIN: daurís TUTOR-ia en aparelh principau e desbloca-la damb eth PIN un còp.',
   pinOlvidado: 'He desbrembat eth PIN: utilizar era clau de recuperacion',
@@ -337,6 +346,15 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  descargarCopia: 'Descargar copia de seguridad',
+  restaurarCopia: 'Restaurar una copia',
+  ultimaCopia: 'Última copia',
+  copiaNoValida: 'Este archivo no es una copia de TUTOR-ia.',
+  copiaOk: 'Copia comprobada: se puede restaurar entera.',
+  copiaDe: 'Copia del',
+  copiaNecesitaClave: 'Esta copia es de otro aparato: escribe la clave de recuperación de papel.',
+  copiaAviso: 'Se sustituirán todos los datos actuales (también en los otros aparatos sincronizados).',
+  restaurar: 'Restaurar',
   unirseConPin: 'Escribe el PIN de TUTOR-ia (el mismo de tus otros aparatos). Los datos se descargan cifrados.',
   pinNoPreparado: 'Todavía no se puede entrar con el PIN: abre TUTOR-ia en el aparato principal y desbloquéala con el PIN una vez.',
   pinOlvidado: 'He olvidado el PIN: usar la clave de recuperación',

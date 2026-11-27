@@ -1,5 +1,6 @@
 // Altas y edición de alumnado, contactos familiares y profesionales.
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useStore } from '../data/store'
 import type { Acuerdo, Aher, Alumno, ContactoFamiliar, EstadoAcuerdo, Profesional, Registro } from '../data/types'
 import { nombreLengua, useI18n } from '../lib/i18n'
@@ -24,7 +25,8 @@ function BotonConfirmar({ texto, onConfirmar, peligro }: { texto: string; onConf
 
 export function FormAlumno({ alumno, onClose }: { alumno?: Alumno; onClose: () => void }) {
   const { t } = useI18n()
-  const { curso, guardarAlumno } = useStore()
+  const { curso, guardarAlumno, borrarAlumno } = useStore()
+  const navigate = useNavigate()
   const [nombre, setNombre] = useState(alumno?.nombre ?? '')
   const [apellidos, setApellidos] = useState(alumno?.apellidos ?? '')
   const [nacimiento, setNacimiento] = useState(alumno?.fechaNacimiento ?? '')
@@ -57,9 +59,14 @@ export function FormAlumno({ alumno, onClose }: { alumno?: Alumno; onClose: () =
       onClose={onClose}
       onGuardar={() => guardar()}
       puedeGuardar={ok}
-      pie={alumno && (alumno.estado === 'activo'
-        ? <BotonConfirmar texto={t.archivar} onConfirmar={() => guardar('archivado')} />
-        : <button type="button" onClick={() => guardar('activo')} className="min-h-10 rounded-xl border border-line px-3 text-sm">{t.reactivar}</button>)}
+      pie={alumno && (
+        <>
+          {alumno.estado === 'activo'
+            ? <BotonConfirmar texto={t.archivar} onConfirmar={() => guardar('archivado')} />
+            : <button type="button" onClick={() => guardar('activo')} className="min-h-10 rounded-xl border border-line px-3 text-sm">{t.reactivar}</button>}
+          <BotonConfirmar peligro texto={t.borrar} onConfirmar={() => { borrarAlumno(alumno.id); onClose(); navigate('/alumnado') }} />
+        </>
+      )}
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <Campo label={`${t.nombre} *`}>

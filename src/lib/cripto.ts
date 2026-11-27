@@ -190,3 +190,12 @@ export async function abrirDesdeServidor(acceso: AccesoPin, pin: string) {
     return null
   }
 }
+
+/** Abre una DEK envuelta con la clave de recuperación (copias de seguridad de otro dispositivo). */
+export async function abrirConClave(salt: Bytes, iv: Bytes, dek: ArrayBuffer, clave: string) {
+  try {
+    return await importarDek(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, await derivar(normalizarClave(clave), salt), dek))
+  } catch {
+    return null
+  }
+}
