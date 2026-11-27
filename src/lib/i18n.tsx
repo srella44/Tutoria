@@ -7,6 +7,17 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  importarAutorizaciones: 'Importar autorizacions',
+  importarAutAyuda: 'Tria qualsevòl Excel o CSV damb es nòms der alumnat e ua colomna per autorizacion. Era app lo interprète e te mòstre ua vista prèvia abans d’aplicar. Eth fichèr non surt d’aguest aparelh.',
+  reconocidos: 'Alumnes reconeishudi',
+  noReconocidos: 'Non reconeishudi (non se cambien)',
+  nuevaAutorizacion: 'Naua',
+  ignorar: 'Ignorar',
+  aplicarA: 'Aplicar a',
+  sinAlumnosArchivo: 'Non se tròbe cap nòm der alumnat en aguest fichèr.',
+  sinColumnasAut: 'Non se tròbe cap colomna d’autorizacions (✓, X, Òc, Non, Tostemp…).',
+  vaciasNoCambian: 'Es caselhes vuedes o damb «—» non cambien arren.',
+  autorizacionesAplicadas: 'Autorizacions aplicades',
   estadoTostemp: 'Tostemp',
   tresOpciones: 'Tres opcions: tostemp · a viatges · non',
   autorizaciones: 'Autorizacions',
@@ -358,6 +369,17 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  importarAutorizaciones: 'Importar autorizaciones',
+  importarAutAyuda: 'Elige cualquier Excel o CSV con los nombres del alumnado y una columna por autorización. La app lo interpreta y te enseña una vista previa antes de aplicar. El archivo no sale de este aparato.',
+  reconocidos: 'Alumnos reconocidos',
+  noReconocidos: 'No reconocidos (no se cambian)',
+  nuevaAutorizacion: 'Nueva',
+  ignorar: 'Ignorar',
+  aplicarA: 'Aplicar a',
+  sinAlumnosArchivo: 'No se encuentra ningún nombre del alumnado en este archivo.',
+  sinColumnasAut: 'No se encuentra ninguna columna de autorizaciones (✓, X, Sí, No, Siempre…).',
+  vaciasNoCambian: 'Las celdas vacías o con «—» no cambian nada.',
+  autorizacionesAplicadas: 'Autorizaciones aplicadas',
   estadoTostemp: 'Siempre',
   tresOpciones: 'Tres opciones: siempre · a veces · no',
   autorizaciones: 'Autorizaciones',

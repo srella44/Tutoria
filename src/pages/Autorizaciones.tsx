@@ -1,6 +1,7 @@
 // Gestionar la lista de autorizaciones (para todo el alumnado) y ver el recuento del grupo.
 import clsx from 'clsx'
-import { ArrowDown, ArrowUp, Pencil, Plus, ShieldCheck } from 'lucide-react'
+import { ArrowDown, ArrowUp, Pencil, Plus, ShieldCheck, Upload } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { estiloEstado, useEtiquetaEstado } from '../components/Autorizaciones'
 import { Campo, claseInput, Hoja } from '../components/Hoja'
@@ -66,10 +67,15 @@ export function Autorizaciones() {
         title={t.autorizaciones}
         icon={ShieldCheck}
         right={
+          <>
+          <Link to="/autorizaciones/importar" aria-label={t.importarAutorizaciones} title={t.importarAutorizaciones} className="rounded-lg p-2 text-muted hover:bg-bg">
+            <Upload size={20} />
+          </Link>
           <button onClick={() => setEditando('nueva')} aria-label={t.autorizacionNueva}
             className="flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-sm font-semibold text-on-accent">
             <Plus size={16} /> <span className="hidden sm:inline">{t.autorizacionNueva}</span>
           </button>
+          </>
         }
       />
       <div className="mx-auto max-w-3xl px-4 pt-4">

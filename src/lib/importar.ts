@@ -2,7 +2,7 @@
 // Reconoce cabeceras en aranés, castellano y catalán (p. ej. «Nòm e cognòms», «Data de neishement»,
 // «Corrèu electronic Tutor/tutriz 1», «Telefon Tutor/tutriz 2», «Auto. imatge»).
 
-type Celda = string | number | boolean | Date | null
+export type Celda = string | number | boolean | Date | null
 
 export interface Tutor {
   numero: number
@@ -33,10 +33,10 @@ export interface ResultadoImportacion {
   filas: FilaImportada[]
 }
 
-const normalizar = (v: Celda) =>
+export const normalizar = (v: Celda) =>
   String(v ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
 
-const texto = (v: Celda) => (v instanceof Date ? '' : String(v ?? '').replace(/\s+/g, ' ').trim())
+export const texto = (v: Celda) => (v instanceof Date ? '' : String(v ?? '').replace(/\s+/g, ' ').trim())
 
 function fecha(v: Celda): string {
   if (v instanceof Date) return v.toISOString().slice(0, 10) // Excel guarda las fechas sin zona: se leen en UTC
@@ -66,7 +66,7 @@ function reconocer(cabecera: string): Campo | undefined {
   return undefined
 }
 
-function parsearCsv(contenido: string): Celda[][] {
+export function parsearCsv(contenido: string): Celda[][] {
   const primera = contenido.split(/\r?\n/, 1)[0] ?? ''
   const sep = (primera.match(/;/g)?.length ?? 0) > (primera.match(/,/g)?.length ?? 0) ? ';' : ','
   const filas: Celda[][] = []
@@ -189,3 +189,12 @@ export async function leerArchivo(archivo: File): Promise<ResultadoImportacion> 
 }
 
 export const claveNombre = (nombre: string, apellidos: string) => normalizar(`${nombre} ${apellidos}`)
+
+/** Todas las hojas de un Excel (o el CSV como una sola hoja). */
+export async function leerHojas(archivo: File): Promise<{ hoja: string; filas: Celda[][] }[]> {
+  if (/\.csv$/i.test(archivo.name) || archivo.type === 'text/csv') {
+    return [{ hoja: archivo.name.replace(/\.csv$/i, ''), filas: parsearCsv(await archivo.text()) }]
+  }
+  const { default: readXlsxFile } = await import('read-excel-file/browser')
+  return (await readXlsxFile(archivo)).map((h) => ({ hoja: h.sheet, filas: h.data as Celda[][] }))
+}

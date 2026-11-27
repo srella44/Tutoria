@@ -26,6 +26,8 @@ interface Store {
   moverTipoAutorizacion: (id: string, delta: -1 | 1) => void
   /** Fija el estado de una autorización de un alumno (undefined = pendiente). */
   setAutorizacion: (alumnoId: string, tipoId: string, estado?: EstadoAutorizacion) => void
+  /** Importación: crea autorizaciones nuevas y fija valores en bloque (alumnoId → tipoId → estado). */
+  aplicarAutorizaciones: (nuevos: TipoAutorizacion[], valores: Record<string, Record<string, EstadoAutorizacion>>) => void
   /** Alumnado activo (sin archivados): para listas y selectores. `alumnos` incluye los archivados. */
   alumnosActivos: Alumno[]
   guardarAlumno: (a: Alumno) => void
@@ -306,6 +308,10 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
     ;[copia[i], copia[j]] = [copia[j], copia[i]]
     return ordenar(copia)
   })
+  const aplicarAutorizaciones = (nuevos: TipoAutorizacion[], valores: Record<string, Record<string, EstadoAutorizacion>>) => {
+    if (nuevos.length) setTiposAutorizacion((items) => ordenar([...items, ...nuevos]))
+    setAlumnos((items) => items.map((a) => (valores[a.id] ? { ...a, autorizaciones: { ...a.autorizaciones, ...valores[a.id] } } : a)))
+  }
   const setAutorizacion = (alumnoId: string, tipoId: string, estado?: EstadoAutorizacion) =>
     setAlumnos((items) => items.map((a) => {
       if (a.id !== alumnoId) return a
@@ -471,6 +477,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         borrarTipoAutorizacion,
         moverTipoAutorizacion,
         setAutorizacion,
+        aplicarAutorizaciones,
         alumnosActivos,
         guardarAlumno,
         borrarAlumno,

@@ -48,6 +48,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Vincular por QR (opcional: llevaría la clave de recuperación).
 - [ ] Validar «Sincronizacion», «Activar era sincronizacion», «Sincronizar ara», «Darrèra sincronizacion», «Ja utilizi TUTOR-ia en un aute dispositiu», «Descargant es donades…».
 - [x] Copia de seguridad cifrada descargable y restaurable, con prueba de restauración (decisión 0013).
+- [ ] Validar «Importar autorizacions», «Alumnes reconeishudi», «Non reconeishudi…», «Naua», «Ignorar», «Aplicar a», «Es caselhes vuedes…».
 - [ ] Validar «Autorizacions», «Autorizacion naua», «Gestionar autorizacions», «Icòna», «Òc», «Non», «A viatges», «Tostemp», «Tres opcions…», «Tòca ua tarja entà cambiar…».
 - [ ] Validar «Generau» y «Seguretat» (apartados de la consola de ajustes).
 - [ ] Validar «Descargar còpia de seguretat», «Restaurar ua còpia», «Darrèra còpia», «Còpia comprovada…», «Aguesta còpia ei d’un aute aparelh…», «Se substituiràn totes es donades…».

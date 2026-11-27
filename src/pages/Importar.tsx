@@ -168,7 +168,7 @@ export function Importar() {
             <button
               onClick={importar}
               disabled={incluidas.length === 0}
-              className="sticky bottom-4 mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-accent font-semibold text-on-accent shadow-lg disabled:opacity-40"
+              className="sticky bottom-24 mt-4 flex min-h-12 md:bottom-4 w-full items-center justify-center gap-2 rounded-2xl bg-accent font-semibold text-on-accent shadow-lg disabled:opacity-40"
             >
               <Upload size={18} aria-hidden /> {t.importar} · {incluidas.length}
             </button>
