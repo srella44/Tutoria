@@ -30,7 +30,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Plantilla oficial guardada una vez y sincronizada; borradores sincronizados (sustituye «Unificar los borradores oficiales con la llave de datos»).
 - [x] Modo firma con salida por PIN.
 - [x] Acta definitiva bloqueada con versión y huella; versiones nuevas.
-- [ ] Acta generada por la app (con firmas de los asistentes) para las amassades sin plantilla oficial: profesionales, EAP, logopèda, auta.
+- [x] Acta generada por la app para las amassades sin plantilla oficial (profesionales, EAP, logopèda, auta): acta «popurrí» sin firmas, por decisión del tutor (0019).
 - [ ] Plantilla oficial de reunión con profesionales (cuando llegue).
 - [ ] Convertir los acuerdos del acta en Ahèrs de seguimiento al firmar.
 - [ ] Validar: «Mòde signatura», «Signatz enes caselhes…», «Acabar», «Escriu eth PIN de TUTOR-ia entà tornar ara app.», «Signatures hètes…», «Generar er acta definitiva», «Acta signada», «Er acta ei blocada…», «Version», «Version naua», «Empremta», «signat eth», «Manquen signatures…», «Sonque cau triar-la un còp…», «Aguest PDF ei massa gran…».
