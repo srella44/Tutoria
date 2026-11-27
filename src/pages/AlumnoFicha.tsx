@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { Archive, ChevronLeft, Mail, Pencil, Phone, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { TarjetasAutorizacion } from '../components/Autorizaciones'
 import { BorradorEvaluacion } from '../components/BorradorEvaluacion'
 import { FormAcuerdo, FormAlumno, FormContacto } from '../components/Formularios'
 import { Ajustes } from '../components/Ajustes'
@@ -13,7 +14,7 @@ import type { Acuerdo, ContactoFamiliar, TipoRegistro } from '../data/types'
 import { fechaCorta } from '../lib/fechas'
 import { nombreLengua, useI18n } from '../lib/i18n'
 
-type Tab = 'cronologia' | 'contactos' | 'evaluacion'
+type Tab = 'cronologia' | 'contactos' | 'autorizaciones' | 'evaluacion'
 
 export function AlumnoFicha() {
   const { id } = useParams()
@@ -42,6 +43,7 @@ export function AlumnoFicha() {
   const tabs: [Tab, string][] = [
     ['cronologia', t.cronologia],
     ['contactos', t.contactos],
+    ['autorizaciones', t.autorizaciones],
     ['evaluacion', t.evaluacion],
   ]
 
@@ -67,11 +69,6 @@ export function AlumnoFicha() {
               <p className="text-muted">
                 {[a.apellidos, a.grupo, a.fechaNacimiento && a.fechaNacimiento.split('-').reverse().join('/'), a.localidad].filter(Boolean).join(' · ')}
               </p>
-              {a.autorizacionImagen !== undefined && (
-                <p className={`mt-1 text-xs font-medium ${a.autorizacionImagen ? 'text-accent' : 'text-warn'}`}>
-                  {t.autorizacionImagen}: {a.autorizacionImagen ? '✓' : '✗'}
-                </p>
-              )}
               {a.infoRelevante && <p className="mt-1 text-sm">{a.infoRelevante}</p>}
             </div>
           </div>
@@ -102,7 +99,7 @@ export function AlumnoFicha() {
               key={k}
               onClick={() => setTab(k)}
               className={clsx(
-                'flex-1 border-b-2 px-3 py-2.5 text-sm',
+                'flex-1 border-b-2 px-1.5 py-2.5 text-sm sm:px-3',
                 tab === k ? 'border-accent font-semibold text-accent' : 'border-transparent text-muted',
               )}
             >
@@ -210,6 +207,8 @@ export function AlumnoFicha() {
             ))}
           </div>
         )}
+
+        {tab === 'autorizaciones' && <TarjetasAutorizacion alumno={a} />}
 
         {tab === 'evaluacion' && (
           <div className="space-y-3">

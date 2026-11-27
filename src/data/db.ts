@@ -3,7 +3,7 @@
 import Dexie, { type Table } from 'dexie'
 import { cifrar, descifrar, generarLlaveDispositivo, type AccesoPin, type Candado, type Cifrado, type Sesion } from '../lib/cripto'
 import * as demo from './demo'
-import type { Acuerdo, Aher, Alumno, ContactoFamiliar, CursoEscolar, FraseFrecuente, Profesional, Registro } from './types'
+import type { Acuerdo, Aher, Alumno, ContactoFamiliar, CursoEscolar, FraseFrecuente, Profesional, Registro, TipoAutorizacion } from './types'
 
 export interface Datos {
   cursos: CursoEscolar[]
@@ -14,6 +14,7 @@ export interface Datos {
   acuerdos: Acuerdo[]
   ahers: Aher[]
   frases: FraseFrecuente[]
+  autorizaciones: TipoAutorizacion[]
 }
 
 export type Coleccion = keyof Datos
@@ -27,6 +28,7 @@ class TutoriaDB extends Dexie {
   acuerdos!: Table<Acuerdo, string>
   ahers!: Table<Aher, string>
   frases!: Table<FraseFrecuente, string>
+  autorizaciones!: Table<TipoAutorizacion, string>
   meta!: Table<{ clave: string; valor: unknown }, string>
   /** Cambios pendientes de subir al servidor (solo con la sincronización activa). */
   cola!: Table<Pendiente, string>
@@ -45,6 +47,7 @@ class TutoriaDB extends Dexie {
       meta: 'clave',
     })
     this.version(2).stores({ cola: 'clave' })
+    this.version(3).stores({ autorizaciones: 'id' })
   }
 }
 
@@ -60,7 +63,16 @@ export interface Pendiente {
 
 export const db = new TutoriaDB()
 
-const colecciones: Coleccion[] = ['cursos', 'alumnos', 'contactos', 'profesionales', 'registros', 'acuerdos', 'ahers', 'frases']
+const colecciones: Coleccion[] = ['cursos', 'alumnos', 'contactos', 'profesionales', 'registros', 'acuerdos', 'ahers', 'frases', 'autorizaciones']
+
+/** Autorizaciones iniciales (las del control del tutor, curso 2026-27). Ids fijos: iguales en todos los aparatos. */
+export const AUTORIZACIONES_INICIALES: TipoAutorizacion[] = [
+  { id: 'gessuda', nombre: 'Gessuda', icono: 'bus', orden: 0 },
+  { id: 'solet', nombre: 'Solet', icono: 'sol', orden: 1 },
+  { id: 'control3', nombre: 'Control 3', icono: 'casa', orden: 2 },
+  { id: 'minjador', nombre: 'Minjador', icono: 'cubiertos', orden: 3 },
+  { id: 'foto', nombre: 'Fòto', icono: 'camara', orden: 4 },
+]
 
 /** Ahèrs iniciales: los acuerdos de ejemplo asignados al tutor. */
 function ahersDemo(): Aher[] {
@@ -79,6 +91,7 @@ export function datosDemo(): Datos {
     acuerdos: demo.acuerdos,
     ahers: ahersDemo(),
     frases: demo.frases,
+    autorizaciones: AUTORIZACIONES_INICIALES,
   }
 }
 
@@ -96,7 +109,7 @@ export function datosVacios(): Datos {
     grupos: [],
     estado: 'activo',
   }
-  return { cursos: [curso], alumnos: [], contactos: [], profesionales: [], registros: [], acuerdos: [], ahers: [], frases: demo.frases }
+  return { cursos: [curso], alumnos: [], contactos: [], profesionales: [], registros: [], acuerdos: [], ahers: [], frases: demo.frases, autorizaciones: AUTORIZACIONES_INICIALES }
 }
 
 // ── Cifrado ───────────────────────────────────────────────────────────────

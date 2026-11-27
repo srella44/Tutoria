@@ -20,7 +20,10 @@ export interface Alumno {
   grupo: string
   infoRelevante?: string
   localidad?: string
+  /** Antiguo (importador): se pasa a `autorizaciones.foto`. */
   autorizacionImagen?: boolean
+  /** Estado de cada autorización, por id de TipoAutorizacion. Sin valor = pendiente. */
+  autorizaciones?: Record<string, EstadoAutorizacion>
   /** Número de lista del curso (importado). */
   numeroLista?: number
   /** Posición elegida por el tutor en las listas (menor primero). */
@@ -125,4 +128,15 @@ export interface Aher {
 
 export function citaRealizada(cita: Registro) {
   return cita.realizada ?? !cita.programada
+}
+
+export type EstadoAutorizacion = 'si' | 'aviatges' | 'no'
+
+/** Autorización que se controla para todo el alumnado (la lista la decide el tutor). */
+export interface TipoAutorizacion {
+  id: Id
+  nombre: string
+  /** Nombre de un icono de la lista ICONOS_AUTORIZACION. */
+  icono: string
+  orden: number
 }

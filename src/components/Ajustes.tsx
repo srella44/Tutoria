@@ -78,6 +78,7 @@ export function PaginaAjustes() {
           <FilaEnlace to="/cursos" icono={CalendarRange}>{t.cursos}</FilaEnlace>
           <FilaEnlace to="/frases" icono={MessageSquareQuote}>{t.frases}</FilaEnlace>
           <FilaEnlace to="/profesionales" icono={BriefcaseBusiness}>{t.profesionales}</FilaEnlace>
+          <FilaEnlace to="/autorizaciones" icono={ShieldCheck}>{t.autorizaciones}</FilaEnlace>
         </Apartado>
 
         {cerradura.activa && (

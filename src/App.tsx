@@ -11,6 +11,7 @@ import { InformesPrivados } from './pages/InformesPrivados'
 import { Inicio } from './pages/Inicio'
 import { Reunion } from './pages/Reunion'
 import { PaginaAjustes } from './components/Ajustes'
+import { Autorizaciones } from './pages/Autorizaciones'
 import { Cursos } from './pages/Cursos'
 import { Frases } from './pages/Frases'
 import { Importar } from './pages/Importar'
@@ -39,6 +40,7 @@ export default function App() {
                 <Route path="cursos" element={<Cursos />} />
                 <Route path="frases" element={<Frases />} />
                 <Route path="ajustes" element={<PaginaAjustes />} />
+                <Route path="autorizaciones" element={<Autorizaciones />} />
                 <Route path="reuniones" element={<Reuniones key="amassades" />} />
                 <Route path="claustre" element={<Reuniones key="claustre" claustre />} />
                 <Route path="seguimiento" element={<Seguimiento />} />

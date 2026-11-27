@@ -3,8 +3,8 @@
 // Los borradores oficiales tienen su propio almacén cifrado.
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { guardarBorradorOficial, leerBorradoresOficiales, type BorradorOficial } from './borradoresOficiales'
-import { activarSync, alCambiarLocal, cargarDatos, restaurarDatos, conEjemplo, estadoServidor, idsDemo, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
-import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro } from './types'
+import { activarSync, alCambiarLocal, AUTORIZACIONES_INICIALES, cargarDatos, restaurarDatos, conEjemplo, estadoServidor, idsDemo, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
+import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro, type EstadoAutorizacion, type TipoAutorizacion } from './types'
 
 interface Store {
   /** 'guardado': en IndexedDB · 'memoria': el navegador no deja guardar */
@@ -20,6 +20,12 @@ interface Store {
   contactos: ContactoFamiliar[]
   profesionales: Profesional[]
   frases: FraseFrecuente[]
+  tiposAutorizacion: TipoAutorizacion[]
+  guardarTipoAutorizacion: (t: TipoAutorizacion) => void
+  borrarTipoAutorizacion: (id: string) => void
+  moverTipoAutorizacion: (id: string, delta: -1 | 1) => void
+  /** Fija el estado de una autorización de un alumno (undefined = pendiente). */
+  setAutorizacion: (alumnoId: string, tipoId: string, estado?: EstadoAutorizacion) => void
   /** Alumnado activo (sin archivados): para listas y selectores. `alumnos` incluye los archivados. */
   alumnosActivos: Alumno[]
   guardarAlumno: (a: Alumno) => void
@@ -198,7 +204,15 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   const guardar = almacenamiento === 'guardado'
   // Siempre hay al menos un curso (si la base no tiene ninguno, se crea uno vacío).
   const [cursos, setCursos] = useState(() => (datos.cursos.length ? datos.cursos : datosVacios().cursos))
-  const [alumnos, setAlumnos] = useState(datos.alumnos)
+  // La autorización de imagen del importador antiguo pasa a la autorización «foto».
+  const [alumnos, setAlumnos] = useState(() => datos.alumnos.map((a) =>
+    a.autorizacionImagen !== undefined && a.autorizaciones?.foto === undefined
+      ? { ...a, autorizaciones: { ...a.autorizaciones, foto: a.autorizacionImagen ? 'si' as const : 'no' as const } }
+      : a))
+  // Si este aparato aún no tiene la lista de autorizaciones, se crea con las iniciales (ids fijos).
+  const [tiposAutorizacion, setTiposAutorizacion] = useState(() =>
+    [...(datos.autorizaciones?.length ? datos.autorizaciones : AUTORIZACIONES_INICIALES)].sort((a, b) => a.orden - b.orden))
+  usePersistir('autorizaciones', tiposAutorizacion, guardar)
   const [contactos, setContactos] = useState(datos.contactos)
   const [profesionales, setProfesionales] = useState(datos.profesionales)
   const [frases, setFrases] = useState(() =>
@@ -269,6 +283,25 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
     setAcuerdos(quitar)
     setAhers((hs) => hs.filter((h) => !fuera.has(h.id)))
   }
+  const ordenar = (items: TipoAutorizacion[]) => items.map((x, i) => (x.orden === i ? x : { ...x, orden: i }))
+  const guardarTipoAutorizacion = (t: TipoAutorizacion) => setTiposAutorizacion((items) => ordenar(upsert(items, t)))
+  const borrarTipoAutorizacion = (id: string) => setTiposAutorizacion((items) => ordenar(items.filter((x) => x.id !== id)))
+  const moverTipoAutorizacion = (id: string, delta: -1 | 1) => setTiposAutorizacion((items) => {
+    const i = items.findIndex((x) => x.id === id)
+    const j = i + delta
+    if (i < 0 || j < 0 || j >= items.length) return items
+    const copia = [...items]
+    ;[copia[i], copia[j]] = [copia[j], copia[i]]
+    return ordenar(copia)
+  })
+  const setAutorizacion = (alumnoId: string, tipoId: string, estado?: EstadoAutorizacion) =>
+    setAlumnos((items) => items.map((a) => {
+      if (a.id !== alumnoId) return a
+      const autorizaciones = { ...a.autorizaciones }
+      if (estado) autorizaciones[tipoId] = estado
+      else delete autorizaciones[tipoId]
+      return { ...a, autorizaciones }
+    }))
   const guardarContacto = (c: ContactoFamiliar) => setContactos((items) => upsert(items, c))
   const borrarContacto = (id: string) => setContactos((items) => items.filter((c) => c.id !== id))
   const guardarProfesional = (p: Profesional) => setProfesionales((items) => upsert(items, p))
@@ -421,6 +454,11 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         contactos,
         profesionales,
         frases,
+        tiposAutorizacion,
+        guardarTipoAutorizacion,
+        borrarTipoAutorizacion,
+        moverTipoAutorizacion,
+        setAutorizacion,
         alumnosActivos,
         guardarAlumno,
         borrarAlumno,

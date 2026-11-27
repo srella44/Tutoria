@@ -7,6 +7,14 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  autorizaciones: 'Autorizacions',
+  autorizacionNueva: 'Autorizacion naua',
+  gestionarAutorizaciones: 'Gestionar autorizacions',
+  icono: 'Icòna',
+  estadoSi: 'Òc',
+  estadoNo: 'Non',
+  estadoAViatges: 'A viatges',
+  tocaCambiar: 'Tòca ua tarja entà cambiar: òc · non · a viatges · pendent.',
   general: 'Generau',
   seguridad: 'Seguretat',
   descargarCopia: 'Descargar còpia de seguretat',
@@ -348,6 +356,14 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  autorizaciones: 'Autorizaciones',
+  autorizacionNueva: 'Autorización nueva',
+  gestionarAutorizaciones: 'Gestionar autorizaciones',
+  icono: 'Icono',
+  estadoSi: 'Sí',
+  estadoNo: 'No',
+  estadoAViatges: 'A veces',
+  tocaCambiar: 'Toca una tarjeta para cambiar: sí · no · a veces · pendiente.',
   general: 'General',
   seguridad: 'Seguridad',
   descargarCopia: 'Descargar copia de seguridad',

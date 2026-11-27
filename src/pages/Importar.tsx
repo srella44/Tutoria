@@ -57,7 +57,7 @@ export function Importar() {
         cursoId: curso.id,
         grupo: (f.grupo ?? grupo).trim(),
         localidad: f.localidad,
-        autorizacionImagen: f.autorizacionImagen,
+        autorizaciones: f.autorizacionImagen === undefined ? undefined : { foto: f.autorizacionImagen ? 'si' : 'no' },
         numeroLista: f.numero,
         estado: 'activo',
       })
