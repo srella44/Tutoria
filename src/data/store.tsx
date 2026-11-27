@@ -164,7 +164,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const candado = await leerCandado()
       if (!candado) throw new Error('sin candado')
       setSync((s) => ({ ...s, estado: 'sincronizando' }))
-      await activarSync(candado)
+      const { accesoPinActual } = await import('../components/Cerradura')
+      await activarSync(candado, await accesoPinActual())
       await ciclo.current()
     },
   }

@@ -38,10 +38,9 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 ## Fase 2 · Seguridad y sincronización (en curso)
 
 - [x] Cifrado AES-GCM de todos los datos en el dispositivo, PIN, bloqueo automático y clave de recuperación (decisión 0009).
-- [x] Desbloqueo con Face ID / Windows Hello (passkeys con PRF, decisión 0011).
-- [ ] Probar en aparatos reales unir un dispositivo con Face ID (passkey sincronizada por iCloud).
+- [x] Un único PIN para todos los dispositivos; unir un aparato con el PIN (decisión 0012). Face ID retirado.
 - [ ] Validar «Non se pòt contactar damb eth servidor…», «Ja i a ua compte de TUTOR-ia…», «Unir aguest dispositiu ara compte».
-- [ ] Validar «Activar/Desactivar Face ID o Windows Hello», «Desblocar damb Face ID», «Utilizar Face ID en lòc dera clau», «Aguest aparelh o navegador non permet…».
+- [ ] Validar «Escriu eth PIN de TUTOR-ia…», «Encara non se pòt entrar damb eth PIN…», «He desbrembat eth PIN…», «Entrar damb eth PIN».
 - [ ] Validar «Cifrat damb PIN», «Blocatge automatic sense usatge», «1 ora», «8 ores (tota era jornada)».
 - [x] Sincronización cifrada (Pages Functions + D1), probada en local con dos dispositivos (decisión 0010). Dispositivo nuevo con la clave de recuperación.
 - [x] Desplegado en Cloudflare: D1 `tutoria`, Pages `tutoria-7y6.pages.dev` desde `main`, Access («Solo Sergio») y comprobación del token en la API.

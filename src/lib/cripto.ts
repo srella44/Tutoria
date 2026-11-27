@@ -23,8 +23,6 @@ export interface Candado {
   saltRecuperacion: Bytes
   ivRecuperacion: Bytes
   dekRecuperacion: ArrayBuffer
-  /** Desbloqueo con Face ID / Windows Hello en este dispositivo (decisión 0011). */
-  passkey?: import('./passkey').EnvoltorioPasskey
 }
 
 export interface Cifrado {
@@ -154,6 +152,40 @@ export async function crearSesion(dek: CryptoKey): Promise<Sesion> {
 export async function abrirSesion(sesion: Sesion) {
   try {
     return await importarDek(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: sesion.iv }, sesion.llave, sesion.dek))
+  } catch {
+    return null
+  }
+}
+
+/** Crea una clave de recuperación nueva para la misma DEK (la anterior deja de valer). */
+export async function nuevaRecuperacion(candado: Candado, dek: CryptoKey) {
+  const clave = generarClaveRecuperacion()
+  const saltRecuperacion = aleatorio(16)
+  const ivRecuperacion = aleatorio(12)
+  const dekRecuperacion = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv: ivRecuperacion }, await derivar(normalizarClave(clave), saltRecuperacion), await crypto.subtle.exportKey('raw', dek))
+  return { clave, candado: { ...candado, saltRecuperacion, ivRecuperacion, dekRecuperacion } as Candado }
+}
+
+// ── PIN único para todos los dispositivos (decisión 0012) ────────────────
+// Copia de la DEK envuelta solo con el PIN (sin la llave del dispositivo) que se guarda en el servidor,
+// detrás de Cloudflare Access. Un dispositivo nuevo entra con el código del correo y el PIN.
+export interface AccesoPin {
+  pinSalt: Bytes
+  pinIv: Bytes
+  pinDek: ArrayBuffer
+}
+
+export async function envolverParaServidor(dek: CryptoKey, pin: string): Promise<AccesoPin> {
+  const pinSalt = aleatorio(16)
+  const pinIv = aleatorio(12)
+  const raw = await crypto.subtle.exportKey('raw', dek)
+  return { pinSalt, pinIv, pinDek: await crypto.subtle.encrypt({ name: 'AES-GCM', iv: pinIv }, await derivar(pin, pinSalt), raw) }
+}
+
+export async function abrirDesdeServidor(acceso: AccesoPin, pin: string) {
+  try {
+    return await importarDek(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: acceso.pinIv }, await derivar(pin, acceso.pinSalt), acceso.pinDek))
   } catch {
     return null
   }

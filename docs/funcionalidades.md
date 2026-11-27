@@ -55,7 +55,7 @@ Desde las notas de un punto de Claustre o Cicle se puede crear un Ahèr con resp
 - Los datos se guardan cifrados (AES-GCM) en el dispositivo; solo el id de cada fila queda a la vista.
 - Cada vez que se abre, la app pide el PIN. Tras 5 fallos, solo se entra con la clave de recuperación (y se crea un PIN nuevo). Sin PIN ni clave, solo queda borrar los datos del dispositivo.
 - Recargar la página no pide el PIN mientras la app se haya usado dentro del tiempo de bloqueo. Se bloquea sola tras ese tiempo sin uso (Ajustes › **Blocatge automatic**: 5 min, 15 min, 1 h —por defecto— u 8 h) y desde Ajustes › **Blocar ara**. **Cambiar eth PIN** pide el actual.
-- **Face ID / Windows Hello:** Ajustes › Activar. La pantalla de bloqueo ofrece «Desblocar damb Face ID»; un aparato nuevo con la misma passkey (iCloud) se une sin la clave (decisión 0011).
+- **Un solo PIN para todos los aparatos:** un aparato nuevo entra con el código del correo de Cloudflare y el PIN («Ja utilizi TUTOR-ia en un aute dispositiu»). Si se olvida el PIN, la clave de recuperación (decisión 0012).
 - Detalles técnicos: `docs/decisiones/0009`.
 - **Sincronización** (app publicada en Cloudflare; no en la vista previa): Ajustes › Activar era sincronizacion. El apartado indica siempre el estado: sin cuenta (Activar), cuenta ya existente (**Unir aguest dispositiu ara compte**: borra los datos locales y lleva a la pantalla de unir) o sin acceso a Cloudflare (**Tornar a entrar**). Los cambios viajan cifrados entre dispositivos (a los 3 s, al abrir, cada minuto). Un dispositivo nuevo se une con la clave de recuperación. Ver `docs/decisiones/0010` y `docs/despliegue.md`.
 

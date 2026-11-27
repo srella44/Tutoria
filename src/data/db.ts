@@ -1,8 +1,7 @@
 // Base de datos local (IndexedDB con Dexie). Fase 1: los datos viven en el dispositivo y sobreviven a recargas.
 // En la Fase 2 el contenido se cifrará (AES-GCM) antes de guardarse. Ver docs/decisiones/0008.
 import Dexie, { type Table } from 'dexie'
-import { cifrar, descifrar, generarLlaveDispositivo, type Candado, type Cifrado, type Sesion } from '../lib/cripto'
-import { envoltorioAJson, envoltorioDeJson, type EnvoltorioPasskey } from '../lib/passkey'
+import { cifrar, descifrar, generarLlaveDispositivo, type AccesoPin, type Candado, type Cifrado, type Sesion } from '../lib/cripto'
 import * as demo from './demo'
 import type { Acuerdo, Aher, Alumno, ContactoFamiliar, CursoEscolar, FraseFrecuente, Profesional, Registro } from './types'
 
@@ -312,47 +311,46 @@ export async function servidorDisponible() {
   return ['libre', 'cuenta'].includes(await estadoServidor())
 }
 
-/** Activa la sincronización en este dispositivo: sube la copia de recuperación y todos los datos. */
-export async function activarSync(candado: Candado) {
-  // Si el servidor ya tiene una cuenta (de otro dispositivo), este no puede activar con su propia llave:
-  // tiene que unirse con la clave de recuperación. Así nunca se mezclan datos de dos llaves.
-  const existente = await fetch('/api/recuperacion')
-  if (existente.ok) throw new Error('cuenta-existente')
-  if (existente.status !== 404) throw new Error(`recuperacion ${existente.status}`)
+/** Guarda en el servidor la copia de la llave para la clave de recuperación y, si se da, la del PIN. */
+export async function subirAccesoServidor(candado: Candado, acceso?: AccesoPin) {
   const r = await fetch('/api/recuperacion', {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ salt: aB64(candado.saltRecuperacion), iv: aB64(candado.ivRecuperacion), dek: aB64(candado.dekRecuperacion) }),
+    body: JSON.stringify({
+      salt: aB64(candado.saltRecuperacion), iv: aB64(candado.ivRecuperacion), dek: aB64(candado.dekRecuperacion),
+      ...(acceso && { pinSalt: aB64(acceso.pinSalt), pinIv: aB64(acceso.pinIv), pinDek: aB64(acceso.pinDek) }),
+    }),
   })
   if (!r.ok) throw new Error(`recuperacion ${r.status}`)
+}
+
+/** Activa la sincronización en este dispositivo: sube la copia de recuperación y todos los datos. */
+export async function activarSync(candado: Candado, acceso?: AccesoPin) {
+  // Si el servidor ya tiene una cuenta (de otro dispositivo), este no puede activar con su propia llave:
+  // tiene que unirse. Así nunca se mezclan datos de dos llaves.
+  const existente = await fetch('/api/recuperacion')
+  if (existente.ok) throw new Error('cuenta-existente')
+  if (existente.status !== 404) throw new Error(`recuperacion ${existente.status}`)
+  await subirAccesoServidor(candado, acceso)
   for (const c of colecciones) {
     const filas = (await db[c].toArray()) as Fila[]
     await encolar(c, filas.filter((f) => f.c), [])
   }
   await guardarEstadoSync({ activa: true, version: 0 })
-  if (candado.passkey) await subirPasskey(candado.passkey).catch(() => {})
   return sincronizarAhora()
-}
-
-/** Sube al servidor la DEK envuelta con una passkey (para unir dispositivos con Face ID). */
-export async function subirPasskey(env: EnvoltorioPasskey) {
-  const r = await fetch('/api/passkey', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(envoltorioAJson(env)) })
-  if (!r.ok) throw new Error(`passkey ${r.status}`)
-}
-export async function borrarPasskeyServidor(id: string) {
-  await fetch(`/api/passkey?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {})
-}
-export async function buscarPasskey(id: string) {
-  const r = await fetch(`/api/passkey?id=${encodeURIComponent(id)}`)
-  return r.ok ? envoltorioDeJson(await r.json()) : null
 }
 
 /** Descarga del servidor la copia de recuperación (para unir un dispositivo nuevo). */
 export async function descargarRecuperacion() {
   const r = await fetch('/api/recuperacion')
   if (!r.ok) return null
-  const d = (await r.json()) as { salt: string; iv: string; dek: string }
-  return { saltRecuperacion: deB64(d.salt), ivRecuperacion: deB64(d.iv), dekRecuperacion: deB64(d.dek).buffer }
+  const d = (await r.json()) as { salt: string; iv: string; dek: string; pinSalt?: string; pinIv?: string; pinDek?: string }
+  return {
+    saltRecuperacion: deB64(d.salt), ivRecuperacion: deB64(d.iv), dekRecuperacion: deB64(d.dek).buffer,
+    pin: d.pinSalt && d.pinIv && d.pinDek
+      ? { pinSalt: deB64(d.pinSalt), pinIv: deB64(d.pinIv), pinDek: deB64(d.pinDek).buffer } as AccesoPin
+      : undefined,
+  }
 }
 
 /** Prepara un dispositivo nuevo unido a la cuenta: sin ejemplo, con sincronización activa. */

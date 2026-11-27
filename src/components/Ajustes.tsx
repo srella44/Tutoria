@@ -1,5 +1,5 @@
 // Botón de ajustes: siempre arriba a la derecha, en todas las secciones y dispositivos.
-import { CalendarRange, CloudUpload, KeyRound, Lock, MessageSquareQuote, RefreshCw, ScanFace, Settings, ShieldCheck } from 'lucide-react'
+import { CalendarRange, CloudUpload, KeyRound, Lock, MessageSquareQuote, RefreshCw, Settings, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { conEjemplo, OPCIONES_BLOQUEO } from '../data/db'
@@ -19,7 +19,6 @@ export function Ajustes() {
   const [errorActivar, setErrorActivar] = useState<string | false>(false)
   const [borrando, setBorrando] = useState(false)
   const [uniendo, setUniendo] = useState(false)
-  const [avisoBiometria, setAvisoBiometria] = useState<string>()
   const [cambiandoPin, setCambiandoPin] = useState(false)
   const cerrar = () => {
     setOpen(false)
@@ -76,22 +75,6 @@ export function Ajustes() {
                 <button onClick={() => { cerrar(); cerradura.bloquear() }} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
                   <Lock size={16} className="text-muted" aria-hidden /> {t.bloquearAhora}
                 </button>
-                {cerradura.biometria.posible && (
-                  <button
-                    onClick={async () => {
-                      setAvisoBiometria(undefined)
-                      if (cerradura.biometria.activa) return cerradura.biometria.desactivar()
-                      const r = await cerradura.biometria.activar()
-                      if (r !== 'ok') setAvisoBiometria(r === 'sin-prf' ? t.biometriaNoDisponible : t.biometriaError)
-                    }}
-                    className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg"
-                  >
-                    <ScanFace size={16} className="text-muted" aria-hidden />
-                    {cerradura.biometria.activa ? t.desactivarBiometria : t.activarBiometria}
-                  </button>
-                )}
-                {cerradura.biometria.activa && <p className="px-3 pb-1 text-xs text-accent">{t.biometriaActiva}</p>}
-                {avisoBiometria && <p className="px-3 pb-1 text-xs text-danger">{avisoBiometria}</p>}
                 <button onClick={() => setCambiandoPin(true)} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg">
                   <KeyRound size={16} className="text-muted" aria-hidden /> {t.cambiarPin}
                 </button>

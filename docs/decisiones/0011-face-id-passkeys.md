@@ -1,6 +1,6 @@
 # 0011 · Desbloqueo con Face ID / Windows Hello (passkeys con PRF)
 
-- **Estado:** aceptada
+- **Estado:** retirada (2026-11-27): Sergio no quiere Face ID ni Windows Hello; ver 0012
 - **Fecha:** 2026-11-27
 
 ## Decisión
