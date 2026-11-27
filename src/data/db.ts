@@ -3,7 +3,7 @@
 import Dexie, { type Table } from 'dexie'
 import { cifrar, descifrar, generarLlaveDispositivo, type AccesoPin, type Candado, type Cifrado, type Sesion } from '../lib/cripto'
 import * as demo from './demo'
-import type { Acuerdo, Aher, Alumno, ContactoFamiliar, CursoEscolar, FraseFrecuente, Profesional, Registro, SesionHorario, TipoAutorizacion } from './types'
+import type { Acuerdo, Aher, Alumno, ContactoFamiliar, CursoEscolar, FraseFrecuente, Profesional, Registro, SesionHorario, TipoAutorizacion, BorradorActa, PlantillaOficial, ActaFirmada } from './types'
 
 export interface Datos {
   cursos: CursoEscolar[]
@@ -16,6 +16,9 @@ export interface Datos {
   frases: FraseFrecuente[]
   autorizaciones: TipoAutorizacion[]
   horario: SesionHorario[]
+  borradores: BorradorActa[]
+  plantillas: PlantillaOficial[]
+  actas: ActaFirmada[]
 }
 
 export type Coleccion = keyof Datos
@@ -31,6 +34,9 @@ class TutoriaDB extends Dexie {
   frases!: Table<FraseFrecuente, string>
   autorizaciones!: Table<TipoAutorizacion, string>
   horario!: Table<SesionHorario, string>
+  borradores!: Table<BorradorActa, string>
+  plantillas!: Table<PlantillaOficial, string>
+  actas!: Table<ActaFirmada, string>
   meta!: Table<{ clave: string; valor: unknown }, string>
   /** Cambios pendientes de subir al servidor (solo con la sincronización activa). */
   cola!: Table<Pendiente, string>
@@ -51,6 +57,7 @@ class TutoriaDB extends Dexie {
     this.version(2).stores({ cola: 'clave' })
     this.version(3).stores({ autorizaciones: 'id' })
     this.version(4).stores({ horario: 'id' })
+    this.version(5).stores({ borradores: 'id', plantillas: 'id', actas: 'id' })
   }
 }
 
@@ -66,7 +73,7 @@ export interface Pendiente {
 
 export const db = new TutoriaDB()
 
-const colecciones: Coleccion[] = ['cursos', 'alumnos', 'contactos', 'profesionales', 'registros', 'acuerdos', 'ahers', 'frases', 'autorizaciones', 'horario']
+const colecciones: Coleccion[] = ['cursos', 'alumnos', 'contactos', 'profesionales', 'registros', 'acuerdos', 'ahers', 'frases', 'autorizaciones', 'horario', 'borradores', 'plantillas', 'actas']
 
 /** Autorizaciones iniciales (las del control del tutor, curso 2026-27). Ids fijos: iguales en todos los aparatos. */
 export const AUTORIZACIONES_INICIALES: TipoAutorizacion[] = [
@@ -95,6 +102,9 @@ export function datosDemo(): Datos {
     frases: demo.frases,
     autorizaciones: AUTORIZACIONES_INICIALES,
     horario: demo.horario,
+    borradores: [],
+    plantillas: [],
+    actas: [],
   }
 }
 
@@ -112,7 +122,7 @@ export function datosVacios(): Datos {
     grupos: [],
     estado: 'activo',
   }
-  return { cursos: [curso], alumnos: [], contactos: [], profesionales: [], registros: [], acuerdos: [], ahers: [], frases: demo.frases, autorizaciones: AUTORIZACIONES_INICIALES, horario: [] }
+  return { cursos: [curso], alumnos: [], contactos: [], profesionales: [], registros: [], acuerdos: [], ahers: [], frases: demo.frases, autorizaciones: AUTORIZACIONES_INICIALES, horario: [], borradores: [], plantillas: [], actas: [] }
 }
 
 // ── Cifrado ───────────────────────────────────────────────────────────────

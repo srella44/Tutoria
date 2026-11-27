@@ -25,6 +25,16 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 
 - [x] Validar «Religion», «Hè religion», «Marcar qui hè religion», «Tòca es alumnes que hèn religion», «Marcar ara classe», «Pendents», «Exportar PDF», «Descargar», «Marca es donades que vòs que gessen en PDF…», «Era religion ei ua donada sensibla…». **Validado por Sergio (27/11/2026) y aplicado.**
 
+## Fase 3 · Reuniones (en curso)
+
+- [x] Plantilla oficial guardada una vez y sincronizada; borradores sincronizados (sustituye «Unificar los borradores oficiales con la llave de datos»).
+- [x] Modo firma con salida por PIN.
+- [x] Acta definitiva bloqueada con versión y huella; versiones nuevas.
+- [ ] Acta generada por la app (con firmas de los asistentes) para las amassades sin plantilla oficial: profesionales, EAP, logopèda, auta.
+- [ ] Plantilla oficial de reunión con profesionales (cuando llegue).
+- [ ] Convertir los acuerdos del acta en Ahèrs de seguimiento al firmar.
+- [ ] Validar: «Mòde signatura», «Signatz enes caselhes…», «Acabar», «Escriu eth PIN de TUTOR-ia entà tornar ara app.», «Signatures hètes…», «Generar er acta definitiva», «Acta signada», «Er acta ei blocada…», «Version», «Version naua», «Empremta», «signat eth», «Manquen signatures…», «Sonque cau triar-la un còp…», «Aguest PDF ei massa gran…».
+
 ## Material del centro (anonimizado)
 
 - [x] Plantilla oficial de reunión con familias (PDF recibido)
@@ -60,7 +70,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Comprobar en el iPhone que el valor de los campos de fecha y hora queda centrado (ajuste en `src/index.css`).
 - [ ] Validar «Generau» y «Seguretat» (apartados de la consola de ajustes).
 - [ ] Validar «Descargar còpia de seguretat», «Restaurar ua còpia», «Darrèra còpia», «Còpia comprovada…», «Aguesta còpia ei d’un aute aparelh…», «Se substituiràn totes es donades…».
-- [ ] Unificar los borradores oficiales con la llave de datos.
+- [x] Unificar los borradores oficiales con la llave de datos (Fase 3).
 - [ ] Validar los textos de la cerradura: «Crea eth tèn PIN», «Repetís eth PIN», «Desblocar», «Clau de recuperacion», «L’è apuntada en paper», «Contunhar», «Massa intents…», «Utilizar era clau de recuperacion», «Blocar ara», «Cambiar eth PIN», «Cifrant es donades…», «Borrar tot e començar de nau».
 
 ## Fase 1 · Núcleo local (completada)

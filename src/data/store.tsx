@@ -2,9 +2,9 @@
 // Si el navegador bloquea el almacenamiento, funciona en memoria con el alumnado ficticio.
 // Los borradores oficiales tienen su propio almacén cifrado.
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
-import { guardarBorradorOficial, leerBorradoresOficiales, type BorradorOficial } from './borradoresOficiales'
+import type { BorradorOficial } from './borradoresOficiales'
 import { activarSync, alCambiarLocal, AUTORIZACIONES_INICIALES, cargarDatos, restaurarDatos, conEjemplo, estadoServidor, idsDemo, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
-import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro, type SesionHorario, type EstadoAutorizacion, type TipoAutorizacion } from './types'
+import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro, type SesionHorario, type BorradorActa, type PlantillaOficial, type ActaFirmada, type EstadoAutorizacion, type TipoAutorizacion } from './types'
 
 interface Store {
   /** 'guardado': en IndexedDB · 'memoria': el navegador no deja guardar */
@@ -68,6 +68,11 @@ interface Store {
   borradores: Partial<Record<string, BorradorOficial>>
   estadoBorradores: Partial<Record<string, 'guardando' | 'guardado' | 'fallo'>>
   setBorrador: (cita: Registro, datos?: BorradorOficial) => void
+  plantillas: PlantillaOficial[]
+  guardarPlantilla: (p: PlantillaOficial) => void
+  actas: ActaFirmada[]
+  firmarActa: (acta: ActaFirmada) => void
+  nuevaVersionActa: (registroId: string) => void
   acuerdos: Acuerdo[]
   ahers: Aher[]
   addAher: (texto: string, fecha?: string, detalle?: Pick<Aher, 'responsable' | 'origen' | 'hora'>) => void
@@ -370,49 +375,49 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   const addDocumentosClaustre = (archivos: File[]) =>
     setDocumentosClaustre((actuales) => [...actuales, ...archivos])
   const [registros, setRegistros] = useState<Registro[]>(datos.registros)
-  const [borradores, setBorradores] = useState<Store['borradores']>({})
-  const [estadoBorradores, setEstadoBorradores] = useState<Store['estadoBorradores']>({})
+  // Borradores de las hojas oficiales, plantillas y actas firmadas: cifrados y sincronizados como el resto.
+  const [borradoresTodo, setBorradoresTodo] = useState<BorradorActa[]>(() => datos.borradores ?? [])
+  usePersistir('borradores', borradoresTodo, guardar)
+  const [plantillas, setPlantillas] = useState<PlantillaOficial[]>(() => datos.plantillas ?? [])
+  usePersistir('plantillas', plantillas, guardar)
+  const [actas, setActas] = useState<ActaFirmada[]>(() => datos.actas ?? [])
+  usePersistir('actas', actas, guardar)
+  const borradores: Store['borradores'] = Object.fromEntries(borradoresTodo.map(({ id, ...b }) => [id, b]))
+  const estadoBorradores: Store['estadoBorradores'] = Object.fromEntries(borradoresTodo.map((b) => [b.id, guardar ? 'guardado' : 'fallo']))
   const [borradoresListos, setBorradoresListos] = useState(false)
-  const escrituras = useRef(new Map<string, Promise<void>>())
 
+  // Traslado único desde el almacén antiguo (llave propia, sin sincronizar) a la base principal.
   useEffect(() => {
     let activo = true
-    leerBorradoresOficiales().then((guardados) => {
-      if (!activo) return
-      setBorradores(Object.fromEntries(guardados.map(({ cita, datos }) => [cita.id, datos])))
-      setEstadoBorradores(Object.fromEntries(guardados.map(({ cita }) => [cita.id, 'guardado'])))
-      setRegistros((actuales) => [...actuales, ...guardados.map(({ cita }) => cita)
-        .filter((cita) => !actuales.some((actual) => actual.id === cita.id))])
-    }).catch(() => {
-      // En el navegador que bloquee IndexedDB se conserva el borrador solo en esta sesión.
+    import('./borradoresOficiales').then(({ leerBorradoresOficiales, guardarBorradorOficial }) =>
+      leerBorradoresOficiales().then(async (guardados) => {
+        if (!activo || !guardados.length) return
+        setBorradoresTodo((actuales) => [...actuales, ...guardados
+          .filter(({ cita }) => !actuales.some((b) => b.id === cita.id))
+          .map(({ cita, datos: d }) => ({ id: cita.id, ...d }))])
+        setRegistros((actuales) => [...actuales, ...guardados.map(({ cita }) => cita)
+          .filter((cita) => !actuales.some((actual) => actual.id === cita.id))])
+        if (guardar) for (const { cita } of guardados) await guardarBorradorOficial(cita.id)
+      })).catch(() => {
+      // Sin almacén antiguo (o bloqueado): no hay nada que trasladar.
     }).finally(() => {
       if (activo) setBorradoresListos(true)
     })
     return () => { activo = false }
   }, [])
 
-  const setBorrador = (cita: Registro, datos?: BorradorOficial) => {
-    const { id } = cita
-    setBorradores((actuales) => ({ ...actuales, [id]: datos }))
-    setEstadoBorradores((actuales) => ({ ...actuales, [id]: 'guardando' }))
-    const anterior = escrituras.current.get(id)
-    const tarea = (anterior ?? Promise.resolve()).catch(() => undefined).then(() =>
-      guardarBorradorOficial(id, datos ? {
-        cita: {
-          id, tipo: cita.tipo, fecha: cita.fecha, alumnoIds: cita.alumnoIds, texto: '', etiquetas: [],
-          visibilidad: cita.visibilidad, alumnosOtrosCursos: cita.alumnosOtrosCursos,
-          asistentes: cita.asistentes, realizada: cita.realizada, programada: cita.programada,
-          estado: cita.estado,
-        },
-        datos,
-      } : undefined))
-    escrituras.current.set(id, tarea)
-    const terminar = (estado: 'guardado' | 'fallo') => {
-      if (escrituras.current.get(id) !== tarea) return
-      escrituras.current.delete(id)
-      setEstadoBorradores((actuales) => ({ ...actuales, [id]: estado }))
-    }
-    void tarea.then(() => terminar('guardado'), () => terminar('fallo'))
+  const setBorrador = (cita: Registro, d?: BorradorOficial) => setBorradoresTodo((items) =>
+    d ? upsert(items, { id: cita.id, ...d }) : items.filter((b) => b.id !== cita.id))
+  const guardarPlantilla = (p: PlantillaOficial) => setPlantillas((items) => upsert(items, p))
+  /** Guarda el acta definitiva y bloquea la cita (estado «firmado»). */
+  const firmarActa = (acta: ActaFirmada) => {
+    setActas((items) => [...items, acta])
+    setRegistros((items) => items.map((r) => (r.id === acta.registroId ? { ...r, estado: 'firmado' as const, realizada: true } : r)))
+  }
+  /** Desbloquea una cita firmada para hacer una versión nueva (las anteriores se conservan). */
+  const nuevaVersionActa = (registroId: string) => {
+    setRegistros((items) => items.map((r) => (r.id === registroId ? { ...r, estado: 'sinFirmar' as const } : r)))
+    setBorradoresTodo((items) => items.map((b) => (b.id === registroId ? { ...b, firmas: [] } : b)))
   }
 
   const [acuerdosGuardados, setAcuerdos] = useState<Acuerdo[]>(datos.acuerdos)
@@ -549,6 +554,11 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         borradores,
         estadoBorradores,
         setBorrador,
+        plantillas,
+        guardarPlantilla,
+        actas,
+        firmarActa,
+        nuevaVersionActa,
         acuerdos,
         ahers,
         addAher,

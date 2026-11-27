@@ -12,7 +12,7 @@ interface Fila {
   borrado: 0 | 1
 }
 
-const TABLAS = new Set(['cursos', 'alumnos', 'contactos', 'profesionales', 'registros', 'acuerdos', 'ahers', 'frases', 'autorizaciones', 'horario'])
+const TABLAS = new Set(['cursos', 'alumnos', 'contactos', 'profesionales', 'registros', 'acuerdos', 'ahers', 'frases', 'autorizaciones', 'horario', 'borradores', 'plantillas', 'actas'])
 const LIMITE = 500
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {

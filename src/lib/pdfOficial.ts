@@ -128,6 +128,8 @@ export async function rellenarPdfOficial(
   valores: Record<string, string>,
   motivos: number[],
   firmas: (string | undefined)[],
+  /** Sello al pie de cada página del acta definitiva (versión y fecha de firma). */
+  sello?: string,
 ) {
   const { PDFDocument, StandardFonts, rgb } = await import('pdf-lib')
   const tinta = rgb(0.07, 0.18, 0.31)
@@ -157,6 +159,16 @@ export async function rellenarPdfOficial(
     const m = medidas(pagina, caja)
     const tamano = imagen.scaleToFit(m.ancho, m.alto)
     pagina.drawImage(imagen, { x: m.x, y: m.y - tamano.height, ...tamano })
+  }
+  if (sello) {
+    for (const pagina of paginas) {
+      const { x, y, width } = pagina.getCropBox()
+      const texto = sello.normalize('NFC').replace(/[^\x20-\x7E\xA0-\xFF]/g, '')
+      const ancho = fuente.widthOfTextAtSize(texto, 7)
+      pagina.drawText(texto, { x: x + width - ancho - 18, y: y + 10, size: 7, font: fuente, color: rgb(0.45, 0.5, 0.55) })
+    }
+    documento.setProducer('TUTOR-ia')
+    documento.setModificationDate(new Date())
   }
   return documento.save()
 }

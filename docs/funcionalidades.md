@@ -29,7 +29,7 @@ El engranaje de arriba a la derecha abre la **consola de ajustes** (`/ajustes`),
 | Amassades / Reuniones | `/reuniones` | Familias, Te escoti, EAP, logopeda y otros profesionales vinculados al alumnado. Próximas y pasadas; permite programar y exportar citas a .ics |
 | Claustre / Claustro | `/claustre` | Claustros, sesiones de ciclo y mentoría, sin asociación a alumnado |
 | Seguiment / Seguimiento | `/seguimiento` | Ahèrs personales con fecha opcional y casilla de completado; grupos plegables para incidencias, Te escoti, actas sin firmar y tareas de otros responsables |
-| Modo reunión | `/reunion/:id` | Asistente a pantalla completa: Preparar, Anotar (conserva notas durante la sesión de uso), Acta (vista previa) y exportación a PDF para sesiones internas. Las firmas y el PDF de amassades de alumnado siguen pendientes. |
+| Modo reunión | `/reunion/:id` | Asistente a pantalla completa: Preparar, Anotar (conserva notas durante la sesión de uso), Acta (vista previa) y exportación a PDF para sesiones internas. Hojas oficiales (familia y T’escoti): modo firma y acta definitiva bloqueada, con versión y huella (ver «Fase 3»). |
 
 En Amassades y Claustre se puede crear una cita con un título propio. Los campos de alta se organizan en bloques plegables y conservan lo introducido al contraerlos. En Te Escoti se pueden añadir participantes de otros cursos por nombre y grupo, incluso sin seleccionar a nadie de la clase del tutor.
 
@@ -115,3 +115,12 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 ## Autoría
 
 - Pie «Desvolopat per | logo de Prètzhèt Digitau» con la versión (fecha de publicación, `__VERSION__`) al final de Inici y de Configuracion (`src/components/Creditos.tsx`, logo en `public/pretzhet-digitau.webp`, animación del láser).
+
+## Fase 3 · Actas oficiales (en curso)
+
+- La plantilla oficial (PDF del centro, comprobada por su huella) se elige una sola vez: se guarda cifrada y se sincroniza (colección `plantillas`).
+- Los borradores de las hojas pasan a la base principal cifrada y se sincronizan (colección `borradores`); los del almacén antiguo se trasladan solos.
+- Modo firma (`src/components/ModoFirma.tsx`): pantalla completa con la vista previa y las casillas de firma; el botón «atrás» no sale y para volver a la app hace falta el PIN.
+- Acta definitiva: PDF firmado con sello «TUTOR-ia · Version N · signat eth …» al pie, huella SHA-256 y versión (colección `actas`); la cita queda en estado `firmado` y sus campos bloqueados. «Version naua» la reabre sin borrar las versiones firmadas.
+- En la cronología, la etiqueta «Acta signada · vN» descarga el último PDF firmado.
+- Límite: un PDF de más de ~1 MB se guarda en el aparato pero no se sincroniza (límite de D1).

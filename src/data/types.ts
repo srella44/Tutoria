@@ -163,3 +163,35 @@ export interface SesionHorario {
   docente?: string
   nota?: string
 }
+
+/** Borrador de una hoja oficial (id = id de la cita). */
+export interface BorradorActa {
+  id: Id
+  valores: Record<string, string>
+  motivos: number[]
+  /** Firmas manuscritas (PNG en data URL), por casilla de la plantilla. */
+  firmas: (string | null)[]
+}
+
+/** PDF original de una plantilla oficial del centro (se elige una vez y queda guardado). */
+export interface PlantillaOficial {
+  id: 'familia' | 'escoti'
+  nombre: string
+  /** PDF en base64. */
+  pdf: string
+}
+
+/** Acta definitiva: PDF firmado y bloqueado. Cada cambio posterior crea una versión nueva. */
+export interface ActaFirmada {
+  id: Id
+  registroId: Id
+  version: number
+  /** Fecha y hora de la firma (ISO). */
+  fecha: string
+  /** Huella SHA-256 del PDF (hex). */
+  huella: string
+  firmantes: string[]
+  nombre: string
+  /** PDF en base64. */
+  pdf: string
+}
