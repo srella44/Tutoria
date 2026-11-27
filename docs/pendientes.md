@@ -28,7 +28,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 
 - [x] Validar «Religion», «Hè religion», «Marcar qui hè religion», «Tòca es alumnes que hèn religion», «Marcar ara classe», «Pendents», «Exportar PDF», «Descargar», «Marca es donades que vòs que gessen en PDF…», «Era religion ei ua donada sensibla…». **Validado por Sergio (27/11/2026) y aplicado.**
 
-## Fase 3 · Reuniones (en curso)
+## Fase 3 · Reuniones (completada 2026-11-27)
 
 - [x] Plantilla oficial guardada una vez y sincronizada; borradores sincronizados (sustituye «Unificar los borradores oficiales con la llave de datos»).
 - [x] Modo firma con salida por PIN.
