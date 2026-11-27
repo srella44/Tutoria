@@ -1,12 +1,13 @@
 // Modo reunión: asistente a pantalla completa. Fase 0 = navegable; firma y PDF llegan en la Fase 3.
 import clsx from 'clsx'
-import { CalendarPlus, FileDown, X } from 'lucide-react'
+import { CalendarPlus, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ActaInterna, NotasInternas } from '../components/ActaInterna'
 import { ControlGoogleCalendar } from '../components/ControlGoogleCalendar'
 import { EstadoCita } from '../components/EstadoCita'
 import { HuelhaOficial } from '../components/HuelhaOficial'
+import { PdfActaPropia } from '../components/PdfActaPropia'
 import { PuntosCita } from '../components/PuntosCita'
 import { RegistroItem } from '../components/RegistroItem'
 import { Card, Empty } from '../components/ui'
@@ -21,7 +22,7 @@ export function Reunion() {
   const nav = useNavigate()
   const location = useLocation()
   const { t, lang, tipo } = useI18n()
-  const { registros, borradoresListos, acuerdos, alumnos, contactos, profesionales } = useStore()
+  const { registros, borradoresListos, acuerdos, alumnos, contactos, profesionales, curso } = useStore()
   const [paso, setPaso] = useState(0)
   const r = registros.find((x) => x.id === id)
   if (!r) return <Empty>{borradoresListos ? '404' : t.pdfCargando}</Empty>
@@ -158,15 +159,8 @@ export function Reunion() {
           {actaPropia && paso >= 2 && <>
             <ActaInterna cita={r} titulo={interna ? titulo : r.titulo || tipo[r.tipo]} fecha={fechaHora(r.fecha, lang)}
               detalle={interna ? undefined : [nombres, asistentes.join(', ')].filter(Boolean).join(' · ')} />
-            {paso === 3 && (
-              <div className="acta-acciones flex flex-wrap items-center gap-3">
-                <button type="button" onClick={() => window.print()}
-                  className="accion-coral inline-flex min-h-11 items-center gap-2 rounded-xl px-4 font-semibold">
-                  <FileDown size={19} aria-hidden /> {t.crearPdfActa}
-                </button>
-                <p className="text-sm text-muted">{t.abrirPdfActa}</p>
-              </div>
-            )}
+            {paso === 3 && <PdfActaPropia cita={r} titulo={interna ? titulo : r.titulo || tipo[r.tipo]}
+              lineas={[fechaHora(r.fecha, lang), curso.tutor ?? '', interna ? '' : [nombres, asistentes.join(', ')].filter(Boolean).join(' · ')]} />}
           </>}
 
         </div>

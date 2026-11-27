@@ -346,7 +346,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
 }
 
 // Borrado en dos toques de una versión firmada.
-function BorrarVersion({ onBorrar }: { onBorrar: () => void }) {
+export function BorrarVersion({ onBorrar }: { onBorrar: () => void }) {
   const { t } = useI18n()
   const [armado, setArmado] = useState(false)
   useEffect(() => {

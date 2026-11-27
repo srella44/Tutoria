@@ -75,6 +75,8 @@ interface Store {
   firmarActa: (acta: ActaFirmada) => void
   nuevaVersionActa: (registroId: string) => void
   borrarActa: (id: string) => void
+  /** Guarda un acta propia (sin firmas): no bloquea la cita. */
+  guardarActaPropia: (acta: ActaFirmada) => void
   acuerdos: Acuerdo[]
   ahers: Aher[]
   addAher: (texto: string, fecha?: string, detalle?: Pick<Aher, 'responsable' | 'origen' | 'hora'>) => void
@@ -420,6 +422,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   /** Desbloquea una cita firmada para hacer una versión nueva. Las anteriores y las firmas se conservan (decisión 0017). */
   const nuevaVersionActa = (registroId: string) =>
     setRegistros((items) => items.map((r) => (r.id === registroId ? { ...r, estado: 'sinFirmar' as const } : r)))
+  const guardarActaPropia = (acta: ActaFirmada) => setActas((items) => [...items, acta])
   /** Borra una versión firmada. Si no queda ninguna, la cita deja de estar bloqueada. */
   const borrarActa = (id: string) => {
     const acta = actas.find((a) => a.id === id)
@@ -583,6 +586,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         firmarActa,
         nuevaVersionActa,
         borrarActa,
+        guardarActaPropia,
         acuerdos,
         ahers,
         addAher,

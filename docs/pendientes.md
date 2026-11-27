@@ -98,3 +98,5 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Validar las nuevas etiquetas de Google Calendar, citas personalizadas y alumnado de otros cursos en aranés.
 - [ ] Validar el nuevo aviso de «Version naua» (firmas conservadas) en aranés.
 - [ ] Validar «Logo dera escòla» (Cursos) en aranés.
+- [ ] Validar en aranés el aviso del paso PDF del acta propia («Er acta se guarde aciu; cada PDF nau ei ua version.»).
+- [ ] Revisar en un iPhone el PDF «popurrí» generado (pauta, post-its, bocadillos, logo y páginas de continuación).

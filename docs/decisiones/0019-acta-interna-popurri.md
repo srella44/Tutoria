@@ -14,3 +14,4 @@ menos serias, con color y adornos.
   y en cursiva. Las notas generales, en un post-it blanco.
 - Los Ahèrs creados desde los puntos también van en post-its, con responsable y fecha.
 - Sello «OK!» cuando la cita está hecha. Se imprime con color (`print-color-adjust: exact`); los post-its no se parten entre páginas.
+- El PDF se genera con pdf-lib (`src/lib/pdfActaPropia.ts`), no con la impresión del navegador, y se guarda en `actas` con versión y huella, sin bloquear la cita. Se usa también en las amassades sin hoja oficial.
