@@ -122,6 +122,42 @@ function escribir(pagina: PDFPage, caja: Caja, valor: string, fuente: PDFFont, c
   throw new CampoPdfError(clave)
 }
 
+export type PuntoPdf = { titulo: string; notas: string }
+
+type Fuentes = { normal: PDFFont; negrita: PDFFont; cursiva: PDFFont }
+
+/** «Aspèctes a tractar» por puntos: título numerado en negrita y desarrollo sangrado en cursiva. */
+function escribirPuntos(pagina: PDFPage, caja: Caja, puntos: PuntoPdf[], fuentes: Fuentes, clave: string, tinta: RGB) {
+  const { x, y, ancho, alto } = medidas(pagina, caja)
+  try {
+    for (let tamano = 10; tamano >= 7; tamano -= 0.5) {
+      const interlinea = tamano * 1.08
+      const sangria = tamano * 1.6
+      const filas: { texto: string; fuente: PDFFont; x: number }[][] = puntos.map((p, i) => [
+        ...lineas(`${i + 1}. ${p.titulo}`.normalize('NFC'), fuentes.negrita, tamano, ancho)
+          .map((texto) => ({ texto, fuente: fuentes.negrita, x })),
+        ...(p.notas.trim() ? lineas(p.notas.trim().normalize('NFC'), fuentes.cursiva, tamano, ancho - sangria) : [])
+          .map((texto) => ({ texto, fuente: fuentes.cursiva, x: x + sangria })),
+      ])
+      const separacion = interlinea * 0.5
+      const total = filas.reduce((suma, f) => suma + f.length * interlinea, 0) + separacion * (filas.length - 1)
+      if (total > alto) continue
+      let cursor = y - tamano
+      filas.forEach((punto) => {
+        punto.forEach((fila) => {
+          if (fila.texto) pagina.drawText(fila.texto, { x: fila.x, y: cursor, font: fila.fuente, size: tamano, color: tinta })
+          cursor -= interlinea
+        })
+        cursor -= separacion
+      })
+      return
+    }
+  } catch {
+    // Carácter no representable: se señala como campo inválido.
+  }
+  throw new CampoPdfError(clave)
+}
+
 export async function rellenarPdfOficial(
   modelo: ModeloOficial,
   original: Uint8Array,
@@ -130,6 +166,8 @@ export async function rellenarPdfOficial(
   firmas: (string | undefined)[],
   /** Sello al pie de cada página del acta definitiva (versión y fecha de firma). */
   sello?: string,
+  /** Puntos preparados: sustituyen el texto de «aspectos» con formato propio. */
+  puntos?: PuntoPdf[],
 ) {
   const { PDFDocument, StandardFonts, rgb } = await import('pdf-lib')
   const tinta = rgb(0.07, 0.18, 0.31)
@@ -137,6 +175,15 @@ export async function rellenarPdfOficial(
   const paginas = documento.getPages()
   const fuente = await documento.embedFont(StandardFonts.Helvetica)
   for (const [clave, caja] of Object.entries(modelos[modelo].campos)) {
+    if (clave === 'aspectos' && puntos?.length) {
+      const fuentes = {
+        normal: fuente,
+        negrita: await documento.embedFont(StandardFonts.HelveticaBold),
+        cursiva: await documento.embedFont(StandardFonts.HelveticaOblique),
+      }
+      escribirPuntos(paginas[caja[0]], caja, puntos, fuentes, clave, tinta)
+      continue
+    }
     escribir(paginas[caja[0]], caja, valores[clave] ?? '', fuente, clave, tinta)
   }
   if (modelo === 'familia') {
