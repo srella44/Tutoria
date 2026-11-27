@@ -32,7 +32,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Acta definitiva bloqueada con versión y huella; versiones nuevas.
 - [x] Acta generada por la app para las amassades sin plantilla oficial (profesionales, EAP, logopèda, auta): acta «popurrí» sin firmas, por decisión del tutor (0019).
 - [x] Plantilla oficial de reunión con profesionales: no existe; se usa el acta propia «Libreta de classa».
-- [ ] Convertir los acuerdos del acta en Ahèrs de seguimiento al firmar.
+- [x] Convertir los acuerdos del acta en Ahèrs de seguimiento al firmar (se pueden desmarcar; revisión a un mes por defecto).
 - [ ] Validar: «Mòde signatura», «Signatz enes caselhes…», «Acabar», «Escriu eth PIN de TUTOR-ia entà tornar ara app.», «Signatures hètes…», «Generar er acta definitiva», «Acta signada», «Er acta ei blocada…», «Version», «Version naua», «Empremta», «signat eth», «Manquen signatures…», «Sonque cau triar-la un còp…», «Aguest PDF ei massa gran…».
 
 ## Material del centro (anonimizado)
@@ -49,7 +49,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 
 - [ ] Probar en el iPhone real (instalar como PWA desde Safari) y anotar ajustes táctiles.
 - [ ] Publicar en Cloudflare Pages (`tutoria.pretzhet.app`) detrás de Cloudflare Access.
-- [ ] Icono PNG 180×180 para `apple-touch-icon` (iOS no usa el SVG del manifiesto).
+- [x] Icono PNG 180×180 para `apple-touch-icon` (`public/apple-touch-icon.png`, generado del favicon).
 
 ## Fase 2 · Seguridad y sincronización (en curso)
 
@@ -81,7 +81,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Cursos escolares: crear (con paso del alumnado), editar grupos, cambiar el activo. La promoción por grupos y el archivo de antiguos alumnos siguen en la Fase 6.
 - [x] Gestión de frases frecuentes (añadir, editar, borrar, ordenar).
 - [x] Orden propio del alumnado (modo Ordenar en Alumnat).
-- [ ] Documentos del alumno (actas firmadas, adjuntos) dentro de la ficha; hoy no hay pestaña propia.
+- [x] Documentos del alumno: pestaña «Documents» en la ficha con las actas en PDF y sus versiones (adjuntos sueltos, pendiente).
 - [x] Importación del alumnado desde Excel (.xlsx) o CSV, con vista previa (`src/lib/importar.ts`, `src/pages/Importar.tsx`).
 - [x] Formularios y diálogos con componentes propios (`src/components/Hoja.tsx`); shadcn/ui no ha hecho falta (ver `docs/decisiones/0002`).
 - [x] Editar y cerrar incidencias; editar y borrar registros, acuerdos y Ahèrs.

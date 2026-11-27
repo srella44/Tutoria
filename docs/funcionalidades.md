@@ -130,3 +130,5 @@ Las amassades sin hoja oficial (EAP, logopeda, profesionales y otras) usan el mi
 Cualquier cita puede llevar un título propio (al crearla o en Preparar). Es obligatorio solo en «Ua auta session» y «Ua auta amassada»; en las listas, la cabecera y el acta aparece el título con el tipo debajo.
 
 En Claustre y Amassades, las citas hechas se agrupan en carpetas automáticas por tipo (Claustre, Cicle, Mentoria…; Familha, EAP…), plegables y con contador; dentro, cada cita con su título propio (p. ej. «Seteme»).
+
+Al generar el acta definitiva de una hoja oficial, los acuerdos (uno por línea o numerados) se convierten en Ahèrs con fecha de revisión (un mes por defecto); se pueden desmarcar antes. La ficha del alumno tiene la pestaña «Documents» con las actas en PDF de sus citas y cada versión para descargar. Icono `apple-touch-icon` de 180×180 para la pantalla de inicio del iPhone.

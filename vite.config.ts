@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => {
             },
           ],
         },
-        includeAssets: ['favicon.svg', 'pretzhet-digitau.webp'],
+        includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'pretzhet-digitau.webp'],
         manifest: {
           name: 'TUTOR-ia',
           short_name: 'TUTOR-ia',
@@ -47,7 +47,10 @@ export default defineConfig(({ mode }) => {
           background_color: '#edf4f8',
           display: 'standalone',
           start_url: '/',
-          icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+          icons: [
+            { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+            { src: 'apple-touch-icon.png', sizes: '180x180', type: 'image/png', purpose: 'any' },
+          ],
         },
       }),
     ],

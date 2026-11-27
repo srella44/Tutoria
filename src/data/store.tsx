@@ -59,6 +59,8 @@ interface Store {
   guardarRegistro: (r: Registro) => void
   borrarRegistro: (id: string) => void
   guardarAcuerdo: (a: Acuerdo) => void
+  /** Convierte los acuerdos de un acta en Acuerdos + Ahèrs (mismo id) con fecha de revisión; no repite los ya creados. */
+  crearAhersDeActa: (cita: Registro, textos: string[], fechaRevision: string) => void
   borrarAcuerdo: (id: string) => void
   guardarAher: (a: Aher) => void
   borrarAher: (id: string) => void
@@ -483,6 +485,16 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
     setActas((items) => items.filter((a) => a.registroId !== id))
   }
   // Acuerdo y Ahèr comparten id cuando el acuerdo es del tutor: se mantienen iguales.
+  const crearAhersDeActa: Store['crearAhersDeActa'] = (cita, textos, fechaRevision) => {
+    const existentes = new Set(acuerdosGuardados.filter((a) => a.registroOrigenId === cita.id).map((a) => a.texto))
+    const nuevos = [...new Set(textos.map((x) => x.trim()).filter((x) => x && !existentes.has(x)))]
+      .map((texto) => ({ id: crypto.randomUUID(), texto }))
+    if (!nuevos.length) return
+    setAcuerdos((items) => [...items, ...nuevos.map(({ id, texto }) => ({
+      id, texto, responsable: '', fechaRevision, estado: 'pendiente' as const, registroOrigenId: cita.id, alumnoIds: cita.alumnoIds,
+    }))])
+    setAhers((items) => [...nuevos.map(({ id, texto }) => ({ id, texto, fecha: fechaRevision, completado: false })), ...items])
+  }
   const guardarAcuerdo = (a: Acuerdo) => {
     setAcuerdos((items) => upsert(items, a))
     setAhers((items) => items.map((x) => x.id === a.id
@@ -570,6 +582,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         guardarRegistro,
         borrarRegistro,
         guardarAcuerdo,
+        crearAhersDeActa,
         borrarAcuerdo,
         guardarAher,
         borrarAher,

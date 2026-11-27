@@ -4,6 +4,8 @@ import { useStore } from '../data/store'
 import type { Registro } from '../data/types'
 import { gruposEscoti, motivosEntrevista, useI18n } from '../lib/i18n'
 import { CampoPdfError, comprobarOriginal, nombreOficial, plantillaIncluida, rellenarPdfOficial, type ModeloOficial } from '../lib/pdfOficial'
+import { diaLocal } from '../lib/fechas'
+import { separarPuntos } from '../lib/puntos'
 import { FirmaPdf } from './FirmaPdf'
 import { ModoFirma } from './ModoFirma'
 import { aBase64, deBase64, descargarPdf, huella, huellaCorta, LIMITE_SYNC_PDF } from '../lib/actas'
@@ -16,13 +18,20 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   datosIniciales: Record<string, string>
 }) {
   const { t, lang } = useI18n()
-  const { curso, guardarCurso, borradores, borradoresListos, estadoBorradores, setBorrador, plantillas, guardarPlantilla, actas, firmarActa, nuevaVersionActa, borrarActa, setNotaPuntoCita } = useStore()
+  const { curso, guardarCurso, borradores, borradoresListos, estadoBorradores, setBorrador, plantillas, guardarPlantilla, actas, firmarActa, nuevaVersionActa, borrarActa, setNotaPuntoCita, crearAhersDeActa } = useStore()
   // La plantilla oficial se elige una vez y queda guardada (cifrada y sincronizada).
   const guardadaPlantilla = plantillas.find((p) => p.id === modelo)
   const original = useMemo(() => plantillaIncluida(modelo) ?? (guardadaPlantilla ? deBase64(guardadaPlantilla.pdf) : undefined), [modelo, guardadaPlantilla])
   const versiones = actas.filter((a) => a.registroId === cita.id).sort((a, b) => b.version - a.version)
   const bloqueada = cita.estado === 'firmado'
   const [modoFirma, setModoFirma] = useState(false)
+  // Acuerdos del acta → Ahèrs al generar el acta definitiva (se pueden desmarcar; revisión a un mes por defecto).
+  const [descartados, setDescartados] = useState<number[]>([])
+  const [fechaRevision, setFechaRevision] = useState(() => {
+    const d = new Date(cita.fecha)
+    d.setMonth(d.getMonth() + 1)
+    return diaLocal(d)
+  })
   const [nuevaVersion, setNuevaVersion] = useState(false)
   const datosGuardados = borradores[cita.id]
   const datos = datosGuardados ?? { valores: datosIniciales, motivos: [], firmas: [] }
@@ -116,6 +125,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
       const sello = `TUTOR-ia · ${t.version} ${version} · ${t.firmadoEl} ${fecha}`
       const bytes = await rellenarPdfOficial(modelo, original, valoresPdf, motivos, firmas.map((firma) => firma ?? undefined), sello, puntosPdf, encabezadoPuntos)
       const nombre = `${base} - v${version}.pdf`
+      crearAhersDeActa(cita, acuerdosDetectados.filter((_, i) => !descartados.includes(i)), fechaRevision)
       firmarActa({
         id: crypto.randomUUID(), registroId: cita.id, version, fecha: ahora.toISOString(),
         huella: await huella(bytes), firmantes: etiquetasFirma, nombre, pdf: aBase64(bytes),
@@ -131,6 +141,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   }
 
   const firmasCompletas = etiquetasFirma.every((_, i) => !!firmas[i])
+  const acuerdosDetectados = separarPuntos(valores.acuerdos ?? '')
   const casillasFirma = (
     <>
       {etiquetasFirma.map((titulo, i) => (
@@ -287,6 +298,23 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
               {!bloqueada && (
                 <>
                   <p className="text-sm text-muted">{firmasCompletas ? t.actaDefinitivaAyuda : t.faltanFirmas}</p>
+                  {acuerdosDetectados.length > 0 && (
+                    <fieldset className="space-y-2 rounded-xl border border-line p-3">
+                      <legend className="px-1 font-semibold">{t.acuerdos}</legend>
+                      {acuerdosDetectados.map((texto, i) => (
+                        <label key={i} className="flex min-h-11 items-center gap-3 text-sm">
+                          <input type="checkbox" checked={!descartados.includes(i)} className="size-5 shrink-0 accent-accent"
+                            onChange={() => setDescartados((d) => d.includes(i) ? d.filter((x) => x !== i) : [...d, i])} />
+                          <span className="min-w-0 wrap-anywhere">{texto}</span>
+                        </label>
+                      ))}
+                      <label className="block text-sm font-semibold text-muted">
+                        {t.revision}
+                        <input type="date" value={fechaRevision} onChange={(e) => setFechaRevision(e.target.value)}
+                          className="mt-1 h-11 w-full rounded-xl border border-line bg-bg px-2 text-base text-ink" />
+                      </label>
+                    </fieldset>
+                  )}
                   <button type="button" disabled={ocupado || !firmasCompletas} onClick={() => void actaDefinitiva()}
                     className="accion-coral inline-flex min-h-11 items-center gap-2 rounded-xl px-4 font-semibold disabled:opacity-40">
                     <PenLine size={18} aria-hidden /> {t.actaDefinitiva}

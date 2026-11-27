@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { BookHeart, Archive, ChevronLeft, Mail, Pencil, Phone, Plus } from 'lucide-react'
+import { BookHeart, Archive, ChevronLeft, Download, FileText, Mail, Pencil, Phone, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { TarjetasAutorizacion } from '../components/Autorizaciones'
@@ -11,15 +11,16 @@ import { RegistroItem } from '../components/RegistroItem'
 import { Avatar, Card, Empty } from '../components/ui'
 import { useStore } from '../data/store'
 import type { Acuerdo, ContactoFamiliar, TipoRegistro } from '../data/types'
+import { descargarPdf } from '../lib/actas'
 import { fechaCorta } from '../lib/fechas'
 import { nombreLengua, useI18n } from '../lib/i18n'
 
-type Tab = 'cronologia' | 'contactos' | 'autorizaciones' | 'evaluacion'
+type Tab = 'cronologia' | 'contactos' | 'autorizaciones' | 'evaluacion' | 'documentos'
 
 export function AlumnoFicha() {
   const { id } = useParams()
   const { t, lang, tipo } = useI18n()
-  const { alumnos, registros, contactos, acuerdos } = useStore()
+  const { alumnos, registros, contactos, acuerdos, actas } = useStore()
   const [tab, setTab] = useState<Tab>('cronologia')
   const [filtro, setFiltro] = useState<TipoRegistro | 'todos'>('todos')
   const [capture, setCapture] = useState(false)
@@ -45,7 +46,12 @@ export function AlumnoFicha() {
     ['contactos', t.contactos],
     ['autorizaciones', t.autorizaciones],
     ['evaluacion', t.evaluacion],
+    ['documentos', t.documentos],
   ]
+  // Documentos: actas en PDF (firmadas y propias) de las citas del alumno, de la más reciente a la más antigua.
+  const citasConActa = registros
+    .filter((r) => r.alumnoIds.includes(a.id) && actas.some((x) => x.registroId === r.id))
+    .sort((x, y) => y.fecha.localeCompare(x.fecha))
 
   return (
     <>
@@ -98,13 +104,13 @@ export function AlumnoFicha() {
             </button>
           </div>
         </div>
-        <nav className="mx-auto flex max-w-3xl px-2">
+        <nav className="mx-auto flex max-w-3xl overflow-x-auto px-2">
           {tabs.map(([k, label]) => (
             <button
               key={k}
               onClick={() => setTab(k)}
               className={clsx(
-                'flex-1 border-b-2 px-1.5 py-2.5 text-sm sm:px-3',
+                'flex-1 whitespace-nowrap border-b-2 px-1.5 py-2.5 text-sm sm:px-3',
                 tab === k ? 'border-accent font-semibold text-accent' : 'border-transparent text-muted',
               )}
             >
@@ -214,6 +220,35 @@ export function AlumnoFicha() {
         )}
 
         {tab === 'autorizaciones' && <TarjetasAutorizacion alumno={a} />}
+
+        {tab === 'documentos' && (
+          <Card>
+            {citasConActa.length === 0 ? <Empty>{t.sinRegistros}</Empty> : (
+              <ul>
+                {citasConActa.map((r) => {
+                  const versiones = actas.filter((x) => x.registroId === r.id).sort((x, y) => y.version - x.version)
+                  return (
+                    <li key={r.id} className="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 last:border-0">
+                      <FileText size={18} className="shrink-0 text-accent" aria-hidden />
+                      <Link to={`/reunion/${r.id}`} state={{ desdeTutoria: true }} className="min-w-0 flex-1">
+                        <p className="truncate font-semibold">{r.titulo || tipo[r.tipo]}</p>
+                        <p className="truncate text-xs text-muted">{r.titulo ? `${tipo[r.tipo]} · ` : ''}{fechaCorta(r.fecha, lang)}</p>
+                      </Link>
+                      <div className="flex flex-wrap gap-1.5">
+                        {versiones.map((v) => (
+                          <button key={v.id} type="button" onClick={() => descargarPdf(v.pdf, v.nombre)} title={`${t.version} ${v.version}`}
+                            className="inline-flex min-h-11 items-center gap-1 rounded-xl border border-accent px-2.5 text-sm font-semibold text-accent">
+                            <Download size={15} aria-hidden /> v{v.version}
+                          </button>
+                        ))}
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </Card>
+        )}
 
         {tab === 'evaluacion' && (
           <div className="space-y-3">
