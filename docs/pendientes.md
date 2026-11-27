@@ -2,6 +2,8 @@
 
 ## Validación del aranés (Sergio)
 
+- [x] 2026-11-27: validados y aplicados firmas y actas, PIN y cerradura, sincronización y copias, autorizaciones, horario, ajustes y Aué. Vocabulario unificado en toda la interfaz: carrèu, chifrar, emprenta, papèr, aparelh, emplegar, aplicacion, escafar, enregistrar.
+
 Todos los textos en aranés del prototipo son **provisionales** y deben revisarse según la normativa del IEA:
 
 - [x] Etiquetas de interfaz en `src/lib/i18n.tsx` (objeto `oc`), en especial: «Enregistrar» (guardar), «Registre nau», «Donades», «Tipe», «Escríuer», «Trucar», «Neishement», «Pròximes amassades», «Daurir amassada», «Toti», «Inici», «Amassada naua», «Passades», «Pendents», «Ajustaments», «Data», «Ora», «vençut», «Bon dia», «Ahèrs pendents». **Validado por Sergio (27/11/2026) y aplicado.**
@@ -33,7 +35,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Acta generada por la app para las amassades sin plantilla oficial (profesionales, EAP, logopèda, auta): acta «popurrí» sin firmas, por decisión del tutor (0019).
 - [x] Plantilla oficial de reunión con profesionales: no existe; se usa el acta propia «Libreta de classa».
 - [x] Convertir los acuerdos del acta en Ahèrs de seguimiento al firmar (se pueden desmarcar; revisión a un mes por defecto).
-- [ ] Validar: «Mòde signatura», «Signatz enes caselhes…», «Acabar», «Escriu eth PIN de TUTOR-ia entà tornar ara app.», «Signatures hètes…», «Generar er acta definitiva», «Acta signada», «Er acta ei blocada…», «Version», «Version naua», «Empremta», «signat eth», «Manquen signatures…», «Sonque cau triar-la un còp…», «Aguest PDF ei massa gran…».
+- [x] Validar: «Mòde signatura», «Signatz enes caselhes…», «Acabar», «Escriu eth PIN de TUTOR-ia entà tornar ara app.», «Signatures hètes…», «Generar er acta definitiva», «Acta signada», «Er acta ei blocada…», «Version», «Version naua», «Empremta», «signat eth», «Manquen signatures…», «Sonque cau triar-la un còp…», «Aguest PDF ei massa gran…».
 
 ## Material del centro (anonimizado)
 
@@ -55,23 +57,23 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 
 - [x] Cifrado AES-GCM de todos los datos en el dispositivo, PIN, bloqueo automático y clave de recuperación (decisión 0009).
 - [x] Un único PIN para todos los dispositivos; unir un aparato con el PIN (decisión 0012). Face ID retirado.
-- [ ] Validar «Non se pòt contactar damb eth servidor…», «Ja i a ua compte de TUTOR-ia…», «Unir aguest dispositiu ara compte».
-- [ ] Validar «Escriu eth PIN de TUTOR-ia…», «Encara non se pòt entrar damb eth PIN…», «He desbrembat eth PIN…», «Entrar damb eth PIN».
-- [ ] Validar «Cifrat damb PIN», «Blocatge automatic sense usatge», «1 ora», «8 ores (tota era jornada)».
+- [x] Validar «Non se pòt contactar damb eth servidor…», «Ja i a ua compte de TUTOR-ia…», «Unir aguest dispositiu ara compte».
+- [x] Validar «Escriu eth PIN de TUTOR-ia…», «Encara non se pòt entrar damb eth PIN…», «He desbrembat eth PIN…», «Entrar damb eth PIN».
+- [x] Validar «Cifrat damb PIN», «Blocatge automatic sense usatge», «1 ora», «8 ores (tota era jornada)».
 - [x] Sincronización cifrada (Pages Functions + D1), probada en local con dos dispositivos (decisión 0010). Dispositivo nuevo con la clave de recuperación.
 - [x] Desplegado en Cloudflare: D1 `tutoria`, Pages `tutoria-7y6.pages.dev` desde `main`, Access («Solo Sergio») y comprobación del token en la API.
 - [x] Dominio propio `tutoria.pretzhet.app` (Pages › Custom domains) protegido por la misma aplicación de Access.
 - [ ] Vincular por QR (opcional: llevaría la clave de recuperación).
-- [ ] Validar «Sincronizacion», «Activar era sincronizacion», «Sincronizar ara», «Darrèra sincronizacion», «Ja utilizi TUTOR-ia en un aute dispositiu», «Descargant es donades…».
+- [x] Validar «Sincronizacion», «Activar era sincronizacion», «Sincronizar ara», «Darrèra sincronizacion», «Ja utilizi TUTOR-ia en un aute dispositiu», «Descargant es donades…».
 - [x] Copia de seguridad cifrada descargable y restaurable, con prueba de restauración (decisión 0013).
-- [ ] Validar «Importar autorizacions», «Alumnes reconeishudi», «Non reconeishudi…», «Naua», «Ignorar», «Aplicar a», «Es caselhes vuedes…».
-- [ ] Validar «Autorizacions», «Autorizacion naua», «Gestionar autorizacions», «Icòna», «Òc», «Non», «A viatges», «Tostemp», «Tres opcions…», «Tòca ua tarja entà cambiar…».
-- [ ] Validar «Damb» (etiqueta «Damb 4au B» del horario) y la nueva ayuda del Orari: «En cada franja, en gròs çò que hès tu; dejós, mès petit, çò que hè era classe quan non ès damb era».
+- [x] Validar «Importar autorizacions», «Alumnes reconeishudi», «Non reconeishudi…», «Naua», «Ignorar», «Aplicar a», «Es caselhes vuedes…».
+- [x] Validar «Autorizacions», «Autorizacion naua», «Gestionar autorizacions», «Icòna», «Òc», «Non», «A viatges», «Tostemp», «Tres opcions…», «Tòca ua tarja entà cambiar…».
+- [x] Validar «Damb» (etiqueta «Damb 4au B» del horario) y la nueva ayuda del Orari: «En cada franja, en gròs çò que hès tu; dejós, mès petit, çò que hè era classe quan non ès damb era».
 - [ ] Comprobar en el iPhone que el valor de los campos de fecha y hora queda centrado (ajuste en `src/index.css`).
-- [ ] Validar «Generau» y «Seguretat» (apartados de la consola de ajustes).
-- [ ] Validar «Descargar còpia de seguretat», «Restaurar ua còpia», «Darrèra còpia», «Còpia comprovada…», «Aguesta còpia ei d’un aute aparelh…», «Se substituiràn totes es donades…».
+- [x] Validar «Generau» y «Seguretat» (apartados de la consola de ajustes).
+- [x] Validar «Descargar còpia de seguretat», «Restaurar ua còpia», «Darrèra còpia», «Còpia comprovada…», «Aguesta còpia ei d’un aute aparelh…», «Se substituiràn totes es donades…».
 - [x] Unificar los borradores oficiales con la llave de datos (Fase 3).
-- [ ] Validar los textos de la cerradura: «Crea eth tèn PIN», «Repetís eth PIN», «Desblocar», «Clau de recuperacion», «L’è apuntada en paper», «Contunhar», «Massa intents…», «Utilizar era clau de recuperacion», «Blocar ara», «Cambiar eth PIN», «Cifrant es donades…», «Borrar tot e començar de nau».
+- [x] Validar los textos de la cerradura: «Crea eth tèn PIN», «Repetís eth PIN», «Desblocar», «Clau de recuperacion», «L’è apuntada en paper», «Contunhar», «Massa intents…», «Utilizar era clau de recuperacion», «Blocar ara», «Cambiar eth PIN», «Cifrant es donades…», «Borrar tot e començar de nau».
 
 ## Fase 1 · Núcleo local (completada)
 
@@ -94,7 +96,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Validar las etiquetas de la hoja oficial, las firmas y el guardado del borrador en aranés.
 - [ ] Validar los textos de actas y documentos originales en aranés.
 - [ ] Validar las etiquetas de estado y de puntos de una cita en aranés.
-- [ ] Validar «Anotacions», «Tot eth dia» y las abreviaturas de los días en Aué.
+- [x] Validar «Anotacions», «Tot eth dia» y las abreviaturas de los días en Aué.
 - [ ] Validar las nuevas etiquetas de Google Calendar, citas personalizadas y alumnado de otros cursos en aranés.
 - [x] Validar el nuevo aviso de «Version naua» (firmas conservadas) en aranés.
 - [x] Validar «Logo dera escòla» (Cursos) en aranés.
