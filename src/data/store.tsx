@@ -464,7 +464,11 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   }
   const acuerdos = acuerdosGuardados
   const guardarRegistro = (r: Registro) => setRegistros((items) => upsert(items, r))
-  const borrarRegistro = (id: string) => setRegistros((items) => items.filter((r) => r.id !== id))
+  // Al borrar una cita se va también su borrador de acta (comparten id).
+  const borrarRegistro = (id: string) => {
+    setRegistros((items) => items.filter((r) => r.id !== id))
+    setBorradoresTodo((items) => items.filter((b) => b.id !== id))
+  }
   // Acuerdo y Ahèr comparten id cuando el acuerdo es del tutor: se mantienen iguales.
   const guardarAcuerdo = (a: Acuerdo) => {
     setAcuerdos((items) => upsert(items, a))

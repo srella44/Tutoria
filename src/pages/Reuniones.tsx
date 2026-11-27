@@ -1,7 +1,7 @@
 // Listado y alta de amassades del alumnado o sesiones internas del centro.
 import clsx from 'clsx'
-import { Building2, CalendarPlus, Handshake, ChevronDown, ChevronRight, Plus, X } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { Building2, CalendarPlus, Handshake, ChevronDown, ChevronRight, Plus, Trash2, X } from 'lucide-react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { DocumentosClaustre } from '../components/DocumentosClaustre'
 import { EstadoCita } from '../components/EstadoCita'
@@ -42,6 +42,7 @@ export function Reuniones({ claustre = false }: { claustre?: boolean }) {
         <ChevronRight size={17} className="hidden shrink-0 text-muted sm:block" aria-hidden />
       </Link>
       <EstadoCita cita={r} />
+      {r.estado !== 'firmado' && <BorrarCita id={r.id} />}
     </li>
   )
 
@@ -84,6 +85,32 @@ export function Reuniones({ claustre = false }: { claustre?: boolean }) {
       </div>
       {nueva && <NuevaReunion claustre={claustre} tituloNueva={tituloNueva} tiposReunion={tiposReunion} onClose={() => setNueva(false)} />}
     </>
+  )
+}
+
+// Borrado en dos toques: el primero arma el botón y el segundo borra. Las actas firmadas no se borran.
+function BorrarCita({ id }: { id: string }) {
+  const { t } = useI18n()
+  const { borrarRegistro } = useStore()
+  const [armado, setArmado] = useState(false)
+  useEffect(() => {
+    if (!armado) return
+    const espera = setTimeout(() => setArmado(false), 4000)
+    return () => clearTimeout(espera)
+  }, [armado])
+  return (
+    <button
+      type="button"
+      onClick={() => (armado ? borrarRegistro(id) : setArmado(true))}
+      onBlur={() => setArmado(false)}
+      aria-label={armado ? t.tocaConfirmar : t.borrar}
+      title={armado ? t.tocaConfirmar : t.borrar}
+      className={clsx('flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-xl text-sm',
+        armado ? 'bg-danger-soft px-3 font-semibold text-danger' : 'w-11 text-muted hover:bg-bg hover:text-danger')}
+    >
+      <Trash2 size={18} aria-hidden />
+      {armado && t.borrar}
+    </button>
   )
 }
 
