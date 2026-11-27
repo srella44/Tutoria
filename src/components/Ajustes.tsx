@@ -9,6 +9,7 @@ import { useSincronizacion, useStore } from '../data/store'
 import { fechaCorta, hora } from '../lib/fechas'
 import { useCerradura } from './Cerradura'
 import { Campo, Hoja } from './Hoja'
+import { Creditos } from './Creditos'
 import { useI18n } from '../lib/i18n'
 import { PageHeader } from './ui'
 
@@ -157,6 +158,7 @@ export function PaginaAjustes() {
             </button>
           )}
         </Apartado>
+        <Creditos />
       </div>
 
       {pidiendoPin && (

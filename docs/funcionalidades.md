@@ -111,3 +111,7 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 ## Formularios
 
 - Formularios, captura rápida y cita nueva se abren a pantalla completa, con cabecera y pie fijos (decisión 0015).
+
+## Autoría
+
+- Pie «Desvolopat per | logo de Prètzhèt Digitau» con la versión (fecha de publicación, `__VERSION__`) al final de Inici y de Configuracion (`src/components/Creditos.tsx`, logo en `public/pretzhet-digitau.png`).

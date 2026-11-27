@@ -8,6 +8,7 @@ export type Lang = 'oc' | 'es'
 
 const oc = {
   horario: 'Orari',
+  desarrolladoPor: 'Desvolopat per',
   sesionNueva: 'Session naua',
   materia: 'Matèria',
   quienConjunta: 'Jo e era classe',
@@ -406,6 +407,7 @@ type Dict = typeof oc
 
 const es: Dict = {
   horario: 'Horario',
+  desarrolladoPor: 'Desarrollado por',
   sesionNueva: 'Sesión nueva',
   materia: 'Materia',
   quienConjunta: 'Yo y la clase',

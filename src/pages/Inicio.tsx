@@ -4,6 +4,7 @@ import { Building2, CalendarClock, ChevronRight, FileLock2, Handshake, ListCheck
 import { useEffect, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { Ajustes } from '../components/Ajustes'
+import { Creditos } from '../components/Creditos'
 import { MarcaTutoria } from '../components/MarcaTutoria'
 import { useStore } from '../data/store'
 import { citaRealizada, esClaustre } from '../data/types'
@@ -199,6 +200,7 @@ export function Inicio() {
           <ChevronRight size={16} className="text-muted" aria-hidden />
         </Link>
       )}
+      <Creditos className="mt-4" />
     </div>
   )
 }

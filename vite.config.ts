@@ -6,15 +6,19 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 
 // `npm run build:artifact` genera dist-preview/index.html: una sola página sin PWA,
 // para enseñar el prototipo sin desplegar.
+// Versión visible en el pie: la fecha de publicación (AAAA.MM.DD).
+const version = new Date().toISOString().slice(0, 10).replaceAll('-', '.')
+
 export default defineConfig(({ mode }) => {
   if (mode === 'singlefile') {
     return {
       plugins: [react(), tailwindcss(), viteSingleFile()],
-      define: { 'import.meta.env.VITE_SINGLEFILE': 'true' },
+      define: { 'import.meta.env.VITE_SINGLEFILE': 'true', __VERSION__: JSON.stringify(version) },
       build: { outDir: 'dist-preview' },
     }
   }
   return {
+    define: { __VERSION__: JSON.stringify(version) },
     plugins: [
       react(),
       tailwindcss(),
@@ -33,7 +37,7 @@ export default defineConfig(({ mode }) => {
             },
           ],
         },
-        includeAssets: ['favicon.svg'],
+        includeAssets: ['favicon.svg', 'pretzhet-digitau.png'],
         manifest: {
           name: 'TUTOR-ia',
           short_name: 'TUTOR-ia',
