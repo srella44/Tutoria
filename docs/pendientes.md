@@ -31,16 +31,16 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Modo firma con salida por PIN.
 - [x] Acta definitiva bloqueada con versión y huella; versiones nuevas.
 - [x] Acta generada por la app para las amassades sin plantilla oficial (profesionales, EAP, logopèda, auta): acta «popurrí» sin firmas, por decisión del tutor (0019).
-- [ ] Plantilla oficial de reunión con profesionales (cuando llegue).
+- [x] Plantilla oficial de reunión con profesionales: no existe; se usa el acta propia «Libreta de classa».
 - [ ] Convertir los acuerdos del acta en Ahèrs de seguimiento al firmar.
 - [ ] Validar: «Mòde signatura», «Signatz enes caselhes…», «Acabar», «Escriu eth PIN de TUTOR-ia entà tornar ara app.», «Signatures hètes…», «Generar er acta definitiva», «Acta signada», «Er acta ei blocada…», «Version», «Version naua», «Empremta», «signat eth», «Manquen signatures…», «Sonque cau triar-la un còp…», «Aguest PDF ei massa gran…».
 
 ## Material del centro (anonimizado)
 
 - [x] Plantilla oficial de reunión con familias (PDF recibido)
-- [ ] Plantilla oficial de reunión con profesionales
+- [x] Plantilla oficial de reunión con profesionales: no existe en el centro.
 - [x] Plantilla oficial de Te escoti (PDF recibido)
-- [ ] 3–4 actas antiguas anonimizadas de cada tipo
+- [ ] Actas de ejemplo: no hay antiguas (el tutor estuvo de permiso); hará 2 este curso con la app como prueba.
 - [ ] 1 evaluación y 1 informe trimestral de ejemplo, indicando el programa de origen
 - [ ] 10–20 informes antiguos anonimizados para el banco de expresiones
 - [ ] Confirmar cifrado de extremo a extremo (asumido como sí)

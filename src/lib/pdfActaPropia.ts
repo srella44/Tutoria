@@ -73,9 +73,6 @@ export async function generarActaPropia(datos: DatosActaPropia) {
     pagina.drawLine({ start: { x: 38, y: 0 }, end: { x: 38, y: ALTO }, thickness: 2, color: c.margen })
     y = ALTO - ARRIBA
   }
-  const cabe = (alto: number) => {
-    if (y - alto < ABAJO) nuevaPagina()
-  }
   const anchoUtil = ANCHO - IZQ - DER
 
   nuevaPagina()
