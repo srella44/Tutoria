@@ -142,3 +142,22 @@ export interface TipoAutorizacion {
   /** Tres opciones (Tostemp · A viatges · Non) en lugar de dos (Òc · Non). */
   tresEstados?: boolean
 }
+
+/** Para quién es una sesión del horario: los dos (yo con mi clase), solo yo, o solo la clase (con otro maestro). */
+export type QuienHorario = 'conjunta' | 'mia' | 'clase'
+
+/** Sesión semanal del horario conjunto (el del tutor y el de su clase en una sola cuadrícula). */
+export interface SesionHorario {
+  id: Id
+  cursoId: Id
+  /** 1 = lunes … 5 = viernes. */
+  dia: number
+  inicio: string // HH:MM
+  fin: string // HH:MM
+  materia: string
+  quien: QuienHorario
+  lugar?: string
+  /** Quién da la sesión a la clase cuando no es el tutor. */
+  docente?: string
+  nota?: string
+}

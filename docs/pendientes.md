@@ -19,6 +19,9 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Validar los textos de las altas: «Alumne nau», «Nòm», «Cognòms», «Arxivar», «Arxivats», «Tornar a activar», «Contacte nau», «Relacion», «Telefòns», «Corrèus», «Separats per comes», «Tòca un aute còp entà confirmar», «Professionaus», «Professionau nau», «Ròtle», «Servici», «Encara non i a alumnes en aguest cors.», «Castelhan» y las relaciones sugeridas («Tutor legau», «Pairin», «Mairina»).
 - [ ] Validar los textos de Ajustes › Donades: «Guardat en aguest dispositiu», «Començar sense exemple», «Tornar a cargar er exemple», «Se borraràn totes es donades d’aguest dispositiu.», «Donades pròpies».
 
+- [ ] Validar los textos del horario: «Orari», «Session naua», «Matèria», «Jo e era classe», «Solament jo», «Solament era classe», «Jo», «Classe», «Dies», «Ora d’inici», «Ora de fin», «Lòc», «Qui la hè ara classe», «Ara», «Dempús», «enquia», «Setmana», «Aué non i a classes.» y los textos de ayuda.
+- [ ] Horario: importar desde Excel cuando Sergio tenga el fichero del centro.
+
 ## Material del centro (anonimizado)
 
 - [x] Plantilla oficial de reunión con familias (PDF recibido)

@@ -89,3 +89,12 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 - PWA instalable con service worker (actualización automática).
 - Siempre tema claro, aunque el sistema esté en modo oscuro.
 - Ajustes › Donades: indica si los datos se guardan en el dispositivo y permite borrar los datos de este dispositivo. En la app publicada no hay nada del ejemplo: si quedara alumnado de ejemplo (ids fijos «a1», «r1»…), se borra solo al abrir, también del servidor y de los demás dispositivos. Cargar o quitar el ejemplo solo existe en desarrollo y en la vista previa.
+
+## Orari (horario conjunto)
+
+- Pantalla `/horario` (Inici y barra lateral): en una sola cuadrícula, las sesiones del tutor y las de su clase.
+  Sesión «Jo e era classe» a todo el ancho; «Solament jo» a la izquierda y «Solament era classe» (con quién la da) a la derecha.
+- Añadir, editar y borrar sesiones; al crear se pueden marcar varios días a la vez. Tocar un hueco crea una sesión a esa hora.
+- iPhone: día a día (hoy por defecto); iPad/ordenador: semana completa. Línea de la hora actual.
+- En Inici, la tarjeta «Orari» dice qué toca ahora (y hasta cuándo) o lo siguiente.
+- Cifrado y sincronizado; cada curso escolar tiene su horario (decisión 0014).

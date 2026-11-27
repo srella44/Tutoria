@@ -9,6 +9,7 @@ import type {
   FraseFrecuente,
   Profesional,
   Registro,
+  SesionHorario,
 } from './types'
 
 const dia = (offset: number, hora = '09:00') => {
@@ -110,3 +111,23 @@ export const frases: FraseFrecuente[] = [
   { id: 'f4', texto: 'Ajude as companhs sense que se li demane.', area: 'Convivéncia', tono: 'logro' },
   { id: 'f5', texto: 'Cau reforçar era lectura en casa.', area: 'Lengua', tono: 'propuesta' },
 ]
+
+// Horario de ejemplo: franjas y materias genéricas (no es el horario real de ningún centro).
+const franjas = [['09:00', '10:00'], ['10:00', '11:00'], ['11:00', '11:30'], ['11:30', '12:30'], ['15:00', '16:00'], ['16:00', '17:00']] as const
+const plan: [string, SesionHorario['quien'], string?][][] = [
+  [['Matematiques', 'conjunta'], ['Lengua aranesa', 'conjunta'], ['Pati', 'conjunta'], ['Anglés', 'clase', 'Especialista d’anglés'], ['Coneishement deth mediu', 'conjunta'], ['Educacion fisica', 'clase', 'Especialista d’EF']],
+  [['Lengua catalana', 'conjunta'], ['Matematiques', 'conjunta'], ['Pati', 'conjunta'], ['Musica', 'clase', 'Especialista de musica'], ['Lengua castelhana', 'conjunta'], ['Plastica', 'conjunta']],
+  [['Matematiques', 'conjunta'], ['Anglés', 'clase', 'Especialista d’anglés'], ['Pati', 'conjunta'], ['Lengua aranesa', 'conjunta'], ['Tutoria', 'conjunta'], ['Coneishement deth mediu', 'conjunta']],
+  [['Lengua catalana', 'conjunta'], ['Educacion fisica', 'clase', 'Especialista d’EF'], ['Pati', 'conjunta'], ['Matematiques', 'conjunta'], ['Lengua castelhana', 'conjunta'], ['Religion / Valors', 'clase']],
+  [['Matematiques', 'conjunta'], ['Lengua aranesa', 'conjunta'], ['Pati', 'conjunta'], ['Coneishement deth mediu', 'conjunta'], ['Anglés', 'clase', 'Especialista d’anglés'], ['Musica', 'clase', 'Especialista de musica']],
+]
+// Mientras la clase está con un especialista, el tutor tiene otras tareas.
+const mies: Record<string, string> = { '1-3': 'Reforç 3r', '1-5': 'Coordinacion', '2-3': 'Reforç 5au', '3-1': 'Reforç 3r', '4-1': 'Biblioteca', '4-5': 'Reforç 5au', '5-4': 'Coordinacion' }
+export const horario: SesionHorario[] = plan.flatMap((sesiones, d) => sesiones.flatMap(([materia, quien, docente], f) => {
+  const base = { cursoId: curso.id, dia: d + 1, inicio: franjas[f][0], fin: franjas[f][1] }
+  const mia = mies[`${d + 1}-${f}`]
+  return [
+    { ...base, id: `h${d + 1}-${f}`, materia, quien, docente },
+    ...(mia ? [{ ...base, id: `h${d + 1}-${f}m`, materia: mia, quien: 'mia' as const }] : []),
+  ]
+}))

@@ -15,6 +15,7 @@ import { Autorizaciones } from './pages/Autorizaciones'
 import { ImportarAutorizaciones } from './pages/ImportarAutorizaciones'
 import { Cursos } from './pages/Cursos'
 import { Frases } from './pages/Frases'
+import { Horario } from './pages/Horario'
 import { Importar } from './pages/Importar'
 import { Profesionales } from './pages/Profesionales'
 import { Reuniones } from './pages/Reuniones'
@@ -45,6 +46,7 @@ export default function App() {
                 <Route path="autorizaciones/importar" element={<ImportarAutorizaciones />} />
                 <Route path="reuniones" element={<Reuniones key="amassades" />} />
                 <Route path="claustre" element={<Reuniones key="claustre" claustre />} />
+                <Route path="horario" element={<Horario />} />
                 <Route path="seguimiento" element={<Seguimiento />} />
                 {import.meta.env.VITE_SINGLEFILE && <Route path="informes" element={<InformesPrivados />} />}
               </Route>

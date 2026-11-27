@@ -3,7 +3,7 @@
 import Dexie, { type Table } from 'dexie'
 import { cifrar, descifrar, generarLlaveDispositivo, type AccesoPin, type Candado, type Cifrado, type Sesion } from '../lib/cripto'
 import * as demo from './demo'
-import type { Acuerdo, Aher, Alumno, ContactoFamiliar, CursoEscolar, FraseFrecuente, Profesional, Registro, TipoAutorizacion } from './types'
+import type { Acuerdo, Aher, Alumno, ContactoFamiliar, CursoEscolar, FraseFrecuente, Profesional, Registro, SesionHorario, TipoAutorizacion } from './types'
 
 export interface Datos {
   cursos: CursoEscolar[]
@@ -15,6 +15,7 @@ export interface Datos {
   ahers: Aher[]
   frases: FraseFrecuente[]
   autorizaciones: TipoAutorizacion[]
+  horario: SesionHorario[]
 }
 
 export type Coleccion = keyof Datos
@@ -29,6 +30,7 @@ class TutoriaDB extends Dexie {
   ahers!: Table<Aher, string>
   frases!: Table<FraseFrecuente, string>
   autorizaciones!: Table<TipoAutorizacion, string>
+  horario!: Table<SesionHorario, string>
   meta!: Table<{ clave: string; valor: unknown }, string>
   /** Cambios pendientes de subir al servidor (solo con la sincronización activa). */
   cola!: Table<Pendiente, string>
@@ -48,6 +50,7 @@ class TutoriaDB extends Dexie {
     })
     this.version(2).stores({ cola: 'clave' })
     this.version(3).stores({ autorizaciones: 'id' })
+    this.version(4).stores({ horario: 'id' })
   }
 }
 
@@ -63,7 +66,7 @@ export interface Pendiente {
 
 export const db = new TutoriaDB()
 
-const colecciones: Coleccion[] = ['cursos', 'alumnos', 'contactos', 'profesionales', 'registros', 'acuerdos', 'ahers', 'frases', 'autorizaciones']
+const colecciones: Coleccion[] = ['cursos', 'alumnos', 'contactos', 'profesionales', 'registros', 'acuerdos', 'ahers', 'frases', 'autorizaciones', 'horario']
 
 /** Autorizaciones iniciales (las del control del tutor, curso 2026-27). Ids fijos: iguales en todos los aparatos. */
 export const AUTORIZACIONES_INICIALES: TipoAutorizacion[] = [
@@ -91,6 +94,7 @@ export function datosDemo(): Datos {
     ahers: ahersDemo(),
     frases: demo.frases,
     autorizaciones: AUTORIZACIONES_INICIALES,
+    horario: demo.horario,
   }
 }
 
@@ -108,7 +112,7 @@ export function datosVacios(): Datos {
     grupos: [],
     estado: 'activo',
   }
-  return { cursos: [curso], alumnos: [], contactos: [], profesionales: [], registros: [], acuerdos: [], ahers: [], frases: demo.frases, autorizaciones: AUTORIZACIONES_INICIALES }
+  return { cursos: [curso], alumnos: [], contactos: [], profesionales: [], registros: [], acuerdos: [], ahers: [], frases: demo.frases, autorizaciones: AUTORIZACIONES_INICIALES, horario: [] }
 }
 
 // ── Cifrado ───────────────────────────────────────────────────────────────

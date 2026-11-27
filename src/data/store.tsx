@@ -4,7 +4,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { guardarBorradorOficial, leerBorradoresOficiales, type BorradorOficial } from './borradoresOficiales'
 import { activarSync, alCambiarLocal, AUTORIZACIONES_INICIALES, cargarDatos, restaurarDatos, conEjemplo, estadoServidor, idsDemo, datosDemo, datosVacios, estadoSync, leerCandado, reiniciarDatos, sincronizar, sincronizarAhora, type Coleccion, type Datos } from './db'
-import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro, type EstadoAutorizacion, type TipoAutorizacion } from './types'
+import { citaRealizada, type Acuerdo, type Aher, type Alumno, type ContactoFamiliar, type CursoEscolar, type FraseFrecuente, type Profesional, type Registro, type SesionHorario, type EstadoAutorizacion, type TipoAutorizacion } from './types'
 
 interface Store {
   /** 'guardado': en IndexedDB · 'memoria': el navegador no deja guardar */
@@ -20,6 +20,10 @@ interface Store {
   contactos: ContactoFamiliar[]
   profesionales: Profesional[]
   frases: FraseFrecuente[]
+  /** Horario conjunto del curso activo (sesiones del tutor y de la clase). */
+  horario: SesionHorario[]
+  guardarSesiones: (sesiones: SesionHorario[]) => void
+  borrarSesion: (id: string) => void
   tiposAutorizacion: TipoAutorizacion[]
   guardarTipoAutorizacion: (t: TipoAutorizacion) => void
   borrarTipoAutorizacion: (id: string) => void
@@ -232,6 +236,8 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   const [frases, setFrases] = useState(() =>
     [...datos.frases].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)))
   usePersistir('frases', frases, guardar)
+  const [horarioTodo, setHorario] = useState<SesionHorario[]>(() => datos.horario ?? [])
+  usePersistir('horario', horarioTodo, guardar)
   usePersistir('cursos', cursos, guardar)
   usePersistir('alumnos', alumnos, guardar)
   usePersistir('contactos', contactos, guardar)
@@ -402,6 +408,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
     setRegistros(fuera('registros'))
     setAcuerdos(fuera('acuerdos'))
     setAhers(fuera('ahers'))
+    setHorario(fuera('horario'))
     // El curso de ejemplo se conserva como curso vacío (sus grupos ficticios se quitan).
     setCursos((items) => items.map((c) => (demo.cursos.has(c.id) && c.grupos.includes('4t A')
       ? { ...c, grupos: c.grupos.filter((g) => g !== '4t A') } : c)))
@@ -457,6 +464,9 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   const togglePuntoCita = (id: string, puntoId: string) => setRegistros((items) =>
     items.map((r) => r.id === id && r.visibilidad !== 'protegido'
       ? { ...r, puntos: r.puntos?.map((p) => p.id === puntoId ? { ...p, hecho: !p.hecho } : p) } : r))
+  const horario = horarioTodo.filter((h) => h.cursoId === curso.id)
+  const guardarSesiones = (sesiones: SesionHorario[]) => setHorario((items) => sesiones.reduce(upsert, items))
+  const borrarSesion = (id: string) => setHorario((items) => items.filter((h) => h.id !== id))
   const addRegistro = (r: Omit<Registro, 'id'>) =>
     setRegistros((rs) => [{ ...r, id: crypto.randomUUID() }, ...rs])
   return (
@@ -472,6 +482,9 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         contactos,
         profesionales,
         frases,
+        horario,
+        guardarSesiones,
+        borrarSesion,
         tiposAutorizacion,
         guardarTipoAutorizacion,
         borrarTipoAutorizacion,

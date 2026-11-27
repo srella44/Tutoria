@@ -1,6 +1,6 @@
 // «Inici»: qué tengo hoy (Aué) y adónde voy (cuatro botones). Sin barra inferior en el móvil.
 import clsx from 'clsx'
-import { Building2, ChevronRight, FileLock2, Handshake, ListChecks, Plus, Users } from 'lucide-react'
+import { Building2, CalendarClock, ChevronRight, FileLock2, Handshake, ListChecks, Plus, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { Ajustes } from '../components/Ajustes'
@@ -11,6 +11,7 @@ import { ocurreEnDia } from '../lib/calendario'
 import { diaLocal, diasDesdeHoy, fechaCorta, hora } from '../lib/fechas'
 import { listarMesGoogle, type EventoGoogle } from '../lib/googleCalendar'
 import { useGoogleCalendar } from '../lib/GoogleCalendarProvider'
+import { ahoraYDespues } from '../lib/horario'
 import { useI18n } from '../lib/i18n'
 
 interface ItemDia {
@@ -25,7 +26,7 @@ interface ItemDia {
 export function Inicio() {
   const { t, lang, tipo } = useI18n()
   const { abrirCaptura } = useOutletContext<{ abrirCaptura: () => void }>()
-  const { registros, ahers, alumnos, alumnosActivos, curso } = useStore()
+  const { registros, ahers, alumnos, alumnosActivos, curso, horario } = useStore()
   const { conexion, revisarError } = useGoogleCalendar()
   const [ahora] = useState(() => new Date())
   const hoy = diaLocal(ahora)
@@ -72,6 +73,17 @@ export function Inicio() {
 
   const proximas = registros.filter((r) => r.programada && !citaRealizada(r) && !esClaustre(r.tipo) && diasDesdeHoy(r.fecha) >= 0).length
   const claustreProximo = registros.filter((r) => esClaustre(r.tipo) && !citaRealizada(r) && diasDesdeHoy(r.fecha) >= 0).length
+
+  const clase = ahoraYDespues(horario, ahora)
+  const resumen = (xs: typeof clase.ahora) => [...xs]
+    .sort((a, b) => (a.quien === 'mia' ? -1 : 0) - (b.quien === 'mia' ? -1 : 0))
+    .map((x) => (x.quien === 'conjunta' ? x.materia : `${x.quien === 'mia' ? t.yo : t.laClase}: ${x.materia}`))
+    .join(' · ')
+  const lineaHorario = clase.ahora.length
+    ? `${t.ahora}: ${resumen(clase.ahora)} (${t.hasta} ${clase.ahora[0].fin})`
+    : clase.despues.length
+      ? `${t.despues}: ${resumen(clase.despues)} · ${clase.despues[0].inicio}`
+      : clase.hayClase || !horario.length ? '' : t.sinClasesHoy
 
   const botones = [
     { to: '/alumnado', icon: Users, label: t.alumnado, detalle: [String(alumnosActivos.length), ...curso.grupos].join(' · ') },
@@ -142,6 +154,15 @@ export function Inicio() {
           </ul>
         )}
       </section>
+
+      <Link to="/horario" className="mt-3 flex min-h-12 items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-2.5 hover:border-accent">
+        <CalendarClock size={20} className="shrink-0 text-accent" aria-hidden />
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold">{t.horario}</span>
+          {lineaHorario && <span className="block truncate text-sm text-muted">{lineaHorario}</span>}
+        </span>
+        <ChevronRight size={16} className="text-muted" aria-hidden />
+      </Link>
 
       <button
         onClick={abrirCaptura}

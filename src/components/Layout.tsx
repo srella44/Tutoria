@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Building2, Handshake, House, ListChecks, Plus, Sun, Users } from 'lucide-react'
+import { Building2, CalendarClock, Handshake, House, ListChecks, Plus, Sun, Users } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useStore } from '../data/store'
@@ -37,7 +37,7 @@ export function Layout() {
           <Plus size={18} /> {t.nuevoRegistro}
         </button>
         <nav className="flex flex-col gap-1">
-          {[{ to: '/uei', label: t.hoy, icon: Sun }, ...items.slice(0, 2), { to: '/claustre', label: t.claustre, icon: Building2 }, items[2]].map(({ to, label, icon: Icon }) => (
+          {[{ to: '/uei', label: t.hoy, icon: Sun }, { to: '/horario', label: t.horario, icon: CalendarClock }, ...items.slice(0, 2), { to: '/claustre', label: t.claustre, icon: Building2 }, items[2]].map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
