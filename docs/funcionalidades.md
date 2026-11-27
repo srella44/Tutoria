@@ -114,4 +114,4 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 
 ## Autoría
 
-- Pie «Desvolopat per | logo de Prètzhèt Digitau» con la versión (fecha de publicación, `__VERSION__`) al final de Inici y de Configuracion (`src/components/Creditos.tsx`, logo en `public/pretzhet-digitau.png`).
+- Pie «Desvolopat per | logo de Prètzhèt Digitau» con la versión (fecha de publicación, `__VERSION__`) al final de Inici y de Configuracion (`src/components/Creditos.tsx`, logo en `public/pretzhet-digitau.webp`, animación del láser).

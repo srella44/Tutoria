@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => {
             },
           ],
         },
-        includeAssets: ['favicon.svg', 'pretzhet-digitau.png'],
+        includeAssets: ['favicon.svg', 'pretzhet-digitau.webp'],
         manifest: {
           name: 'TUTOR-ia',
           short_name: 'TUTOR-ia',
