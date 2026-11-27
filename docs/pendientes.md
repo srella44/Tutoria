@@ -96,3 +96,4 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Validar las etiquetas de estado y de puntos de una cita en aranés.
 - [ ] Validar «Anotacions», «Tot eth dia» y las abreviaturas de los días en Aué.
 - [ ] Validar las nuevas etiquetas de Google Calendar, citas personalizadas y alumnado de otros cursos en aranés.
+- [ ] Validar el nuevo aviso de «Version naua» (firmas conservadas) en aranés.

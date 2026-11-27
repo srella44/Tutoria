@@ -73,6 +73,7 @@ interface Store {
   actas: ActaFirmada[]
   firmarActa: (acta: ActaFirmada) => void
   nuevaVersionActa: (registroId: string) => void
+  borrarActa: (id: string) => void
   acuerdos: Acuerdo[]
   ahers: Aher[]
   addAher: (texto: string, fecha?: string, detalle?: Pick<Aher, 'responsable' | 'origen' | 'hora'>) => void
@@ -414,10 +415,16 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
     setActas((items) => [...items, acta])
     setRegistros((items) => items.map((r) => (r.id === acta.registroId ? { ...r, estado: 'firmado' as const, realizada: true } : r)))
   }
-  /** Desbloquea una cita firmada para hacer una versión nueva (las anteriores se conservan). */
-  const nuevaVersionActa = (registroId: string) => {
+  /** Desbloquea una cita firmada para hacer una versión nueva. Las anteriores y las firmas se conservan (decisión 0017). */
+  const nuevaVersionActa = (registroId: string) =>
     setRegistros((items) => items.map((r) => (r.id === registroId ? { ...r, estado: 'sinFirmar' as const } : r)))
-    setBorradoresTodo((items) => items.map((b) => (b.id === registroId ? { ...b, firmas: [] } : b)))
+  /** Borra una versión firmada. Si no queda ninguna, la cita deja de estar bloqueada. */
+  const borrarActa = (id: string) => {
+    const acta = actas.find((a) => a.id === id)
+    if (!acta) return
+    const quedan = actas.some((a) => a.id !== id && a.registroId === acta.registroId)
+    setActas((items) => items.filter((a) => a.id !== id))
+    if (!quedan) setRegistros((items) => items.map((r) => (r.id === acta.registroId && r.estado === 'firmado' ? { ...r, estado: 'sinFirmar' as const } : r)))
   }
 
   const [acuerdosGuardados, setAcuerdos] = useState<Acuerdo[]>(datos.acuerdos)
@@ -468,6 +475,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
   const borrarRegistro = (id: string) => {
     setRegistros((items) => items.filter((r) => r.id !== id))
     setBorradoresTodo((items) => items.filter((b) => b.id !== id))
+    setActas((items) => items.filter((a) => a.registroId !== id))
   }
   // Acuerdo y Ahèr comparten id cuando el acuerdo es del tutor: se mantienen iguales.
   const guardarAcuerdo = (a: Acuerdo) => {
@@ -563,6 +571,7 @@ function StoreCargado({ datos, modo, almacenamiento, onReiniciar, children }: {
         actas,
         firmarActa,
         nuevaVersionActa,
+        borrarActa,
         acuerdos,
         ahers,
         addAher,

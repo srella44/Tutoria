@@ -1,4 +1,4 @@
-import { Download, FileCheck2, FilePlus2, Lock, PenLine, ShieldCheck } from 'lucide-react'
+import { Download, FileCheck2, FilePlus2, Lock, PenLine, ShieldCheck, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useStore } from '../data/store'
 import type { Registro } from '../data/types'
@@ -16,7 +16,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   datosIniciales: Record<string, string>
 }) {
   const { t, lang } = useI18n()
-  const { borradores, borradoresListos, estadoBorradores, setBorrador, plantillas, guardarPlantilla, actas, firmarActa, nuevaVersionActa } = useStore()
+  const { borradores, borradoresListos, estadoBorradores, setBorrador, plantillas, guardarPlantilla, actas, firmarActa, nuevaVersionActa, borrarActa, setNotaPuntoCita } = useStore()
   // La plantilla oficial se elige una vez y queda guardada (cifrada y sincronizada).
   const guardadaPlantilla = plantillas.find((p) => p.id === modelo)
   const original = useMemo(() => plantillaIncluida(modelo) ?? (guardadaPlantilla ? deBase64(guardadaPlantilla.pdf) : undefined), [modelo, guardadaPlantilla])
@@ -32,6 +32,11 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   const valores = !bloqueada && datos.valores.fecha && !datos.valores.fecha.includes(':') && fechaInicial.startsWith(datos.valores.fecha)
     ? { ...datos.valores, fecha: fechaInicial }
     : datos.valores
+  // Si se prepararon puntos, «Aspèctes a tractar» se compone con las notas de cada punto.
+  const puntos = modelo === 'familia' ? cita.puntos ?? [] : []
+  const valoresPdf = puntos.length > 0
+    ? { ...valores, aspectos: puntos.map((p, i) => `${i + 1}. ${p.texto}${p.notas?.trim() ? `\n${p.notas.trim()}` : ''}`).join('\n\n') }
+    : valores
   const guardado = estadoBorradores[cita.id]
   const [vista, setVista] = useState('')
   const [error, setError] = useState('')
@@ -59,7 +64,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
 
   const campo = (id: string, filas?: number) => {
     const cambiar = (valor: string) => {
-      setBorrador(cita, { ...datos, valores: { ...valores, [id]: valor }, firmas: [] })
+      setBorrador(cita, { ...datos, valores: { ...valores, [id]: valor } })
       invalidar()
     }
     const estilo = 'mt-1 block w-full rounded-xl border border-line bg-bg px-3 py-2 text-base text-ink'
@@ -77,7 +82,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
     setError('')
     setOcupado(true)
     try {
-      const bytes = await rellenarPdfOficial(modelo, original, valores, motivos, [])
+      const bytes = await rellenarPdfOficial(modelo, original, valoresPdf, motivos, [])
       setVista(URL.createObjectURL(new Blob([bytes.slice().buffer], { type: 'application/pdf' })))
     } catch (fallo) {
       setError(fallo instanceof CampoPdfError
@@ -98,7 +103,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
       const ahora = new Date()
       const fecha = ahora.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
       const sello = `TUTOR-ia · ${t.version} ${version} · ${t.firmadoEl} ${fecha}`
-      const bytes = await rellenarPdfOficial(modelo, original, valores, motivos, firmas.map((firma) => firma ?? undefined), sello)
+      const bytes = await rellenarPdfOficial(modelo, original, valoresPdf, motivos, firmas.map((firma) => firma ?? undefined), sello)
       const nombre = `${base} - v${version}.pdf`
       firmarActa({
         id: crypto.randomUUID(), registroId: cita.id, version, fecha: ahora.toISOString(),
@@ -192,7 +197,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
                             <input type="checkbox" disabled={bloqueada} checked={motivos.includes(i)} className="size-5 shrink-0 accent-accent"
                               onChange={() => {
                                 setBorrador(cita, {
-                                  ...datos, valores, motivos: motivos.includes(i) ? motivos.filter((m) => m !== i) : [...motivos, i], firmas: [],
+                                  ...datos, valores, motivos: motivos.includes(i) ? motivos.filter((m) => m !== i) : [...motivos, i],
                                 })
                                 invalidar()
                               }} />
@@ -202,7 +207,25 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
                       </div>
                     </fieldset>
                   </Card>
-                  <Card className="space-y-3 p-4">{campo('aspectos', 7)}{campo('acuerdos', 4)}</Card>
+                  {puntos.length > 0 ? (
+                    <Card className="space-y-3 p-4">
+                      <h2 className="font-bold">{t.pdfAspectos}</h2>
+                      {puntos.map((punto, i) => (
+                        <details key={punto.id} open className="rounded-xl border border-line">
+                          <summary className="cursor-pointer px-3 py-2 font-semibold">{i + 1}. {punto.texto}</summary>
+                          <label className="block px-3 pb-3 text-sm text-muted">
+                            {t.notasPunto}
+                            <textarea rows={4} readOnly={bloqueada} value={punto.notas ?? ''}
+                              onChange={(e) => { setNotaPuntoCita(cita.id, punto.id, e.target.value); invalidar() }}
+                              className="mt-1 block w-full rounded-xl border border-line bg-bg px-3 py-2 text-base text-ink" />
+                          </label>
+                        </details>
+                      ))}
+                      {campo('acuerdos', 4)}
+                    </Card>
+                  ) : (
+                    <Card className="space-y-3 p-4">{campo('aspectos', 7)}{campo('acuerdos', 4)}</Card>
+                  )}
                 </>
               ) : (
                 <>
@@ -272,6 +295,7 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
                         className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-accent px-3 text-sm font-semibold text-accent">
                         <Download size={16} aria-hidden /> PDF
                       </button>
+                      <BorrarVersion onBorrar={() => borrarActa(v.id)} />
                     </li>
                   ))}
                 </ul>
@@ -307,5 +331,26 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
       )}
       {error && <p role="alert" className="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{error}</p>}
     </div>
+  )
+}
+
+// Borrado en dos toques de una versión firmada.
+function BorrarVersion({ onBorrar }: { onBorrar: () => void }) {
+  const { t } = useI18n()
+  const [armado, setArmado] = useState(false)
+  useEffect(() => {
+    if (!armado) return
+    const espera = setTimeout(() => setArmado(false), 4000)
+    return () => clearTimeout(espera)
+  }, [armado])
+  return (
+    <button type="button" onClick={() => (armado ? onBorrar() : setArmado(true))} onBlur={() => setArmado(false)}
+      aria-label={armado ? t.tocaConfirmar : t.borrar} title={armado ? t.tocaConfirmar : t.borrar}
+      className={armado
+        ? 'inline-flex min-h-11 items-center gap-1 rounded-xl bg-danger-soft px-3 text-sm font-semibold text-danger'
+        : 'grid size-11 place-items-center rounded-xl text-muted hover:bg-bg hover:text-danger'}>
+      <Trash2 size={18} aria-hidden />
+      {armado && t.borrar}
+    </button>
   )
 }

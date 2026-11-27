@@ -42,7 +42,7 @@ export function Reuniones({ claustre = false }: { claustre?: boolean }) {
         <ChevronRight size={17} className="hidden shrink-0 text-muted sm:block" aria-hidden />
       </Link>
       <EstadoCita cita={r} />
-      {r.estado !== 'firmado' && <BorrarCita id={r.id} />}
+      <BorrarCita id={r.id} />
     </li>
   )
 
@@ -88,7 +88,7 @@ export function Reuniones({ claustre = false }: { claustre?: boolean }) {
   )
 }
 
-// Borrado en dos toques: el primero arma el botón y el segundo borra. Las actas firmadas no se borran.
+// Borrado en dos toques: el primero arma el botón y el segundo borra la cita con su borrador y sus actas firmadas.
 function BorrarCita({ id }: { id: string }) {
   const { t } = useI18n()
   const { borrarRegistro } = useStore()
