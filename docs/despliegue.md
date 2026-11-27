@@ -16,7 +16,8 @@ TUTOR-ia se publica en **Cloudflare Pages** (app + API de sincronización) con u
    - Build output directory: `dist`
 3. Tras el primer despliegue: **Settings › Bindings › Add › D1 database** › nombre de variable `DB` ›
    base `tutoria`. Vuelve a desplegar.
-4. **Custom domains** › `tutoria.pretzhet.app`.
+4. **Custom domains** › `tutoria.pretzhet.app` (activo). Antes, añadir ese hostname a la aplicación de Access TUTOR-ia.
+   Si da error 522: revisar en DNS que `tutoria` sea un CNAME a `tutoria-7y6.pages.dev` (proxied) y no un registro antiguo.
 
 ## 3. Cloudflare Access (solo entra el tutor)
 

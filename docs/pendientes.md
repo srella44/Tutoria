@@ -44,7 +44,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [ ] Validar «Cifrat damb PIN», «Blocatge automatic sense usatge», «1 ora», «8 ores (tota era jornada)».
 - [x] Sincronización cifrada (Pages Functions + D1), probada en local con dos dispositivos (decisión 0010). Dispositivo nuevo con la clave de recuperación.
 - [x] Desplegado en Cloudflare: D1 `tutoria`, Pages `tutoria-7y6.pages.dev` desde `main`, Access («Solo Sergio») y comprobación del token en la API.
-- [ ] Dominio propio `tutoria.pretzhet.app` (Pages › Custom domains) y añadirlo a la aplicación de Access.
+- [x] Dominio propio `tutoria.pretzhet.app` (Pages › Custom domains) protegido por la misma aplicación de Access.
 - [ ] Vincular por QR (opcional: llevaría la clave de recuperación).
 - [ ] Validar «Sincronizacion», «Activar era sincronizacion», «Sincronizar ara», «Darrèra sincronizacion», «Ja utilizi TUTOR-ia en un aute dispositiu», «Descargant es donades…».
 - [x] Copia de seguridad cifrada descargable y restaurable, con prueba de restauración (decisión 0013).
