@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { ArrowDown, ArrowUp, ArrowUpDown, BriefcaseBusiness, LayoutGrid, List, Plus, Search, Upload, Users } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, BookHeart, BriefcaseBusiness, Check, LayoutGrid, List, Plus, Search, Upload, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FormAlumno } from '../components/Formularios'
@@ -9,12 +9,15 @@ import { useI18n } from '../lib/i18n'
 
 export function Alumnado() {
   const { t } = useI18n()
-  const { alumnos, alumnosActivos, curso, ordenarAlumnos } = useStore()
+  const { alumnos, alumnosActivos, curso, ordenarAlumnos, guardarAlumno } = useStore()
   const [q, setQ] = useState('')
   const [grid, setGrid] = useState(true)
   const [verArchivados, setVerArchivados] = useState(false)
   const [alta, setAlta] = useState(false)
   const [ordenando, setOrdenando] = useState(false)
+  const [marcandoReligion, setMarcandoReligion] = useState(false)
+  const [soloReligion, setSoloReligion] = useState(false)
+  const nReligion = alumnosActivos.filter((a) => a.religion).length
   const ids = alumnosActivos.map((a) => a.id)
   const mover = (i: number, delta: -1 | 1) => {
     const j = i + delta
@@ -29,7 +32,7 @@ export function Alumnado() {
       .map((a) => a.id))
   const archivados = alumnos.filter((a) => a.estado === 'archivado' && a.cursoId === curso.id)
   const base = verArchivados ? archivados : alumnosActivos
-  const lista = base.filter((a) => `${a.nombre} ${a.apellidos}`.toLowerCase().includes(q.toLowerCase()))
+  const lista = base.filter((a) => `${a.nombre} ${a.apellidos}`.toLowerCase().includes(q.toLowerCase()) && (!soloReligion || a.religion))
 
   return (
     <>
@@ -46,12 +49,22 @@ export function Alumnado() {
             </Link>
             {alumnosActivos.length > 1 && (
               <button
-                onClick={() => { setOrdenando((o) => !o); setVerArchivados(false) }}
+                onClick={() => { setOrdenando((o) => !o); setMarcandoReligion(false); setVerArchivados(false) }}
                 aria-label={t.ordenar}
                 title={t.ordenar}
                 className={clsx('rounded-lg p-2 hover:bg-bg', ordenando ? 'bg-accent-soft text-accent' : 'text-muted')}
               >
                 <ArrowUpDown size={20} />
+              </button>
+            )}
+            {alumnosActivos.length > 0 && (
+              <button
+                onClick={() => { setMarcandoReligion((o) => !o); setOrdenando(false); setVerArchivados(false) }}
+                aria-label={t.marcarReligion}
+                title={t.marcarReligion}
+                className={clsx('rounded-lg p-2 hover:bg-bg', marcandoReligion ? 'bg-accent-soft text-accent' : 'text-muted')}
+              >
+                <BookHeart size={20} />
               </button>
             )}
             <button onClick={() => setGrid((g) => !g)} aria-label="Vista" className="rounded-lg p-2 text-muted hover:bg-bg">
@@ -70,6 +83,15 @@ export function Alumnado() {
       <div className="mx-auto max-w-3xl px-4 pt-3">
         <div className="mb-2 flex flex-wrap items-center gap-2 text-sm text-muted">
           <span>{[curso.anyo, ...curso.grupos, String(alumnosActivos.length)].join(' · ')}</span>
+          {nReligion > 0 && !ordenando && !marcandoReligion && !verArchivados && (
+            <button
+              onClick={() => setSoloReligion((v) => !v)}
+              aria-pressed={soloReligion}
+              className={clsx('flex items-center gap-1 rounded-full border px-3 py-1', soloReligion ? 'border-accent bg-accent-soft text-accent' : 'border-line')}
+            >
+              <BookHeart size={14} aria-hidden /> {t.religion} · {nReligion}
+            </button>
+          )}
           {archivados.length > 0 && (
             <button
               onClick={() => setVerArchivados((v) => !v)}
@@ -80,7 +102,33 @@ export function Alumnado() {
           )}
         </div>
 
-        {ordenando ? (
+        {marcandoReligion ? (
+          <>
+            <div className="mb-2 flex items-center gap-2 text-sm">
+              <p className="text-muted">{t.marcarReligionAyuda} ({nReligion})</p>
+              <button onClick={() => setMarcandoReligion(false)} className="ml-auto rounded-full bg-accent px-4 py-1.5 font-semibold text-on-accent">{t.hecho}</button>
+            </div>
+            <ul className="panel-app rounded-2xl border border-line bg-surface">
+              {alumnosActivos.map((a) => (
+                <li key={a.id} className="border-b border-line last:border-0">
+                  <button
+                    role="checkbox"
+                    aria-checked={!!a.religion}
+                    onClick={() => guardarAlumno({ ...a, religion: a.religion ? undefined : true })}
+                    className="flex min-h-12 w-full items-center gap-3 px-4 text-left"
+                  >
+                    <span className={clsx('grid size-6 shrink-0 place-items-center rounded-md border', a.religion ? 'border-accent bg-accent text-on-accent' : 'border-line')}>
+                      {a.religion && <Check size={16} />}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">
+                      <span className="font-medium">{a.nombre}</span> <span className="text-muted">{a.apellidos}</span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : ordenando ? (
           <>
             <p className="mb-2 text-sm text-muted">{t.ordenAyuda}</p>
             <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">

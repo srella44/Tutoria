@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Archive, ChevronLeft, Mail, Pencil, Phone, Plus } from 'lucide-react'
+import { BookHeart, Archive, ChevronLeft, Mail, Pencil, Phone, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { TarjetasAutorizacion } from '../components/Autorizaciones'
@@ -69,6 +69,11 @@ export function AlumnoFicha() {
               <p className="text-muted">
                 {[a.apellidos, a.grupo, a.fechaNacimiento && a.fechaNacimiento.split('-').reverse().join('/'), a.localidad].filter(Boolean).join(' · ')}
               </p>
+              {a.religion && (
+                <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent">
+                  <BookHeart size={13} aria-hidden /> {t.religion}
+                </span>
+              )}
               {a.infoRelevante && <p className="mt-1 text-sm">{a.infoRelevante}</p>}
             </div>
           </div>

@@ -99,3 +99,10 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 - En Inici, la tarjeta «Orari» dice qué toca ahora (y hasta cuándo) o lo siguiente.
 - Importar el horario desde Excel o CSV en cuadrícula (`src/lib/importarHorario.ts`): fila de días, horas en la primera columna; en cada franja, primera fila = clase y segunda = tutor (vacía = conjunta); una franja con un solo texto (Recreacion) vale para toda la semana. Sustituye el horario del curso activo.
 - Cifrado y sincronizado; cada curso escolar tiene su horario (decisión 0014).
+
+## Religión
+
+- Campo `religion` en cada alumno (casilla «Hè religion» al editarlo y etiqueta en la ficha).
+- En Alumnat, el botón del libro abre «Marcar qui hè religion»: una lista con casillas para marcar a todo el grupo de una vez.
+- Filtro «Religion · N» en Alumnat para ver solo a quienes la hacen.
+- Es un dato sensible: solo existe cifrado (dispositivo y sincronización), nunca en el repositorio.

@@ -26,6 +26,8 @@ export interface Alumno {
   autorizaciones?: Record<string, EstadoAutorizacion>
   /** Número de lista del curso (importado). */
   numeroLista?: number
+  /** Hace Religión (si no, Valores). Dato sensible: solo cifrado en el dispositivo y en la sincronización. */
+  religion?: boolean
   /** Posición elegida por el tutor en las listas (menor primero). */
   orden?: number
   estado: 'activo' | 'archivado'

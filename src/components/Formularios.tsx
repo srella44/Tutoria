@@ -33,10 +33,12 @@ export function FormAlumno({ alumno, onClose }: { alumno?: Alumno; onClose: () =
   const [grupo, setGrupo] = useState(alumno?.grupo ?? curso.grupos[0] ?? '')
   const [info, setInfo] = useState(alumno?.infoRelevante ?? '')
   const [localidad, setLocalidad] = useState(alumno?.localidad ?? '')
+  const [religion, setReligion] = useState(alumno?.religion ?? false)
   const ok = nombre.trim() !== '' && apellidos.trim() !== ''
 
   const guardar = (estado: Alumno['estado'] = alumno?.estado ?? 'activo') => {
     guardarAlumno({
+      ...alumno,
       id: alumno?.id ?? crypto.randomUUID(),
       nombre: nombre.trim(),
       apellidos: apellidos.trim(),
@@ -47,6 +49,7 @@ export function FormAlumno({ alumno, onClose }: { alumno?: Alumno; onClose: () =
       localidad: localidad.trim() || undefined,
       autorizaciones: alumno?.autorizaciones,
       numeroLista: alumno?.numeroLista,
+      religion: religion || undefined,
       estado,
     })
     onClose()
@@ -87,6 +90,10 @@ export function FormAlumno({ alumno, onClose }: { alumno?: Alumno; onClose: () =
           <input value={localidad} onChange={(e) => setLocalidad(e.target.value)} className={claseInput} />
         </Campo>
       </div>
+      <label className="flex min-h-11 items-center gap-3 rounded-xl border border-line px-3">
+        <input type="checkbox" checked={religion} onChange={(e) => setReligion(e.target.checked)} className="size-5 accent-[var(--color-accent)]" />
+        <span>{t.haceReligion}</span>
+      </label>
       <Campo label={t.info}>
         <textarea rows={3} value={info} onChange={(e) => setInfo(e.target.value)} className={claseTextarea} />
       </Campo>
