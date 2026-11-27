@@ -4,7 +4,7 @@ import { useEffect, type FormEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useI18n } from '../lib/i18n'
 
-export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children, pie }: {
+export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children, pie, textoGuardar }: {
   titulo: string
   onClose: () => void
   onGuardar: () => void
@@ -12,6 +12,8 @@ export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children
   children: ReactNode
   /** Acciones secundarias al pie (archivar, borrar…). */
   pie?: ReactNode
+  /** Texto del botón principal (por defecto, Enregistrar). */
+  textoGuardar?: string
 }) {
   const { t } = useI18n()
   useEffect(() => {
@@ -44,7 +46,7 @@ export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children
             disabled={!puedeGuardar}
             className="shrink-0 rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-on-accent disabled:opacity-40"
           >
-            {t.guardar}
+            {textoGuardar ?? t.guardar}
           </button>
         </div>
       </div>
@@ -60,7 +62,7 @@ export function Hoja({ titulo, onClose, onGuardar, puedeGuardar = true, children
             disabled={!puedeGuardar}
             className="ml-auto min-h-11 rounded-xl bg-accent px-5 font-semibold text-on-accent disabled:opacity-40"
           >
-            {t.guardar}
+            {textoGuardar ?? t.guardar}
           </button>
         </div>
       </div>

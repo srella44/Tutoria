@@ -23,7 +23,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 - [x] Horario: importar desde Excel en cuadrícula.
 - [ ] Validar «Importar orari», «Sessions liejudes», «Se substituirà er orari actuau…» y la ayuda del importador.
 
-- [ ] Validar «Religion», «Hè religion», «Marcar qui hè religion», «Tòca es alumnes que hèn religion», «Marcar ara classe», «Pendents».
+- [ ] Validar «Religion», «Hè religion», «Marcar qui hè religion», «Tòca es alumnes que hèn religion», «Marcar ara classe», «Pendents», «Exportar PDF», «Descargar», «Marca es donades que vòs que gessen en PDF…», «Era religion ei ua donada sensibla…».
 
 ## Material del centro (anonimizado)
 

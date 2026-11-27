@@ -1,12 +1,14 @@
 // Tarjetas de autorizaciones de un alumno: verde (sí), ámbar (a viatges), rojo (no), gris (pendiente).
 import clsx from 'clsx'
-import { BookHeart, Check, Minus, Settings2, X } from 'lucide-react'
+import { BookHeart, Check, FileDown, Minus, Settings2, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStore } from '../data/store'
 import type { Alumno, EstadoAutorizacion } from '../data/types'
 import { iconoAutorizacion } from '../lib/iconos'
 import { useI18n } from '../lib/i18n'
+import { Hoja } from './Hoja'
+import type { ColumnaPdf } from '../lib/pdfAutorizaciones'
 
 // Dos opciones: pendent → òc → non → pendent. Tres: pendent → tostemp → a viatges → non → pendent.
 export const SIGUIENTE_2: Record<string, EstadoAutorizacion | undefined> = { pendiente: 'si', si: 'no', no: undefined, aviatges: 'no' }
@@ -74,6 +76,7 @@ export function MarcadoRapido({ onHecho }: { onHecho: () => void }) {
   const { alumnosActivos, tiposAutorizacion, setAutorizacion, guardarAlumno } = useStore()
   const etiqueta = useEtiquetaEstado()
   const [que, setQue] = useState<string>(() => tiposAutorizacion[0]?.id ?? 'religion')
+  const [exportando, setExportando] = useState(false)
   const tipo = tiposAutorizacion.find((x) => x.id === que)
   const estadoDe = (a: Alumno): EstadoAutorizacion | 'pendiente' =>
     tipo ? a.autorizaciones?.[tipo.id] ?? 'pendiente' : a.religion ? 'si' : 'pendiente'
@@ -96,7 +99,10 @@ export function MarcadoRapido({ onHecho }: { onHecho: () => void }) {
     <>
       <div className="mb-3 flex items-center gap-2">
         <p className="text-sm font-semibold">{t.marcar}</p>
-        <button onClick={onHecho} className="ml-auto rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-on-accent">{t.hecho}</button>
+        <button onClick={() => setExportando(true)} className="ml-auto flex min-h-9 items-center gap-1.5 rounded-full border border-accent px-3 text-sm font-semibold text-accent">
+          <FileDown size={16} aria-hidden /> PDF
+        </button>
+        <button onClick={onHecho} className="rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-on-accent">{t.hecho}</button>
       </div>
       <div className="-mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-1" role="tablist">
         {opciones.map(({ id, nombre, Icono }) => (
@@ -152,6 +158,73 @@ export function MarcadoRapido({ onHecho }: { onHecho: () => void }) {
         })}
       </ul>
       <p className="mt-2 text-xs text-muted">{t.tocaCambiar}</p>
+      {exportando && <ExportarPdf onClose={() => setExportando(false)} />}
     </>
+  )
+}
+
+/** Elegir qué datos salen en el PDF y descargarlo. */
+function ExportarPdf({ onClose }: { onClose: () => void }) {
+  const { t } = useI18n()
+  const { alumnosActivos, tiposAutorizacion, curso } = useStore()
+  const etiqueta = useEtiquetaEstado()
+  const todas: ColumnaPdf[] = [
+    ...tiposAutorizacion.map((x) => ({ id: x.id, nombre: x.nombre, tipo: x })),
+    { id: 'religion', nombre: t.religion },
+  ]
+  // Religión es un dato sensible: no sale salvo que se marque.
+  const [elegidas, setElegidas] = useState<string[]>(() => tiposAutorizacion.map((x) => x.id))
+  const [ocupado, setOcupado] = useState(false)
+  const toggle = (id: string) => setElegidas((xs) => (xs.includes(id) ? xs.filter((x) => x !== id) : [...xs, id]))
+  const generar = async () => {
+    setOcupado(true)
+    try {
+      const { pdfAutorizaciones } = await import('../lib/pdfAutorizaciones')
+      const columnas = todas.filter((c) => elegidas.includes(c.id))
+      const blob = await pdfAutorizaciones({
+        titulo: columnas.length === 1 ? columnas[0].nombre : t.autorizaciones,
+        subtitulo: [curso.anyo, ...curso.grupos, new Date().toLocaleDateString('es-ES')].join(' · '),
+        cabeceraNombre: t.alumnado,
+        alumnos: alumnosActivos,
+        columnas,
+        etiqueta,
+        religionSi: t.estadoSi,
+        religionNo: '-',
+      })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${columnas.length === 1 ? columnas[0].nombre : t.autorizaciones}-${curso.anyo}.pdf`.replace(/\s+/g, '_')
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      onClose()
+    } finally {
+      setOcupado(false)
+    }
+  }
+  return (
+    <Hoja titulo={t.exportarPdf} onClose={onClose} onGuardar={generar} puedeGuardar={elegidas.length > 0 && !ocupado} textoGuardar={t.descargarPdf}>
+      <p className="text-sm text-muted">{t.exportarPdfAyuda}</p>
+      <ul className="rounded-2xl border border-line">
+        {todas.map((c) => {
+          const Icono = c.tipo ? iconoAutorizacion(c.tipo.icono) : BookHeart
+          const on = elegidas.includes(c.id)
+          return (
+            <li key={c.id} className="border-b border-line last:border-0">
+              <button type="button" role="checkbox" aria-checked={on} onClick={() => toggle(c.id)} className="flex min-h-12 w-full items-center gap-3 px-4 text-left">
+                <span className={clsx('grid size-6 shrink-0 place-items-center rounded-md border', on ? 'border-accent bg-accent text-on-accent' : 'border-line')}>
+                  {on && <Check size={16} />}
+                </span>
+                <Icono size={18} className="text-muted" aria-hidden />
+                <span className="flex-1 font-medium">{c.nombre}</span>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+      {elegidas.includes('religion') && <p className="text-xs text-warn">{t.avisoReligionPdf}</p>}
+    </Hoja>
   )
 }
