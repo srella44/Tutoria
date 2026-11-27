@@ -148,8 +148,7 @@ export function Reunion() {
           {modelo && <HuelhaOficial key={r.id} cita={r} modelo={modelo} paso={paso} datosIniciales={{
             alumno: alumnoCita ? `${alumnoCita.nombre} ${alumnoCita.apellidos}` : r.alumnosOtrosCursos?.[0]?.nombre ?? '',
             fecha: `${new Date(r.fecha).toLocaleDateString('es-ES')} ${hora(r.fecha)}`,
-            curso: r.alumnosOtrosCursos?.[0]?.curso ?? '',
-            clase: alumnoCita?.grupo ?? '',
+            ...cursoYClase(alumnoCita?.grupo ?? r.alumnosOtrosCursos?.[0]?.curso ?? ''),
             asistentes: asistentes.join(', '),
           }} />}
           {!modelo && paso === 1 && (protegido ? <Card><Empty>{t.protegido}</Empty></Card> : interna ? <NotasInternas cita={r} /> : (
@@ -214,4 +213,10 @@ export function Reunion() {
       </footer>
     </div>
   )
+}
+
+/** «4au B» → curso «4au», clase «B». Si no hay letra de clase al final, todo va a curso. */
+function cursoYClase(grupo: string) {
+  const partes = grupo.trim().match(/^(.*\S)\s+([A-Za-z])$/)
+  return partes ? { curso: partes[1], clase: partes[2].toUpperCase() } : { curso: grupo.trim(), clase: '' }
 }

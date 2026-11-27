@@ -27,12 +27,18 @@ export function HuelhaOficial({ cita, modelo, paso, datosIniciales }: {
   const datosGuardados = borradores[cita.id]
   const datos = datosGuardados ?? { valores: datosIniciales, motivos: [], firmas: [] }
   const { motivos, firmas } = datos
-  // Borradores antiguos guardaban solo el día: se completa con la hora de la cita (salvo actas firmadas).
   const fechaInicial = datosIniciales.fecha ?? ''
-  const valores = !bloqueada && datos.valores.fecha && !datos.valores.fecha.includes(':') && fechaInicial.startsWith(datos.valores.fecha)
-    ? { ...datos.valores, fecha: fechaInicial }
-    : datos.valores
-  // Si se prepararon puntos, «Aspèctes a tractar» se compone con las notas de cada punto.
+  const valores = { ...datos.valores }
+  if (!bloqueada) {
+    // Borradores antiguos: solo el día en la fecha, o el grupo entero («4au B») en «Classa» con «Cors» vacío.
+    if (valores.fecha && !valores.fecha.includes(':') && fechaInicial.startsWith(valores.fecha)) valores.fecha = fechaInicial
+    const grupoInicial = [datosIniciales.curso, datosIniciales.clase].filter(Boolean).join(' ')
+    if (!valores.curso?.trim() && datosIniciales.curso && valores.clase?.trim() === grupoInicial) {
+      valores.curso = datosIniciales.curso
+      valores.clase = datosIniciales.clase ?? ''
+    }
+  }
+  // Si se prepararon puntos, «Aspèctes a tractar» se escribe por puntos (negrita + cursiva).
   const puntos = modelo === 'familia' ? cita.puntos ?? [] : []
   const valoresPdf = valores
   const puntosPdf = puntos.length > 0 ? puntos.map((p) => ({ titulo: p.texto, notas: p.notas ?? '' })) : undefined
