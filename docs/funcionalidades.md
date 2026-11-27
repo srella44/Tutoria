@@ -103,7 +103,7 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 ## Religión
 
 - Campo `religion` en cada alumno (casilla «Hè religion» al editarlo y etiqueta en la ficha).
-- En Alumnat, el botón del libro abre «Marcar qui hè religion»: una lista con casillas para marcar a todo el grupo de una vez.
+- En Alumnat, el botón de la casilla abre «Marcar ara classe»: se elige qué marcar (cada autorización o Religion) y se toca a cada alumno en una lista; las autorizaciones pasan por sus estados como en la ficha, con recuento y «Pendents → Òc» para el resto (`MarcadoRapido` en `src/components/Autorizaciones.tsx`).
 - Filtro «Religion · N» en Alumnat para ver solo a quienes la hacen.
 - Es un dato sensible: solo existe cifrado (dispositivo y sincronización), nunca en el repositorio.
 

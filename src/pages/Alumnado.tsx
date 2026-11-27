@@ -1,7 +1,8 @@
 import clsx from 'clsx'
-import { ArrowDown, ArrowUp, ArrowUpDown, BookHeart, BriefcaseBusiness, Check, LayoutGrid, List, Plus, Search, Upload, Users } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, BookHeart, BriefcaseBusiness, LayoutGrid, List, Plus, Search, SquareCheckBig, Upload, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { MarcadoRapido } from '../components/Autorizaciones'
 import { FormAlumno } from '../components/Formularios'
 import { Avatar, PageHeader } from '../components/ui'
 import { useStore } from '../data/store'
@@ -9,7 +10,7 @@ import { useI18n } from '../lib/i18n'
 
 export function Alumnado() {
   const { t } = useI18n()
-  const { alumnos, alumnosActivos, curso, ordenarAlumnos, guardarAlumno } = useStore()
+  const { alumnos, alumnosActivos, curso, ordenarAlumnos } = useStore()
   const [q, setQ] = useState('')
   const [grid, setGrid] = useState(true)
   const [verArchivados, setVerArchivados] = useState(false)
@@ -60,11 +61,11 @@ export function Alumnado() {
             {alumnosActivos.length > 0 && (
               <button
                 onClick={() => { setMarcandoReligion((o) => !o); setOrdenando(false); setVerArchivados(false) }}
-                aria-label={t.marcarReligion}
-                title={t.marcarReligion}
+                aria-label={t.marcar}
+                title={t.marcar}
                 className={clsx('rounded-lg p-2 hover:bg-bg', marcandoReligion ? 'bg-accent-soft text-accent' : 'text-muted')}
               >
-                <BookHeart size={20} />
+                <SquareCheckBig size={20} />
               </button>
             )}
             <button onClick={() => setGrid((g) => !g)} aria-label="Vista" className="rounded-lg p-2 text-muted hover:bg-bg">
@@ -103,31 +104,7 @@ export function Alumnado() {
         </div>
 
         {marcandoReligion ? (
-          <>
-            <div className="mb-2 flex items-center gap-2 text-sm">
-              <p className="text-muted">{t.marcarReligionAyuda} ({nReligion})</p>
-              <button onClick={() => setMarcandoReligion(false)} className="ml-auto rounded-full bg-accent px-4 py-1.5 font-semibold text-on-accent">{t.hecho}</button>
-            </div>
-            <ul className="panel-app rounded-2xl border border-line bg-surface">
-              {alumnosActivos.map((a) => (
-                <li key={a.id} className="border-b border-line last:border-0">
-                  <button
-                    role="checkbox"
-                    aria-checked={!!a.religion}
-                    onClick={() => guardarAlumno({ ...a, religion: a.religion ? undefined : true })}
-                    className="flex min-h-12 w-full items-center gap-3 px-4 text-left"
-                  >
-                    <span className={clsx('grid size-6 shrink-0 place-items-center rounded-md border', a.religion ? 'border-accent bg-accent text-on-accent' : 'border-line')}>
-                      {a.religion && <Check size={16} />}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate">
-                      <span className="font-medium">{a.nombre}</span> <span className="text-muted">{a.apellidos}</span>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </>
+          <MarcadoRapido onHecho={() => setMarcandoReligion(false)} />
         ) : ordenando ? (
           <>
             <p className="mb-2 text-sm text-muted">{t.ordenAyuda}</p>
