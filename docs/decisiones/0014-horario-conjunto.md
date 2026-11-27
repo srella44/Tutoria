@@ -10,7 +10,7 @@ pero cuando la clase está con un especialista el tutor tiene otra tarea (refuer
 - Nueva colección `horario` (`SesionHorario`): `dia` (1–5), `inicio`/`fin` (HH:MM), `materia`, `quien`
   (`conjunta` · `mia` · `clase`), `docente` y `lugar` opcionales, `cursoId` (cada curso tiene su horario).
 - Se cifra y sincroniza como el resto (Dexie v4, tabla añadida a `functions/api/sync.ts`).
-- Vista a escala de tiempo: una sesión conjunta ocupa toda la columna; si no, a la izquierda la del tutor (borde
+- (Revisado) Vista en tabla como el horario en papel: una fila por franja; en cada casilla, arriba lo de la clase y debajo, en color, lo del tutor cuando no está con ella. Antes: vista a escala de tiempo, con la del tutor a la izquierda (borde
   discontinuo) y a la derecha la de la clase. Color estable por materia. Línea roja en la hora actual.
 - iPhone: un día cada vez con pestañas; iPad/ordenador: la semana entera. En Inici, «Ara / Dempús».
 - En producción empieza vacío; el horario de ejemplo (genérico) solo existe en desarrollo.

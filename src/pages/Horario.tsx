@@ -3,18 +3,17 @@
 // tutor (Jo) y a la derecha la de la clase (con el especialista).
 import clsx from 'clsx'
 import { CalendarClock, Plus, Upload } from 'lucide-react'
-import { useEffect, useMemo, useState, type MouseEvent } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Campo, claseInput, Hoja } from '../components/Hoja'
 import { PageHeader } from '../components/ui'
 import { useStore } from '../data/store'
 import type { QuienHorario, SesionHorario } from '../data/types'
 import { semanaAbreviada } from '../lib/fechas'
-import { colorMateria, diaHorario, minutos, sesionesDelDia } from '../lib/horario'
+import { colorMateria, diaHorario, minutos } from '../lib/horario'
 import { useI18n } from '../lib/i18n'
 import { leerHorario, type LecturaHorario } from '../lib/importarHorario'
 
 const DIAS = [1, 2, 3, 4, 5]
-const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
 
 interface Borrador { dia: number; inicio: string; fin: string }
 
@@ -184,76 +183,75 @@ function useAhora() {
   return ahora
 }
 
-/** Una columna de día, a escala: cada minuto ocupa `escala` píxeles. */
-function ColumnaDia({ sesiones, desde, hasta, escala, ahoraMin, onSesion, onVacio }: {
-  sesiones: SesionHorario[]
-  desde: number
-  hasta: number
-  escala: number
-  ahoraMin?: number
-  onSesion: (s: SesionHorario) => void
-  onVacio: (minuto: number) => void
-}) {
+interface Franja { inicio: string; fin: string }
+interface Casilla { conjunta?: SesionHorario; clase?: SesionHorario; mia?: SesionHorario; otras: SesionHorario[] }
+
+/** Franjas del horario (pares inicio–fin distintos), en orden. */
+function franjasDe(horario: SesionHorario[]): Franja[] {
+  const vistas = new Map<string, Franja>()
+  for (const h of horario) vistas.set(`${h.inicio}-${h.fin}`, { inicio: h.inicio, fin: h.fin })
+  return [...vistas.values()].sort((a, b) => a.inicio.localeCompare(b.inicio) || a.fin.localeCompare(b.fin))
+}
+
+function casilla(horario: SesionHorario[], dia: number, f: Franja): Casilla {
+  const aqui = horario.filter((h) => h.dia === dia && h.inicio === f.inicio && h.fin === f.fin)
+  const conjunta = aqui.find((h) => h.quien === 'conjunta')
+  const clase = aqui.find((h) => h.quien === 'clase')
+  const mia = aqui.find((h) => h.quien === 'mia')
+  return { conjunta, clase, mia, otras: aqui.filter((h) => h !== conjunta && h !== clase && h !== mia) }
+}
+
+/** La misma materia conjunta los cinco días (p. ej. el patio): se pinta como una banda. */
+function banda(horario: SesionHorario[], f: Franja) {
+  const cs = DIAS.map((d) => casilla(horario, d, f))
+  const m = cs[0].conjunta?.materia
+  return m && cs.every((c) => c.conjunta?.materia === m && !c.clase && !c.mia && !c.otras.length) ? cs.map((c) => c.conjunta!) : null
+}
+
+/** Lo mío cuando no estoy con la clase: una pastilla de color. */
+function Pastilla({ s, onClick, grande }: { s: SesionHorario; onClick: () => void; grande?: boolean }) {
   const { t } = useI18n()
-  const clicVacio = (e: MouseEvent<HTMLDivElement>) => {
-    if (e.target !== e.currentTarget) return
-    const y = e.clientY - e.currentTarget.getBoundingClientRect().top
-    onVacio(desde + Math.floor(y / escala / 15) * 15)
-  }
   return (
-    <div className="relative border-l border-line" style={{ height: (hasta - desde) * escala }} onClick={clicVacio}>
-      {Array.from({ length: Math.floor((hasta - desde) / 60) + 1 }, (_, i) => (
-        <div key={i} className="pointer-events-none absolute inset-x-0 border-t border-line/70" style={{ top: i * 60 * escala }} />
-      ))}
-      {sesiones.map((s) => {
-        const top = (minutos(s.inicio) - desde) * escala
-        const alto = (minutos(s.fin) - minutos(s.inicio)) * escala
-        const lado = s.quien === 'conjunta' ? 'inset-x-1' : s.quien === 'mia' ? 'left-1 right-[calc(50%+1px)]' : 'left-[calc(50%+1px)] right-1'
-        return (
-          <button
-            key={s.id}
-            type="button"
-            data-color={colorMateria(s.materia)}
-            onClick={() => onSesion(s)}
-            className={clsx(
-              'absolute overflow-hidden rounded-lg border-l-4 px-1.5 py-0.5 text-left text-xs leading-tight hover:brightness-95',
-              lado,
-              s.quien === 'mia' && 'border-dashed outline outline-1 -outline-offset-1 outline-[var(--seccion-intenso)]/40',
-            )}
-            style={{ top: top + 1, height: alto - 2, background: 'var(--seccion-fondo)', color: 'var(--seccion-tinta)', borderLeftColor: 'var(--seccion-intenso)' }}
-            title={`${s.inicio}–${s.fin} · ${s.materia}${s.docente ? ` · ${s.docente}` : ''}${s.lugar ? ` · ${s.lugar}` : ''}`}
-          >
-            {s.quien !== 'conjunta' && alto >= 56 && (
-              <span className="block truncate text-[10px] font-semibold uppercase tracking-wide opacity-70">{s.quien === 'mia' ? t.yo : t.laClase}</span>
-            )}
-            <span className="block truncate font-semibold">{s.materia}</span>
-            {alto >= 40 && <span className="block truncate tabular-nums opacity-80">{s.quien === 'conjunta' ? `${s.inicio}–${s.fin}` : s.inicio}</span>}
-            {alto >= 56 && (s.docente || s.lugar) && (
-              <span className="block truncate opacity-80">{[s.docente, s.lugar].filter(Boolean).join(' · ')}</span>
-            )}
-          </button>
-        )
-      })}
-      {ahoraMin !== undefined && ahoraMin >= desde && ahoraMin <= hasta && (
-        <div className="pointer-events-none absolute inset-x-0 z-10 h-0.5 bg-danger" style={{ top: (ahoraMin - desde) * escala }}>
-          <span className="absolute -top-1 -left-1 h-2.5 w-2.5 rounded-full bg-danger" />
-        </div>
-      )}
-    </div>
+    <button
+      type="button"
+      data-color={colorMateria(s.materia)}
+      onClick={(e) => { e.stopPropagation(); onClick() }}
+      className={clsx('flex max-w-full items-center gap-1.5 rounded-lg px-2 text-left font-semibold', grande ? 'min-h-9 text-sm' : 'min-h-7 text-xs')}
+      style={{ background: 'var(--seccion-fondo)', color: 'var(--seccion-tinta)' }}
+    >
+      <span className="shrink-0 font-normal opacity-75">{t.yo}:</span>
+      <span className="truncate">{s.materia}</span>
+    </button>
   )
 }
 
-function Regla({ desde, hasta, escala }: { desde: number; hasta: number; escala: number }) {
+/** Contenido de una casilla: arriba la clase (o la sesión conjunta), debajo lo mío si estoy en otro sitio. */
+function ContenidoCasilla({ c, onSesion, grande }: { c: Casilla; onSesion: (s: SesionHorario) => void; grande?: boolean }) {
+  const deClase = c.conjunta ?? c.clase
   return (
-    <div className="relative w-11 shrink-0" style={{ height: (hasta - desde) * escala }}>
-      {Array.from({ length: Math.floor((hasta - desde) / 60) + 1 }, (_, i) => (
-        <span key={i} className="absolute right-1.5 -translate-y-1/2 text-[11px] tabular-nums text-muted" style={{ top: i * 60 * escala }}>
-          {hhmm(desde + i * 60)}
-        </span>
-      ))}
-    </div>
+    <>
+      {deClase && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onSesion(deClase) }}
+          className="block w-full text-left"
+        >
+          <span className={clsx('block font-bold leading-tight', grande ? 'text-lg' : 'text-[15px]')}>{deClase.materia}</span>
+          {(deClase.docente || deClase.lugar) && (
+            <span className={clsx('block truncate text-muted', grande ? 'text-sm' : 'text-xs')}>{[deClase.docente, deClase.lugar].filter(Boolean).join(' · ')}</span>
+          )}
+        </button>
+      )}
+      {(c.mia || c.otras.length > 0) && (
+        <div className={clsx('flex flex-wrap gap-1', deClase && 'mt-1.5')}>
+          {[c.mia, ...c.otras].filter((x): x is SesionHorario => !!x).map((s) => <Pastilla key={s.id} s={s} grande={grande} onClick={() => onSesion(s)} />)}
+        </div>
+      )}
+    </>
   )
 }
+
+const enFranja = (f: Franja, m: number) => minutos(f.inicio) <= m && m < minutos(f.fin)
 
 export function Horario() {
   const { t, lang } = useI18n()
@@ -266,24 +264,11 @@ export function Horario() {
   const [importando, setImportando] = useState(false)
   const nombresDias = semanaAbreviada(lang)
 
-  // Rango visible: de la primera hora en punto a la última, con un mínimo de 9 a 17.
-  const [desde, hasta] = useMemo(() => {
-    if (!horario.length) return [9 * 60, 17 * 60]
-    const ini = Math.min(...horario.map((h) => minutos(h.inicio)))
-    const fin = Math.max(...horario.map((h) => minutos(h.fin)))
-    return [Math.floor(ini / 60) * 60, Math.ceil(fin / 60) * 60]
-  }, [horario])
-
-  const nueva = (d: number, minuto = 9 * 60): Borrador => ({ dia: d, inicio: hhmm(minuto), fin: hhmm(Math.min(minuto + 60, 23 * 60 + 55)) })
-  const props = (d: number, escala: number) => ({
-    sesiones: sesionesDelDia(horario, d),
-    desde,
-    hasta,
-    escala,
-    ahoraMin: d === hoy ? ahoraMin : undefined,
-    onSesion: (s: SesionHorario) => setEditando(s),
-    onVacio: (m: number) => setEditando(nueva(d, m)),
-  })
+  const franjas = useMemo(() => franjasDe(horario), [horario])
+  const nueva = (d: number, inicio = '09:00', fin = '10:00'): Borrador => ({ dia: d, inicio, fin })
+  const onSesion = (s: SesionHorario) => setEditando(s)
+  // Hueco grande entre franjas (el mediodía): se deja un respiro visual.
+  const separada = (i: number) => i > 0 && minutos(franjas[i].inicio) - minutos(franjas[i - 1].fin) >= 30
 
   return (
     <>
@@ -335,7 +320,7 @@ export function Horario() {
 
         {horario.length > 0 && (
           <>
-            {/* iPhone: un día cada vez */}
+            {/* iPhone: un día cada vez, como una lista */}
             <div className="md:hidden">
               <div className="mb-3 grid grid-cols-5 gap-1.5" role="tablist">
                 {DIAS.map((d) => (
@@ -354,27 +339,87 @@ export function Horario() {
                   </button>
                 ))}
               </div>
-              <div className="flex rounded-2xl border border-line bg-surface py-3 pr-1">
-                <Regla desde={desde} hasta={hasta} escala={1.6} />
-                <div className="flex-1"><ColumnaDia {...props(dia, 1.6)} /></div>
-              </div>
+              <ol className="space-y-2">
+                {franjas.map((f, i) => {
+                  const c = casilla(horario, dia, f)
+                  const vacia = !c.conjunta && !c.clase && !c.mia && !c.otras.length
+                  const corta = !!banda(horario, f)
+                  const actual = dia === hoy && enFranja(f, ahoraMin)
+                  return (
+                    <li key={`${f.inicio}-${f.fin}`} className={clsx(separada(i) && 'pt-3')}>
+                      <div
+                        onClick={() => setEditando(nueva(dia, f.inicio, f.fin))}
+                        className={clsx(
+                          'flex gap-3 rounded-2xl border bg-surface px-3',
+                          corta ? 'py-1.5' : 'py-3',
+                          actual ? 'border-accent ring-2 ring-accent/30' : 'border-line',
+                        )}
+                      >
+                        <div className={clsx('w-12 shrink-0 tabular-nums', corta ? 'text-xs text-muted' : 'text-sm')}>
+                          <span className="block font-semibold">{f.inicio}</span>
+                          {!corta && <span className="block text-muted">{f.fin}</span>}
+                        </div>
+                        <div className={clsx('min-w-0 flex-1', corta && 'text-muted')}>
+                          {actual && <span className="mb-1 inline-block rounded-full bg-accent px-2 text-[11px] font-semibold text-on-accent">{t.ahora}</span>}
+                          {vacia ? <span className="text-sm text-muted">—</span> : corta
+                            ? <span className="text-sm font-medium">{c.conjunta?.materia}</span>
+                            : <ContenidoCasilla c={c} onSesion={onSesion} grande />}
+                        </div>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ol>
             </div>
 
-            {/* iPad y ordenador: la semana entera */}
-            <div className="hidden rounded-2xl border border-line bg-surface pb-3 pr-1 md:block">
-              <div className="sticky top-16 z-10 ml-11 grid grid-cols-5 rounded-t-2xl bg-surface">
-                {DIAS.map((d) => (
-                  <div key={d} className={clsx('border-l border-line py-2 text-center text-sm', d === hoy ? 'font-bold text-accent' : 'font-semibold')}>
-                    {nombresDias[d - 1]}
-                  </div>
-                ))}
-              </div>
-              <div className="flex pt-2">
-                <Regla desde={desde} hasta={hasta} escala={1.4} />
-                <div className="grid flex-1 grid-cols-5">
-                  {DIAS.map((d) => <ColumnaDia key={d} {...props(d, 1.4)} />)}
-                </div>
-              </div>
+            {/* iPad y ordenador: la semana entera, como el horario en papel */}
+            <div className="hidden overflow-hidden rounded-2xl border border-line bg-surface md:block">
+              <table className="w-full table-fixed border-collapse">
+                <thead className="bg-surface">
+                  <tr>
+                    <th className="w-20 border-b border-line" />
+                    {DIAS.map((d) => (
+                      <th key={d} className={clsx('border-b border-l border-line py-2.5 text-sm', d === hoy ? 'bg-accent-soft font-bold text-accent' : 'font-semibold')}>
+                        {nombresDias[d - 1]}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {franjas.map((f, i) => {
+                    const b = banda(horario, f)
+                    return (
+                      <tr key={`${f.inicio}-${f.fin}`} className={clsx(separada(i) && 'border-t-[6px] border-bg')}>
+                        <th className={clsx('border-b border-line px-2 text-right align-top font-normal tabular-nums', b ? 'py-1 text-xs text-muted' : 'py-2 text-sm')}>
+                          <span className="block font-semibold">{f.inicio}</span>
+                          {!b && <span className="block text-muted">{f.fin}</span>}
+                        </th>
+                        {b ? (
+                          <td colSpan={5} className="border-b border-l border-line bg-bg/60 py-1 text-center text-sm font-semibold tracking-wide text-muted">
+                            <button type="button" onClick={() => onSesion(b[0])} className="w-full">{b[0].materia}</button>
+                          </td>
+                        ) : DIAS.map((d) => {
+                          const c = casilla(horario, d, f)
+                          const actual = d === hoy && enFranja(f, ahoraMin)
+                          return (
+                            <td
+                              key={d}
+                              onClick={() => setEditando(nueva(d, f.inicio, f.fin))}
+                              className={clsx(
+                                'cursor-pointer border-b border-l border-line p-2 align-top hover:bg-bg/60',
+                                d === hoy && 'bg-accent-soft/40',
+                                actual && 'outline-2 -outline-offset-2 outline-accent',
+                              )}
+                            >
+                              <ContenidoCasilla c={c} onSesion={onSesion} />
+                            </td>
+                          )
+                        })}
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           </>
         )}
