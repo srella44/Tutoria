@@ -20,6 +20,11 @@
   Con la clave de recuperación se abre la llave descargada del servidor, se crea un PIN para ese dispositivo y
   se descargan los datos. (El QR puede venir después: llevaría la misma clave.)
 - Cuando llegan cambios de otro dispositivo, el store se vuelve a cargar.
+- **Una sola cuenta por servidor.** Activar la sincronización solo es posible si el servidor aún no tiene
+  copia de recuperación. Si ya la tiene, el dispositivo debe borrar sus datos (Ajustes › Donades) y unirse con
+  la clave: así nunca se mezclan filas cifradas con llaves distintas. Si aun así llega una fila que no se
+  puede descifrar, se salta y la app sigue funcionando.
+- **Reiniciar el servidor** (solo con datos de prueba): en la consola de D1, `DELETE FROM filas; DELETE FROM meta;`.
 
 ## Probado
 

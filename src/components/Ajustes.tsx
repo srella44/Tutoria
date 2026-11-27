@@ -15,7 +15,8 @@ export function Ajustes() {
   const [pendiente, setPendiente] = useState<'demo' | 'propio'>()
   const cerradura = useCerradura()
   const sync = useSincronizacion()
-  const [errorActivar, setErrorActivar] = useState(false)
+  const [errorActivar, setErrorActivar] = useState<string | false>(false)
+  const [borrando, setBorrando] = useState(false)
   const [cambiandoPin, setCambiandoPin] = useState(false)
   const cerrar = () => {
     setOpen(false)
@@ -78,7 +79,7 @@ export function Ajustes() {
                   <button
                     onClick={async () => {
                       setErrorActivar(false)
-                      try { await sync.activar() } catch { setErrorActivar(true) }
+                      try { await sync.activar() } catch (e) { setErrorActivar(e instanceof Error && e.message === 'cuenta-existente' ? t.cuentaExistente : t.syncError) }
                     }}
                     className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left hover:bg-bg"
                   >
@@ -89,6 +90,7 @@ export function Ajustes() {
                     <RefreshCw size={16} className="text-muted" aria-hidden /> {t.sincronizarAhora}
                   </button>
                 )}
+                {errorActivar && <p className="px-3 pb-1 text-xs text-danger">{errorActivar}</p>}
                 {(sync.estado === 'error' || errorActivar) && (
                   // Suele ser que la sesión de Cloudflare Access ha caducado: al recargar, Access pide entrar.
                   <button onClick={() => window.location.reload()} className="mx-3 mb-1 min-h-9 rounded-lg border border-line px-3 text-sm">
@@ -103,6 +105,19 @@ export function Ajustes() {
             <p className={`px-3 pb-1 text-xs ${almacenamiento === 'guardado' ? 'text-muted' : 'text-danger'}`}>
               {almacenamiento === 'guardado' ? t.guardadoLocal : t.soloMemoria}
             </p>
+            {cerradura.activa && (
+              <button
+                onClick={async () => {
+                  if (!borrando) return setBorrando(true)
+                  const { borrarDispositivo } = await import('../data/db')
+                  await borrarDispositivo()
+                  window.location.reload()
+                }}
+                className={`w-full rounded-lg px-3 py-2.5 text-left text-sm hover:bg-bg ${borrando ? 'font-semibold text-danger' : 'text-muted'}`}
+              >
+                {borrando ? `${t.borrarTodoAviso} ${t.tocaConfirmar}` : t.borrarEsteDispositivo}
+              </button>
+            )}
             {pendiente ? (
               <div className="m-1 rounded-xl bg-danger-soft p-3 text-sm">
                 <p className="text-danger">{t.confirmarBorrado}</p>

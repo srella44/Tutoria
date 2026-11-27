@@ -7,6 +7,8 @@ import type { TipoRegistro } from '../data/types'
 export type Lang = 'oc' | 'es'
 
 const oc = {
+  cuentaExistente: 'Ja i a ua compte de TUTOR-ia en servidor. Entad aguest dispositiu: Ajustaments › Donades › borrar es donades d’aguest dispositiu e unir-lo damb era clau de recuperacion.',
+  borrarEsteDispositivo: 'Borrar es donades d’aguest dispositiu',
   volverAEntrar: 'Tornar a entrar',
   errorServidor: 'Non s’a pogut contactar damb eth servidor.',
   sincronizacion: 'Sincronizacion',
@@ -326,6 +328,8 @@ const oc = {
 type Dict = typeof oc
 
 const es: Dict = {
+  cuentaExistente: 'Ya hay una cuenta de TUTOR-ia en el servidor. Para este dispositivo: borra sus datos y únelo con la clave de recuperación.',
+  borrarEsteDispositivo: 'Borrar los datos de este dispositivo',
   volverAEntrar: 'Volver a entrar',
   errorServidor: 'No se ha podido contactar con el servidor.',
   sincronizacion: 'Sincronización',

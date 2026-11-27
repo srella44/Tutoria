@@ -111,9 +111,18 @@ async function preparar(coleccion: Coleccion, items: { id: string }[]): Promise<
 
 async function leer(coleccion: Coleccion) {
   const filas = (await db[coleccion].toArray()) as Fila[]
-  return Promise.all(filas.map((f) => (f.c && f.iv && llaveDatos
-    ? descifrar(llaveDatos, `${coleccion}:${f.id}`, { iv: f.iv, c: f.c })
-    : f)))
+  const leidas = await Promise.all(filas.map(async (f) => {
+    if (!f.c || !f.iv) return f
+    if (!llaveDatos) return null
+    try {
+      return await descifrar(llaveDatos, `${coleccion}:${f.id}`, { iv: f.iv, c: f.c })
+    } catch {
+      // Una fila cifrada con otra llave (de otra cuenta) no se puede abrir: se salta en vez de bloquear la app.
+      console.warn('Fila que no se puede descifrar', coleccion, f.id)
+      return null
+    }
+  }))
+  return leidas.filter((x) => x !== null)
 }
 
 /** Cifra las filas que aún estén en claro (al crear el PIN). */
@@ -257,6 +266,11 @@ export async function servidorDisponible() {
 
 /** Activa la sincronización en este dispositivo: sube la copia de recuperación y todos los datos. */
 export async function activarSync(candado: Candado) {
+  // Si el servidor ya tiene una cuenta (de otro dispositivo), este no puede activar con su propia llave:
+  // tiene que unirse con la clave de recuperación. Así nunca se mezclan datos de dos llaves.
+  const existente = await fetch('/api/recuperacion')
+  if (existente.ok) throw new Error('cuenta-existente')
+  if (existente.status !== 404) throw new Error(`recuperacion ${existente.status}`)
   const r = await fetch('/api/recuperacion', {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
