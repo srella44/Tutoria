@@ -277,7 +277,7 @@ export function Agenda() {
         </div>
 
         <div className="mt-6">
-          <SectionTitle>{t.pendents}</SectionTitle>
+          <SectionTitle>{t.herSeguiment}</SectionTitle>
           <Pendents />
         </div>
       </div>

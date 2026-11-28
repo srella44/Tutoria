@@ -24,8 +24,7 @@ export function Pendents() {
   const delegadas = ahers.filter((a) => esTarea(a) && a.responsable)
   const grupos = [
     { label: t.incidencias, items: registros.filter((r) => r.tipo === 'incidencia' && r.estado === 'abierto') },
-    { label: tipo.teEscoti, items: registros.filter((r) => r.tipo === 'teEscoti' && r.estado === 'abierto') },
-    { label: t.actasSinFirmar, items: registros.filter((r) => r.estado === 'sinFirmar') },
+    { label: t.signarActes, items: registros.filter((r) => r.estado === 'sinFirmar') },
   ]
 
   const tarea = (a: (typeof ahers)[number]) => (
@@ -50,18 +49,8 @@ export function Pendents() {
   return (
     <>
       <div>
-        <SectionTitle count={pendientes.length}>{t.acuerdos}</SectionTitle>
-        <Card>
-          {pendientes.length > 0 ? <ul>{pendientes.map(tarea)}</ul> : <Empty>{t.nadaPendiente}</Empty>}
-          {completadas.length > 0 && (
-            <details className="border-t border-line">
-              <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">{t.completadas} · {completadas.length}</summary>
-              <ul>{completadas.map(tarea)}</ul>
-            </details>
-          )}
-        </Card>
-
-        <div className="mt-5 space-y-2">
+        {/* Hèr seguiment: primero lo que pide acción (incidencias con seguimiento y actas por firmar). */}
+        <div className="mb-5 space-y-2">
           {grupos.map(({ label, items }) => (
             <details key={label} className="panel-app rounded-2xl border border-line bg-surface">
               <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-4 font-semibold">
@@ -79,6 +68,19 @@ export function Pendents() {
                       </Link>
                     </li>
                   ))}
+        </div>
+        <SectionTitle count={pendientes.length}>{t.acuerdos}</SectionTitle>
+        <Card>
+          {pendientes.length > 0 ? <ul>{pendientes.map(tarea)}</ul> : <Empty>{t.nadaPendiente}</Empty>}
+          {completadas.length > 0 && (
+            <details className="border-t border-line">
+              <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">{t.completadas} · {completadas.length}</summary>
+              <ul>{completadas.map(tarea)}</ul>
+            </details>
+          )}
+        </Card>
+
+        <div className="mt-5 space-y-2">
                 </ul>
               )}
             </details>
