@@ -71,7 +71,7 @@ export function QuickCapture({ onClose, preset, dia }: { onClose: () => void; pr
         estado: tipus === 'incidencia' ? 'abierto' : undefined,
       })
     } else {
-      addAher(texto.trim(), data || undefined, { ...(data && hora ? { hora } : {}), ...(tipus === 'aher' ? {} : { clase: tipus }) })
+      addAher(texto.trim(), data || undefined, { ...(data && hora ? { hora } : {}), ...(tipus === 'aher' ? {} : { clase: tipus as 'nota' | 'data' }) })
     }
     onClose()
   }
