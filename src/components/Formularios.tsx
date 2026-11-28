@@ -254,7 +254,7 @@ export function FormRegistro({ registro, onClose }: { registro: Registro; onClos
           texto: texto.trim(),
           fecha: new Date(fecha).toISOString(),
           alumnoIds: sel,
-          estado: tipo === 'incidencia' ? (estado ?? 'abierto') : registro.tipo === 'incidencia' ? undefined : estado,
+          estado: tipo === 'incidencia' ? (estado || undefined) : registro.tipo === 'incidencia' ? undefined : estado,
         })
         onClose()
       }}
@@ -283,7 +283,8 @@ export function FormRegistro({ registro, onClose }: { registro: Registro; onClos
         </Campo>
         {tipo === 'incidencia' && (
           <Campo label={t.estado}>
-            <select value={estado ?? 'abierto'} onChange={(e) => setEstado(e.target.value as Registro['estado'])} className={claseInput}>
+            <select value={estado ?? ''} onChange={(e) => setEstado((e.target.value || undefined) as Registro['estado'])} className={claseInput}>
+              <option value="">{t.senseSeguiment}</option>
               <option value="abierto">{t.abierto}</option>
               <option value="cerrado">{t.cerrada}</option>
             </select>

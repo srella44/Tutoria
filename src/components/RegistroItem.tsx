@@ -66,10 +66,12 @@ export function RegistroItem({ r, showAlumnos = true }: { r: Registro; showAlumn
       )}
       {editable && r.tipo === 'incidencia' && (
         <button
-          onClick={() => guardarRegistro({ ...r, estado: r.estado === 'cerrado' ? 'abierto' : 'cerrado' })}
+          onClick={() => guardarRegistro({ ...r, estado: r.estado === 'abierto' ? 'cerrado' : 'abierto' })}
           className="mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-sm"
         >
-          {r.estado === 'cerrado' ? <><RotateCcw size={14} aria-hidden /> {t.reabrir}</> : <><Check size={14} aria-hidden /> {t.cerrar}</>}
+          {r.estado === 'abierto' ? <><Check size={14} aria-hidden /> {t.cerrar}</>
+            : r.estado === 'cerrado' ? <><RotateCcw size={14} aria-hidden /> {t.reabrir}</>
+              : <><RotateCcw size={14} aria-hidden /> {t.calSeguiment}</>}
         </button>
       )}
       {editando && <FormRegistro registro={r} onClose={() => setEditando(false)} />}

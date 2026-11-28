@@ -35,6 +35,9 @@ export function QuickCapture({ onClose, preset, dia }: { onClose: () => void; pr
   const [moment] = useState(ara)
   const [data, setData] = useState(dia ?? moment.dia)
   const [hora, setHora] = useState(dia ? '' : moment.hora)
+  // Incidencias: solo van a Pendents si hace falta seguimiento; con fecha, además, un Ahèr ese día.
+  const [seguiment, setSeguiment] = useState(false)
+  const [dataSeg, setDataSeg] = useState('')
   const esAlumnat = tipus !== null && ALUMNAT.includes(tipus)
 
   useEffect(() => {
@@ -68,8 +71,9 @@ export function QuickCapture({ onClose, preset, dia }: { onClose: () => void; pr
         texto: texto.trim(),
         etiquetas: [],
         visibilidad: 'normal',
-        estado: tipus === 'incidencia' ? 'abierto' : undefined,
+        estado: tipus === 'incidencia' && seguiment ? 'abierto' : undefined,
       })
+      if (tipus === 'incidencia' && seguiment && dataSeg) addAher(`${t.seguimentDe} ${sel.map((id) => nom(id)?.nombre).filter(Boolean).join(', ')}`, dataSeg)
     } else {
       addAher(texto.trim(), data || undefined, { ...(data && hora ? { hora } : {}), ...(tipus === 'aher' ? {} : { clase: tipus as 'nota' | 'data' }) })
     }
@@ -173,6 +177,20 @@ export function QuickCapture({ onClose, preset, dia }: { onClose: () => void; pr
               </div>
               {tipus === 'aher' && data && <button type="button" onClick={() => { setData(''); setHora('') }} className="mt-2 text-sm font-semibold text-accent">{t.sensaData}</button>}
             </div>
+
+            {tipus === 'incidencia' && (
+              <div className="rounded-xl border border-line p-3">
+                <label className="flex min-h-11 items-center gap-3 text-sm font-semibold">
+                  <input type="checkbox" checked={seguiment} onChange={(e) => setSeguiment(e.target.checked)} className="size-5 accent-accent" />
+                  {t.calSeguiment}
+                </label>
+                {seguiment && (
+                  <label className="mt-2 block text-xs font-semibold text-muted">{t.dataSeguiment}
+                    <input type="date" value={dataSeg} onChange={(e) => setDataSeg(e.target.value)} className="mt-1 h-11 w-full min-w-0 rounded-xl border border-line bg-bg px-3 text-base text-ink" />
+                  </label>
+                )}
+              </div>
+            )}
 
             {esAlumnat && frases.length > 0 && (
               <details className="rounded-xl border border-line px-3">

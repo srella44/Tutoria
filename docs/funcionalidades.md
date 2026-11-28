@@ -74,7 +74,7 @@ Primero el tipo, en dos grupos: **Alumnat** (Observacion, Incidéncia, Comunicac
 - Alumnado: lista de clase ordenada por número, buscador por nombre o número de lista, elegidos como etiquetas, fecha y hora («ara» por defecto, editables), texto y frases frecuentes.
 - Agenda: texto, día y hora opcional (con botón para quitarla); un Ahèr puede quedar sin fecha.
 - Recuerda el último tipo usado. Desde la ficha de un alumno entra en Observacion con él marcado; desde la Agenda trae el día que se está mirando.
-El registro aparece al instante en la cronología, en la Agenda y, si es incidencia, en Pendents.
+El registro aparece al instante en la cronología y en la Agenda. Una incidencia solo va a Pendents si se marca «Cau hèr seguiment» (desmarcado por defecto); con fecha de seguimiento crea además un Ahèr ese día. Desde la incidencia se puede activar el seguimiento después, cerrarlo o reabrirlo.
 
 ## Google Calendar
 
