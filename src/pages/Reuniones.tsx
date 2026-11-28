@@ -18,7 +18,10 @@ export function Reuniones({ claustre = false }: { claustre?: boolean }) {
   const [nueva, setNueva] = useState(false)
   const nombre = (id: string) => alumnos.find((a) => a.id === id)?.nombre ?? '?'
 
-  const tiposReunion: readonly TipoRegistro[] = claustre ? tiposClaustre : tiposAmassada
+  // En Amassades, las reuniones y los Te escoti van en pestañas separadas: nunca mezclados.
+  const [vista, setVista] = useState<'amassades' | 'teEscoti'>('amassades')
+  const tiposReunion: readonly TipoRegistro[] = claustre ? tiposClaustre
+    : tiposAmassada.filter((tp) => (vista === 'teEscoti') === (tp === 'teEscoti'))
   const tituloNueva = claustre ? t.nuevaSesion : t.nuevaReunion
   const [ahora] = useState(Date.now)
   const todas = registros.filter((r) => tiposReunion.includes(r.tipo))
@@ -74,6 +77,19 @@ export function Reuniones({ claustre = false }: { claustre?: boolean }) {
         }
       />
       <div className="mx-auto max-w-3xl px-4">
+        {!claustre && (
+          <div role="tablist" aria-label={t.reuniones} className="mt-4 grid grid-cols-2 gap-1 rounded-2xl border border-line bg-surface p-1">
+            {([['amassades', t.reuniones], ['teEscoti', tipo.teEscoti]] as const).map(([v, label]) => {
+              const n = registros.filter((r) => tiposAmassada.includes(r.tipo as (typeof tiposAmassada)[number]) && (v === 'teEscoti') === (r.tipo === 'teEscoti') && !citaRealizada(r)).length
+              return (
+                <button key={v} role="tab" aria-selected={vista === v} onClick={() => setVista(v)}
+                  className={`flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold ${vista === v ? 'bg-accent text-on-accent' : 'text-muted'}`}>
+                  {label}{n > 0 && <span className={`rounded-full px-2 text-xs ${vista === v ? 'bg-white/25' : 'bg-bg'}`}>{n}</span>}
+                </button>
+              )
+            })}
+          </div>
+        )}
         <SectionTitle count={proximas.length}>{t.proximasN}</SectionTitle>
         <Card>{proximas.length === 0 ? <Empty>{t.nadaPendiente}</Empty> : <ul>{proximas.map(fila)}</ul>}</Card>
         {atrasadas.length > 0 && <>
@@ -103,7 +119,7 @@ export function Reuniones({ claustre = false }: { claustre?: boolean }) {
         )}
         {claustre && <DocumentosClaustre />}
       </div>
-      {nueva && <NuevaReunion claustre={claustre} tituloNueva={tituloNueva} tiposReunion={tiposReunion} onClose={() => setNueva(false)} />}
+      {nueva && <NuevaReunion key={vista} claustre={claustre} tituloNueva={tituloNueva} tiposReunion={tiposReunion} onClose={() => setNueva(false)} />}
     </>
   )
 }
