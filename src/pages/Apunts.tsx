@@ -1,5 +1,5 @@
-// Agenda › Apunts: lo que se ha ido apuntando, sin listas infinitas. Filtro por tipo, buscador, fijados arriba,
-// grupos por semana (las dos últimas abiertas) y tres por grupo con «Veir mès» (decisión 0021).
+// Agenda › Apunts: línea del tiempo de lo apuntado, como un diario. Filtro por tipo, buscador y fijados arriba;
+// se ve el mes actual y se cargan los anteriores de uno en uno (decisiones 0021 y 0022).
 import clsx from 'clsx'
 import { ChevronDown, Flag, ListChecks, Search, Star, StickyNote } from 'lucide-react'
 import { useState } from 'react'
@@ -12,18 +12,15 @@ import { useI18n } from '../lib/i18n'
 type Filtre = 'nota' | 'aher' | 'data' | 'observacion' | 'incidencia' | 'comunicacion' | 'tot'
 type Apunt = { clau: string; data?: string; fixat: boolean; text: string } & ({ aher: Aher } | { registre: Registro })
 const REGISTRES: TipoRegistro[] = ['observacion', 'incidencia', 'comunicacion']
-const PER_GRUP = 3
 
 const aData = (s: string) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d) }
-const dillunsDe = (s: string) => { const d = aData(s); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return diaLocal(d) }
 
 export function Apunts({ onEditar }: { onEditar: (a: Aher) => void }) {
   const { t, lang, tipo } = useI18n()
   const { ahers, registros, alumnos, guardarAher, guardarRegistro } = useStore()
   const [filtre, setFiltre] = useState<Filtre>('nota')
   const [cerca, setCerca] = useState('')
-  const [oberts, setOberts] = useState<Record<string, boolean>>({})
-  const [complets, setComplets] = useState<Record<string, boolean>>({})
+  const [mesos, setMesos] = useState(1)
   const q = cerca.trim().toLocaleLowerCase()
 
   const nomsAlumnes = (r: Registro) => r.alumnoIds.map((id) => alumnos.find((a) => a.id === id)?.nombre).filter(Boolean).join(', ')
@@ -42,25 +39,21 @@ export function Apunts({ onEditar }: { onEditar: (a: Aher) => void }) {
   const visibles = apunts.filter(passa).sort((a, b) => (b.data ?? '').localeCompare(a.data ?? ''))
   const fixats = visibles.filter((x) => x.fixat)
 
-  // Grupos: semana actual, la pasada, semanas del último mes; lo anterior, por meses; sin fecha al final.
+  // Línea del tiempo: por días, con separador de mes. Se cargan meses de uno en uno; buscando se ve todo.
   const avui = diaLocal(new Date())
-  const aquesta = dillunsDe(avui)
-  const grups: { clau: string; titol: string; items: Apunt[] }[] = []
-  for (const x of visibles.filter((y) => !y.fixat)) {
-    let clau: string, titol: string
-    if (!x.data) { clau = 'sense'; titol = t.sensaData }
-    else {
-      const dl = dillunsDe(x.data)
-      const setmanes = Math.round((aData(aquesta).getTime() - aData(dl).getTime()) / 6048e5)
-      if (setmanes <= 0) { clau = 's0'; titol = t.aguestaSetmana }
-      else if (setmanes === 1) { clau = 's1'; titol = t.setmanaPassada }
-      else if (setmanes < 5) { clau = `s${setmanes}`; titol = `${t.setmanaDeth} ${fechaCorta(dl, lang)}` }
-      else { clau = x.data.slice(0, 7); titol = mesYAnyo(aData(`${clau}-01`), lang) }
-    }
-    const g = grups.find((y) => y.clau === clau) ?? (grups.push({ clau, titol, items: [] }), grups[grups.length - 1])
-    g.items.push(x)
+  const ara = new Date()
+  const limit = diaLocal(new Date(ara.getFullYear(), ara.getMonth() - (mesos - 1), 1))
+  const ambData = visibles.filter((x) => !x.fixat && x.data)
+  const senseData = visibles.filter((x) => !x.fixat && !x.data)
+  const mostrats = q ? ambData : ambData.filter((x) => (x.data ?? '') >= limit)
+  const mesSeguent = !q && ambData.some((x) => (x.data ?? '') < limit) ? new Date(ara.getFullYear(), ara.getMonth() - mesos, 1) : null
+  const dies: { data: string; items: Apunt[] }[] = []
+  for (const x of mostrats) {
+    const ultim = dies[dies.length - 1]
+    if (ultim && ultim.data === x.data) ultim.items.push(x)
+    else dies.push({ data: x.data as string, items: [x] })
   }
-  const obert = (clau: string, i: number) => Boolean(q) || (oberts[clau] ?? i < 2)
+  const nomDia = (d: string) => (d === avui ? t.hoy : fechaCorta(d, lang))
 
   const fixar = (x: Apunt) => {
     if ('aher' in x) guardarAher({ ...x.aher, fixat: !x.fixat })
@@ -124,32 +117,34 @@ export function Apunts({ onEditar }: { onEditar: (a: Aher) => void }) {
         </div>
       )}
 
-      {grups.map((g, i) => {
-        const ob = obert(g.clau, i)
-        const llista = complets[g.clau] || q ? g.items : g.items.slice(0, PER_GRUP)
-        return (
-          <div key={g.clau} className="overflow-hidden rounded-2xl border border-line bg-surface">
-            <button type="button" onClick={() => setOberts((o) => ({ ...o, [g.clau]: !ob }))} aria-expanded={ob}
-              className="flex min-h-12 w-full items-center gap-2 px-3 text-left text-sm font-semibold capitalize">
-              <span className="flex-1">{g.titol}</span>
-              <span className="rounded-full bg-bg px-2 py-0.5 text-xs text-muted">{g.items.length}</span>
-              <ChevronDown size={16} className={clsx('text-muted transition-transform', ob && 'rotate-180')} aria-hidden />
-            </button>
-            {ob && (
-              <div className="border-t border-line">
-                {llista.map(fila)}
-                {llista.length < g.items.length && (
-                  <button type="button" onClick={() => setComplets((c) => ({ ...c, [g.clau]: true }))} className="min-h-11 w-full border-t border-line text-sm font-semibold text-accent">
-                    {t.veirMes} ({g.items.length - llista.length})
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        )
-      })}
+      <ol className="relative space-y-3 border-l-2 border-line pl-4">
+        {dies.map((d, i) => {
+          const canviMes = i === 0 || dies[i - 1].data.slice(0, 7) !== d.data.slice(0, 7)
+          return (
+            <li key={d.data}>
+              {canviMes && <p className="-ml-4 mb-2 bg-bg py-1 pl-4 text-xs font-semibold uppercase tracking-wide text-muted capitalize">{mesYAnyo(aData(d.data), lang)}</p>}
+              <span aria-hidden className="absolute -left-[7px] mt-1.5 size-3 rounded-full border-2 border-surface bg-accent" />
+              <p className="mb-1 text-sm font-semibold capitalize">{nomDia(d.data)}</p>
+              <div className="overflow-hidden rounded-2xl border border-line bg-surface">{d.items.map(fila)}</div>
+            </li>
+          )
+        })}
+      </ol>
 
-      {!grups.length && !fixats.length && <p className="rounded-2xl border border-line bg-surface p-6 text-center text-sm text-muted">{q ? t.arrenTrobat : t.arrenAnotat}</p>}
+      {mesSeguent && (
+        <button type="button" onClick={() => setMesos((m) => m + 1)} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-line bg-surface text-sm font-semibold text-accent capitalize">
+          {t.carregar} {mesYAnyo(mesSeguent, lang)} <ChevronDown size={16} aria-hidden />
+        </button>
+      )}
+
+      {senseData.length > 0 && (
+        <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+          <p className="px-3 py-2.5 text-sm font-semibold">{t.sensaData} · {senseData.length}</p>
+          <div className="border-t border-line">{senseData.map(fila)}</div>
+        </div>
+      )}
+
+      {!dies.length && !senseData.length && !fixats.length && !mesSeguent && <p className="rounded-2xl border border-line bg-surface p-6 text-center text-sm text-muted">{q ? t.arrenTrobat : t.arrenAnotat}</p>}
     </div>
   )
 }
