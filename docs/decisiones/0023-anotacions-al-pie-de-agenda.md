@@ -7,7 +7,7 @@ La lista de Ahèrs del pie de la Agenda repetía lo que ya mostraba la vista «A
 
 ## Decisión
 - La Agenda tiene solo dos vistas: Semana y Mes.
-- La línea del tiempo de la decisión 0022 pasa al pie, en su propia sección **Anotacions**, debajo de «Hèr seguiment».
+- La línea del tiempo de la decisión 0022 pasa debajo del calendario, en su propia sección **Anotacions**, justo antes de «Hèr seguiment» (va con la semana y el mes).
 - Filtro por defecto: Todo. Los Ahèrs llevan casilla para marcarlos como hechos desde la propia línea del tiempo.
 - «Hèr seguiment» queda en incidencias, actas por firmar y otras tareas (delegadas y acuerdos de reuniones).
 

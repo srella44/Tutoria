@@ -274,16 +274,17 @@ export function Agenda() {
           </section>
         </div>
 
-        <div className="mt-6">
-          <SectionTitle>{t.herSeguiment}</SectionTitle>
-          <Pendents />
-        </div>
 
         {/* Anotacions: la línea del tiempo de notas, Ahèrs, fechas y registros, en su propio espacio (decisión 0023). */}
         <section className="mt-6">
           <SectionTitle>{t.anotacions}</SectionTitle>
           <Card><div className="p-3 sm:p-4"><Apunts onEditar={setEditant} /></div></Card>
         </section>
+
+        <div className="mt-6">
+          <SectionTitle>{t.herSeguiment}</SectionTitle>
+          <Pendents />
+        </div>
       </div>
 
 
