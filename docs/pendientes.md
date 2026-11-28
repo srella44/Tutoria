@@ -28,7 +28,7 @@ Todos los textos en aranés del prototipo son **provisionales** y deben revisars
 
 - [x] Validar «Religion», «Hè religion», «Marcar qui hè religion», «Tòca es alumnes que hèn religion», «Marcar ara classe», «Pendents», «Exportar PDF», «Descargar», «Marca es donades que vòs que gessen en PDF…», «Era religion ei ua donada sensibla…». **Validado por Sergio (27/11/2026) y aplicado.**
 
-## Fase 4 · Google Calendar e icono (siguiente, sesión guiada en el ordenador con Claude in Chrome)
+## Fase 4 · Google Calendar, icono y publicar Mister (siguiente, sesión guiada en el ordenador con Claude in Chrome)
 
 Cuenta personal de Gmail del tutor; el centro le comparte su calendario. La app ya lee el principal y los compartidos
 y escribe solo en el principal (`src/lib/googleCalendar.ts`). Falta la configuración:
@@ -46,6 +46,18 @@ Icono del iPhone (sale una «T» porque Cloudflare Access bloquea el icono):
 
 - [ ] Zero Trust › Access › Applications: aplicación «TUTOR-ia icono» con rutas `apple-touch-icon.png`, `favicon.svg` y `manifest.webmanifest`, política **Bypass › Everyone** (ver `docs/despliegue.md` §3.5).
 - [ ] En el iPhone: recargar tutoria.pretzhet.app y volver a añadirla a la pantalla de inicio; comprobar el icono.
+
+Publicar **Mister** (app de entrenadores, repositorio `srella44/CONVOCATOR-ia`; pasos en su `docs/despliegue.md`):
+
+- [ ] Poner el repositorio CONVOCATOR-ia en privado antes de meter datos reales.
+- [ ] Cloudflare › D1: crear la base `convocatoria` y ejecutar `migrations/0001_inicial.sql` y `0002_entrenos.sql`.
+- [ ] Pegar el id de la base en `wrangler.toml` (descomentar el bloque `[[d1_databases]]`) y subirlo.
+- [ ] Workers & Pages: proyecto desde GitHub, rama `main`, build `npm run build`, salida `dist`; vínculo D1 `DB`.
+- [ ] Secreto `CLAU_INICI` (frase solo del responsable) y volver a desplegar.
+- [ ] Dominio `mister.pretzhet.app` (sin Cloudflare Access: la app tiene su propio PIN).
+- [ ] Primera entrada: crear el responsable, la temporada 2026-2027 (U11) y los entrenadores.
+- [ ] Migrar el histórico de cuadernU11: reconectar Zite con la cuenta del club o exportar las tablas a CSV.
+- [ ] En el iPhone: añadir a la pantalla de inicio y comprobar el icono.
 
 ## Fase 3 · Reuniones (completada 2026-11-27)
 
