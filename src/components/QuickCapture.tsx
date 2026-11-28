@@ -25,10 +25,12 @@ const llegirDarrer = (): TipusCaptura | null => {
 }
 const ara = () => { const d = new Date(); return { dia: diaLocal(d), hora: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` } }
 
-export function QuickCapture({ onClose, preset, dia }: { onClose: () => void; preset?: string[]; dia?: string }) {
+export function QuickCapture({ onClose, preset, dia: diaTriat }: { onClose: () => void; preset?: string[]; dia?: string }) {
+  // Si el día que llega es hoy, se comporta como sin día: fecha y hora de ahora.
+  const dia = diaTriat && diaTriat !== ara().dia ? diaTriat : undefined
   const { t, tipo: tipoLabel } = useI18n()
   const { alumnosActivos: alumnos, frases, addRegistro, addAher } = useStore()
-  const [tipus, setTipus] = useState<TipusCaptura | null>(() => (preset?.length ? 'observacion' : dia ? null : llegirDarrer()))
+  const [tipus, setTipus] = useState<TipusCaptura | null>(() => (preset?.length ? 'observacion' : llegirDarrer()))
   const [sel, setSel] = useState<string[]>(preset ?? [])
   const [texto, setTexto] = useState('')
   const [busqueda, setBusqueda] = useState('')
@@ -117,14 +119,20 @@ export function QuickCapture({ onClose, preset, dia }: { onClose: () => void; pr
           </div>
         ) : (
           <div className="space-y-5 p-4">
-            {/* Cambio rápido de tipo sin volver atrás. */}
-            <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-              {[...ALUMNAT, ...AGENDA].map((k) => (
-                <button key={k} onClick={() => triar(k)} aria-pressed={tipus === k}
-                  className={clsx('min-h-10 shrink-0 rounded-full border px-3 text-sm', tipus === k ? 'border-accent bg-accent-soft font-semibold text-accent' : 'border-line text-muted')}>
-                  {etiqueta(k)}
-                </button>
-              ))}
+            {/* Cambio rápido de tipo: las mismas seis teclas, en pequeño, para no empujar la lista del alumnado. */}
+            <div className="grid grid-cols-3 gap-1.5" role="group" aria-label={t.cambiarTipo}>
+              {[...ALUMNAT, ...AGENDA].map((k) => {
+                const Icona = ICONES[k]
+                const on = tipus === k
+                return (
+                  <button key={k} onClick={() => triar(k)} aria-pressed={on}
+                    className={clsx('flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl border px-1.5 text-[13px] leading-tight',
+                      on ? 'border-accent bg-accent-soft font-semibold text-accent' : 'border-line text-ink')}>
+                    <Icona size={16} className={clsx('shrink-0', ALUMNAT.includes(k) ? 'text-accent' : 'text-warn')} aria-hidden />
+                    <span className="truncate">{etiqueta(k)}</span>
+                  </button>
+                )
+              })}
             </div>
 
             {esAlumnat && (

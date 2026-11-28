@@ -12,6 +12,8 @@ export function Layout() {
   const { curso, modo } = useStore()
   // Registre nau: desde la Agenda llega el día que se está mirando.
   const [captura, setCaptura] = useState<{ dia?: string } | null>(null)
+  // Día que se mira en la Agenda: el «+» lo usa como fecha.
+  const [diaAgenda, fixarDiaAgenda] = useState<string>()
   // En la pantalla de inicio no hay barra inferior: los botones grandes hacen de menú.
   const enInicio = useLocation().pathname === '/'
 
@@ -32,7 +34,7 @@ export function Layout() {
           </div>
         </NavLink>
         <button
-          onClick={() => setCaptura({})}
+          onClick={() => setCaptura(diaAgenda ? { dia: diaAgenda } : {})}
           className="mb-6 flex min-h-12 items-center justify-center gap-2 rounded-2xl accion-coral px-3 font-semibold"
         >
           <Plus size={18} /> {t.nuevoRegistro}
@@ -57,7 +59,7 @@ export function Layout() {
       </aside>
 
       <main className={clsx('min-w-0 flex-1 overflow-y-auto md:pb-8', enInicio ? 'pb-8' : 'pb-28')}>
-        <Outlet context={{ abrirCaptura: (o?: { dia?: string }) => setCaptura(o ?? {}) }} />
+        <Outlet context={{ abrirCaptura: (o?: { dia?: string }) => setCaptura(o ?? {}), fixarDiaAgenda }} />
       </main>
 
       {/* iPhone: barra inferior con el + central */}
@@ -68,7 +70,7 @@ export function Layout() {
           <div className="flex justify-center">
             <button
               aria-label={t.nuevoRegistro}
-              onClick={() => setCaptura({})}
+              onClick={() => setCaptura(diaAgenda ? { dia: diaAgenda } : {})}
               className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full accion-coral shadow-lg active:scale-95"
             >
               <Plus size={28} />

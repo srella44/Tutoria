@@ -1,6 +1,6 @@
 // Agenda: une el antiguo Aué (calendario) y Seguiment (lo pendiente). Semana o mes arriba, lo del día debajo,
 // botón «Anotar» para apuntar en el día (nota, Ahèr o fecha del curso) y, al pie, los Pendents (decisión 0020).
-import { CalendarDays, ChevronDown, RotateCcw, ChevronLeft, ChevronRight, Flag, Handshake, ListChecks, Pencil, Plus, StickyNote } from 'lucide-react'
+import { CalendarDays, ChevronDown, RotateCcw, ChevronLeft, ChevronRight, Flag, Handshake, ListChecks, Pencil, StickyNote } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { ControlGoogleCalendar } from '../components/ControlGoogleCalendar'
@@ -31,7 +31,9 @@ export function Agenda() {
   const [hoy] = useState(() => diaLocal(new Date()))
   const [seleccion, setSeleccion] = useState(hoy)
   const [vista, setVista] = useState<'setmana' | 'mes'>('setmana')
-  const { abrirCaptura } = useOutletContext<{ abrirCaptura: (o?: { dia?: string }) => void }>()
+  // El «+» de la barra apunta en el día que se está mirando.
+  const { fixarDiaAgenda } = useOutletContext<{ fixarDiaAgenda: (d: string | undefined) => void }>()
+  useEffect(() => { fixarDiaAgenda(seleccion); return () => fixarDiaAgenda(undefined) }, [seleccion, fixarDiaAgenda])
   const [editant, setEditant] = useState<Aher>()
   const clauMes = seleccion.slice(0, 7)
   const mes = useMemo(() => { const [y, m] = clauMes.split('-').map(Number); return new Date(y, m - 1, 1) }, [clauMes])
@@ -192,16 +194,13 @@ export function Agenda() {
                 <p className="text-xs font-semibold text-muted">{t.agenda}</p>
                 <h2 id="agenda-dia" className="text-lg font-bold capitalize" aria-live="polite">{fechaCorta(seleccion, lang)}</h2>
               </div>
-              <button onClick={() => abrirCaptura({ dia: seleccion })} aria-label={t.anotarEn} className="grid size-11 place-items-center rounded-full accion-coral">
-                <Plus size={20} aria-hidden />
-              </button>
             </div>
             <Card className="overflow-hidden">
               {totalDia === 0 ? (
-                <button onClick={() => abrirCaptura({ dia: seleccion })} className="grid w-full justify-items-center gap-2 px-4 py-8 text-center text-sm text-muted">
+                <p className="grid w-full justify-items-center gap-2 px-4 py-8 text-center text-sm text-muted">
                   <span className="grid size-11 place-items-center rounded-2xl bg-accent-soft text-accent"><CalendarDays size={20} aria-hidden /></span>
                   {t.arrenAnotat}
-                </button>
+                </p>
               ) : (
                 <ul>
                   {porHora(dia.cors).map((a) => (

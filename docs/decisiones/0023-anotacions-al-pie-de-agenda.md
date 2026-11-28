@@ -13,3 +13,8 @@ La lista de Ahèrs del pie de la Agenda repetía lo que ya mostraba la vista «A
 
 ## Consecuencias
 Un solo sitio para consultar lo anotado, separado del calendario. Los Ahèrs pendientes siguen visibles también en Inicio.
+
+## Ampliación (28/11/2026): un solo «+»
+- Se quita el «+» de la cabecera del día en la Agenda: se registraba igual con el «+» de la barra.
+- El «+» de la barra, estando en la Agenda, toma como fecha el día que se mira (si no es hoy).
+- Dentro de Registre nau, el cambio de tipo usa las mismas seis teclas de la primera pantalla (3 + 3) en pequeño, en lugar de la fila de botones deslizable.
