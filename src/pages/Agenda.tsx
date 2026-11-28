@@ -1,6 +1,6 @@
 // Agenda: une el antiguo Aué (calendario) y Seguiment (lo pendiente). Semana o mes arriba, lo del día debajo,
 // botón «Anotar» para apuntar en el día (nota, Ahèr o fecha del curso) y, al pie, los Pendents (decisión 0020).
-import { CalendarDays, ChevronLeft, ChevronRight, Flag, Handshake, ListChecks, Pencil, Plus, StickyNote } from 'lucide-react'
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Flag, Handshake, ListChecks, Pencil, Plus, StickyNote } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ControlGoogleCalendar } from '../components/ControlGoogleCalendar'
@@ -113,7 +113,14 @@ export function Agenda() {
         <div className="cal-layout mt-3 grid gap-4">
           <section className="cal-mes overflow-hidden rounded-[1.75rem] border border-line bg-surface">
             <header className="cal-cabecera flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
-              <h2 className="min-w-0 text-xl font-bold tracking-tight capitalize sm:text-2xl" aria-live="polite">{titol}</h2>
+              {/* Tocar el título abre el selector de mes del sistema (en el iPhone, la rueda de mes y año). */}
+              <label className="relative flex min-w-0 cursor-pointer items-center gap-1.5">
+                <h2 className="min-w-0 text-xl font-bold tracking-tight capitalize sm:text-2xl" aria-live="polite">{titol}</h2>
+                <ChevronDown size={18} className="shrink-0 text-muted" aria-hidden />
+                <input type="month" value={clauMes} aria-label={t.triarMes}
+                  onChange={(e) => { if (e.target.value) { setSeleccion(`${e.target.value}-01`); setVista('mes') } }}
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+              </label>
               <div className="flex shrink-0 items-center gap-1">
                 <button onClick={() => setSeleccion(hoy)} className="cal-control min-h-11 rounded-full px-3 text-sm font-semibold">{t.hoy}</button>
                 <button onClick={() => moure(-1)} aria-label={vista === 'setmana' ? t.setmanaAnterior : t.mesAnterior} className="cal-control grid size-11 place-items-center rounded-full">
@@ -123,6 +130,16 @@ export function Agenda() {
                   <ChevronRight size={20} aria-hidden />
                 </button>
               </div>
+              {vista === 'setmana' && (
+                <div className="flex w-full items-center justify-between gap-2 text-sm font-semibold">
+                  <button onClick={() => setSeleccion(diaLocal(new Date(mes.getFullYear(), mes.getMonth() - 1, 1)))} className="flex min-h-10 items-center gap-1 rounded-full px-2 text-accent hover:bg-bg">
+                    <ChevronLeft size={16} aria-hidden /><span className="capitalize">{mesYAnyo(new Date(mes.getFullYear(), mes.getMonth() - 1, 1), lang)}</span>
+                  </button>
+                  <button onClick={() => setSeleccion(diaLocal(new Date(mes.getFullYear(), mes.getMonth() + 1, 1)))} className="flex min-h-10 items-center gap-1 rounded-full px-2 text-accent hover:bg-bg">
+                    <span className="capitalize">{mesYAnyo(new Date(mes.getFullYear(), mes.getMonth() + 1, 1), lang)}</span><ChevronRight size={16} aria-hidden />
+                  </button>
+                </div>
+              )}
               <div role="tablist" className="grid w-full grid-cols-2 gap-1 rounded-xl bg-bg p-1">
                 {(['setmana', 'mes'] as const).map((v) => (
                   <button key={v} role="tab" aria-selected={vista === v} onClick={() => setVista(v)}

@@ -114,12 +114,8 @@ export function Inicio() {
 
       {/* Aué: lo de hoy, de Tutoria y de Google Calendar */}
       <section className="mt-4 rounded-2xl border border-line bg-surface">
-        <Link to="/agenda" className="flex items-center justify-between px-4 pt-3 pb-2">
-          <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t.hoy}</span>
-          <span className="flex items-center gap-1 text-sm font-medium text-accent">
-            {t.verCalendario} <ChevronRight size={16} aria-hidden />
-          </span>
-        </Link>
+        {/* Solo informa de hoy: a la Agenda se entra por su botón, para no tener dos entradas iguales. */}
+        <h2 className="px-4 pt-3 pb-2 text-sm font-semibold uppercase tracking-wide text-muted">{t.hoy}</h2>
         {items.length === 0 ? (
           <p className="px-4 pb-4 text-sm text-muted">{t.nadaPendiente}</p>
         ) : (
