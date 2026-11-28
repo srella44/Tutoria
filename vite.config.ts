@@ -23,7 +23,9 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
+        // El aviso lo muestra src/components/AvisVersion.tsx.
+        injectRegister: false,
         // Las páginas se piden primero a la red: así Cloudflare Access puede pedir el inicio de sesión.
         // Solo sin conexión se usa la copia guardada. La API nunca se sirve desde la caché.
         workbox: {

@@ -8,6 +8,8 @@ export type Lang = 'oc' | 'es'
 
 const oc = {
   version: 'Version',
+  versionNaua: 'I a ua version naua dera aplicacion.',
+  actualizarApp: 'Actualizar',
   firmadoEl: 'firmada eth',
   actaGrandeSinSync: 'Aguest PDF ei massa gran entà sincronizar-lo: s’enregistre sonque en aguest aparelh.',
   plantillaUnaVez: 'Sonque cau triar-la un còp: s’enregistre chifrada e arribe as auti aparelhs.',
@@ -438,6 +440,8 @@ type Dict = typeof oc
 
 const es: Dict = {
   version: 'Versión',
+  versionNaua: 'Hay una versión nueva de la aplicación.',
+  actualizarApp: 'Actualizar',
   firmadoEl: 'firmado el',
   actaGrandeSinSync: 'Este PDF es demasiado grande para sincronizar: se guarda solo en este dispositivo.',
   plantillaUnaVez: 'Solo hay que elegirla una vez: se guarda cifrada y llega a los demás dispositivos.',

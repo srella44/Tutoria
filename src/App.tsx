@@ -1,5 +1,6 @@
 import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
+import { AvisVersion } from './components/AvisVersion'
 import { Cerradura } from './components/Cerradura'
 import { StoreProvider } from './data/store'
 import { GoogleCalendarProvider } from './lib/GoogleCalendarProvider'
@@ -26,6 +27,7 @@ const Router = import.meta.env.VITE_SINGLEFILE ? MemoryRouter : BrowserRouter
 export default function App() {
   return (
     <I18nProvider>
+      <AvisVersion />
       <GoogleCalendarProvider>
         <Cerradura>
       <StoreProvider>

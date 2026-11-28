@@ -81,6 +81,8 @@ Para activar la función, habilita Google Calendar API en un proyecto de Google 
 
 ## Otros
 
+- Aviso de versión nueva: al volver a la app (o cada 30 minutos) comprueba si hay una versión publicada y muestra arriba «Actualizar»; no recarga sola para no cortar una reunión.
+
 - Exportación de citas a calendarios compatibles con `.ics` desde las listas o desde una cita. Incluye hora y un título genérico para las amassades del alumnado, sin nombres ni notas.
 - Cambio de idioma aranés ⇄ castellano desde Ajustes. Se recuerda en el navegador.
 - Vista previa de una sola página: `npm run build:artifact` genera `dist-preview/index.html`.
