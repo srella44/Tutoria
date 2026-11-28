@@ -1,13 +1,13 @@
 // «Inici»: qué tengo hoy (Aué) y adónde voy (cuatro botones). Sin barra inferior en el móvil.
 import clsx from 'clsx'
-import { Building2, CalendarClock, ChevronRight, FileLock2, Handshake, ListChecks, Plus, Users } from 'lucide-react'
+import { Building2, CalendarClock, CalendarDays, ChevronRight, FileLock2, Handshake, Plus, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { Ajustes } from '../components/Ajustes'
 import { Creditos } from '../components/Creditos'
 import { MarcaTutoria } from '../components/MarcaTutoria'
 import { useStore } from '../data/store'
-import { citaRealizada, esClaustre } from '../data/types'
+import { citaRealizada, esClaustre, esTarea } from '../data/types'
 import { ocurreEnDia } from '../lib/calendario'
 import { diaLocal, diasDesdeHoy, fechaCorta, hora } from '../lib/fechas'
 import { listarMesGoogle, type EventoGoogle } from '../lib/googleCalendar'
@@ -45,7 +45,8 @@ export function Inicio() {
 
   const nombre = (id: string) => alumnos.find((a) => a.id === id)?.nombre ?? '?'
   const citasHoy = registros.filter((r) => r.programada && !citaRealizada(r) && diasDesdeHoy(r.fecha) === 0)
-  const misAhers = ahers.filter((a) => !a.completado && !a.responsable)
+  const misAhers = ahers.filter((a) => esTarea(a) && !a.completado && !a.responsable)
+  const anotacionsHoy = ahers.filter((a) => a.clase && !a.responsable && a.fecha && diasDesdeHoy(a.fecha) === 0)
   const vencidos = misAhers.filter((a) => a.fecha && diasDesdeHoy(a.fecha) < 0).length
 
   const items: ItemDia[] = [
@@ -68,7 +69,8 @@ export function Inicio() {
       })),
     ...misAhers
       .filter((a) => a.fecha && diasDesdeHoy(a.fecha) === 0)
-      .map((a) => ({ id: a.id, hora: a.hora, titulo: a.texto, detalle: t.acuerdos, origen: 'aher' as const, to: '/seguimiento' })),
+      .map((a) => ({ id: a.id, hora: a.hora, titulo: a.texto, detalle: t.acuerdos, origen: 'aher' as const, to: '/agenda' })),
+    ...anotacionsHoy.map((a) => ({ id: a.id, hora: a.hora, titulo: a.texto, detalle: a.clase === 'data' ? t.dataCors : t.notaAgenda, origen: 'aher' as const, to: '/agenda' })),
   ]
   items.sort((a, b) => (a.hora ?? '').localeCompare(b.hora ?? ''))
 
@@ -91,9 +93,9 @@ export function Inicio() {
     { to: '/reuniones', icon: Handshake, label: t.reuniones, detalle: `${t.proximasN} · ${proximas}` },
     { to: '/claustre', icon: Building2, label: t.claustre, detalle: `${t.proximasN} · ${claustreProximo}` },
     {
-      to: '/seguimiento',
-      icon: ListChecks,
-      label: t.seguimiento,
+      to: '/agenda',
+      icon: CalendarDays,
+      label: t.agenda,
       detalle: vencidos > 0 ? `${t.revisionVencida} · ${vencidos}` : `${t.acuerdosAbiertosN} · ${misAhers.length}`,
       aviso: vencidos > 0,
     },
@@ -112,7 +114,7 @@ export function Inicio() {
 
       {/* Aué: lo de hoy, de Tutoria y de Google Calendar */}
       <section className="mt-4 rounded-2xl border border-line bg-surface">
-        <Link to="/uei" className="flex items-center justify-between px-4 pt-3 pb-2">
+        <Link to="/agenda" className="flex items-center justify-between px-4 pt-3 pb-2">
           <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t.hoy}</span>
           <span className="flex items-center gap-1 text-sm font-medium text-accent">
             {t.verCalendario} <ChevronRight size={16} aria-hidden />

@@ -220,6 +220,8 @@ button.cal-dia:hover {
 [data-marca='notas'] { --cal-tinta: #486321; --cal-fondo: #e3edc8; --cal-punto: #63833a; }
 [data-marca='tareas'] { --cal-tinta: #913c29; --cal-fondo: #ffdfd3; --cal-punto: #b6513b; }
 [data-marca='google'] { --cal-tinta: #235885; --cal-fondo: #dceafa; --cal-punto: #3b75b2; }
+[data-marca='anotacion'] { --cal-tinta: #7a5300; --cal-fondo: #fdf0c7; --cal-punto: #c98f12; }
+[data-marca='cors'] { --cal-tinta: #8a1245; --cal-fondo: #fbe3ee; --cal-punto: #b5195b; }
 
 .cal-marcas {
   display: flex;

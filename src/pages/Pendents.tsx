@@ -1,15 +1,16 @@
-import { ChevronDown, ListChecks, Pencil, Plus } from 'lucide-react'
+import { ChevronDown, Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FormAcuerdo, FormAher } from '../components/Formularios'
 import { RegistroItem } from '../components/RegistroItem'
-import { Card, Empty, PageHeader, SectionTitle } from '../components/ui'
+import { Card, Empty, SectionTitle } from '../components/ui'
 import { useStore } from '../data/store'
-import type { Acuerdo, Aher } from '../data/types'
+import { esTarea, type Acuerdo, type Aher } from '../data/types'
 import { diasDesdeHoy, fechaCorta } from '../lib/fechas'
 import { useI18n } from '../lib/i18n'
 
-export function Seguimiento() {
+/** Lo pendiente: Ahèrs, incidencias, Te escoti, actas sin firmar y tareas de otros. Se muestra al pie de la Agenda. */
+export function Pendents() {
   const { t, lang, tipo } = useI18n()
   const { ahers, addAher, toggleAher, acuerdos, registros } = useStore()
   const [texto, setTexto] = useState('')
@@ -17,13 +18,13 @@ export function Seguimiento() {
   const [horaNueva, setHoraNueva] = useState('')
   const [aherEditando, setAherEditando] = useState<Aher>()
   const [acuerdoEditando, setAcuerdoEditando] = useState<Acuerdo>()
-  const pendientes = ahers.filter((a) => !a.completado && !a.responsable).sort((a, b) => {
+  const pendientes = ahers.filter((a) => esTarea(a) && !a.completado && !a.responsable).sort((a, b) => {
     if (a.fecha && b.fecha) return a.fecha.localeCompare(b.fecha) || (a.hora ?? '').localeCompare(b.hora ?? '')
     return Number(Boolean(b.fecha)) - Number(Boolean(a.fecha))
   })
-  const completadas = ahers.filter((a) => a.completado && !a.responsable)
+  const completadas = ahers.filter((a) => esTarea(a) && a.completado && !a.responsable)
   const otrasTareas = acuerdos.filter((a) => a.responsable !== 'Tutor' && a.estado !== 'completado')
-  const delegadas = ahers.filter((a) => a.responsable)
+  const delegadas = ahers.filter((a) => esTarea(a) && a.responsable)
   const grupos = [
     { label: t.incidencias, items: registros.filter((r) => r.tipo === 'incidencia' && r.estado === 'abierto') },
     { label: tipo.teEscoti, items: registros.filter((r) => r.tipo === 'teEscoti' && r.estado === 'abierto') },
@@ -51,8 +52,7 @@ export function Seguimiento() {
 
   return (
     <>
-      <PageHeader title={t.seguimiento} icon={ListChecks} color="coral" />
-      <div className="mx-auto max-w-3xl px-4">
+      <div>
         <SectionTitle count={pendientes.length}>{t.acuerdos}</SectionTitle>
         <Card>
           <form

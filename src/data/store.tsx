@@ -81,7 +81,7 @@ interface Store {
   guardarActaPropia: (acta: ActaFirmada) => void
   acuerdos: Acuerdo[]
   ahers: Aher[]
-  addAher: (texto: string, fecha?: string, detalle?: Pick<Aher, 'responsable' | 'origen' | 'hora'>) => void
+  addAher: (texto: string, fecha?: string, detalle?: Pick<Aher, 'responsable' | 'origen' | 'hora' | 'clase'>) => void
   toggleAher: (id: string) => void
   toggleCita: (id: string) => void
   addPuntoCita: (id: string, texto: string) => void

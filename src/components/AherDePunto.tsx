@@ -12,7 +12,7 @@ export function AherDePunto({ citaId, puntoId, asunto }: { citaId: string; punto
   const [responsable, setResponsable] = useState('')
   const creado = ahers.some((a) => a.origen?.citaId === citaId && a.origen?.puntoId === puntoId)
 
-  if (creado) return <Link to="/seguimiento" className="block px-4 pb-3 text-sm font-semibold text-accent">{t.aherPuntoGuardado} · {t.seguimiento}</Link>
+  if (creado) return <Link to="/agenda" className="block px-4 pb-3 text-sm font-semibold text-accent">{t.aherPuntoGuardado} · {t.agenda}</Link>
 
   const campo = 'mt-1 h-11 w-full rounded-xl border border-line bg-bg px-2 text-base'
 

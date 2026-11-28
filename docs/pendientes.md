@@ -5,6 +5,8 @@
 - [x] 2026-11-27: validados y aplicados firmas y actas, PIN y cerradura, sincronización y copias, autorizaciones, horario, ajustes y Aué. Vocabulario unificado en toda la interfaz: carrèu, chifrar, emprenta, papèr, aparelh, emplegar, aplicacion, escafar, enregistrar.
 - [x] 2026-11-27 (2.ª tanda): hoja oficial, borrador, citas, puntos, actas, Ahèrs, historial, Google Calendar, banco privado. Criterios: firma/firmes/firmar/firmat (no «signatura»), mercar, enregistrar (datos), triar, descargar, classa, d’auti; «guarda-la» solo para conservar algo físicamente.
 
+- [ ] Validar los textos nuevos de la **Agenda** (2026-11-28): «Agenda», «Setmana anteriora», «Setmana seguenta», «Anotar en», «Nòta», «Nòtes», «Data deth cors», «Sense data», «Arren anotat. Tòca «Anotar» entà apondre.».
+
 Todos los textos en aranés del prototipo son **provisionales** y deben revisarse según la normativa del IEA:
 
 - [x] Etiquetas de interfaz en `src/lib/i18n.tsx` (objeto `oc`), en especial: «Enregistrar» (guardar), «Registre nau», «Donades», «Tipe», «Escríuer», «Trucar», «Neishement», «Pròximes amassades», «Daurir amassada», «Toti», «Inici», «Amassada naua», «Passades», «Pendents», «Ajustaments», «Data», «Ora», «vençut», «Bon dia», «Ahèrs pendents». **Validado por Sergio (27/11/2026) y aplicado.**

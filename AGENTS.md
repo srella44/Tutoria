@@ -49,7 +49,7 @@ PWA para un solo usuario, en `tutoria.pretzhet.app`, sin cuotas.
 src/
   App.tsx              rutas
   components/          Layout (barra inferior / lateral), Ajustes, QuickCapture, RegistroItem, ui
-  pages/               Inicio (botones), Hoy (Uei), Alumnado, AlumnoFicha, Reuniones, Seguimiento, Reunion (modo reunión)
+  pages/               Inicio (botones), Agenda (calendario + Pendents), Alumnado, AlumnoFicha, Reuniones, Reunion (modo reunión)
   data/types.ts        modelo de datos
   data/demo.ts         alumnado ficticio (fechas relativas a hoy)
   data/store.tsx       estado y ciclo de sincronización
@@ -80,5 +80,5 @@ npx wrangler pages dev dist --binding MODO_DESARROLLO=1   # app + API con D1 loc
 ## Diseño
 
 iPhone 17 como referencia táctil. Sobrio, un color de acento (`--color-accent`), zonas táctiles ≥ 44 px,
-siempre tema claro, sin modo oscuro (decisión 0007). Menú: Inici · Alumnat · + · Amassades · Seguiment; Aué y Claustre desde Inici y la barra lateral (decisiones 0003 y 0006).
+siempre tema claro, sin modo oscuro (decisión 0007). Menú: Inici · Alumnat · + · Amassades · Agenda; Claustre desde Inici y la barra lateral (decisiones 0003, 0006 y 0020).
 Inici es una pantalla de botones grandes sin barra; dentro de las secciones, barra inferior con `+` central. iPad/ordenador: barra lateral. Ajustes siempre en el engranaje arriba a la derecha.

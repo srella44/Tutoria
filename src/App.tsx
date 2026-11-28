@@ -1,4 +1,4 @@
-import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { Cerradura } from './components/Cerradura'
 import { StoreProvider } from './data/store'
@@ -6,7 +6,7 @@ import { GoogleCalendarProvider } from './lib/GoogleCalendarProvider'
 import { I18nProvider } from './lib/i18n'
 import { FichaConLista } from './pages/FichaConLista'
 import { Alumnado } from './pages/Alumnado'
-import { Hoy } from './pages/Hoy'
+import { Agenda } from './pages/Agenda'
 import { InformesPrivados } from './pages/InformesPrivados'
 import { Inicio } from './pages/Inicio'
 import { Reunion } from './pages/Reunion'
@@ -19,7 +19,6 @@ import { Horario } from './pages/Horario'
 import { Importar } from './pages/Importar'
 import { Profesionales } from './pages/Profesionales'
 import { Reuniones } from './pages/Reuniones'
-import { Seguimiento } from './pages/Seguimiento'
 
 // En la vista previa de una sola página (build:artifact) la URL no se puede usar para navegar.
 const Router = import.meta.env.VITE_SINGLEFILE ? MemoryRouter : BrowserRouter
@@ -34,7 +33,8 @@ export default function App() {
             <Routes>
               <Route element={<Layout />}>
                 <Route index element={<Inicio />} />
-                <Route path="uei" element={<Hoy />} />
+                <Route path="agenda" element={<Agenda />} />
+                <Route path="uei" element={<Navigate to="/agenda" replace />} />
                 <Route path="alumnado" element={<Alumnado />} />
                 <Route path="alumnado/:id" element={<FichaConLista />} />
                 <Route path="profesionales" element={<Profesionales />} />
@@ -47,7 +47,7 @@ export default function App() {
                 <Route path="reuniones" element={<Reuniones key="amassades" />} />
                 <Route path="claustre" element={<Reuniones key="claustre" claustre />} />
                 <Route path="horario" element={<Horario />} />
-                <Route path="seguimiento" element={<Seguimiento />} />
+                <Route path="seguimiento" element={<Navigate to="/agenda" replace />} />
                 {import.meta.env.VITE_SINGLEFILE && <Route path="informes" element={<InformesPrivados />} />}
               </Route>
               <Route path="reunion/:id" element={<Reunion />} />

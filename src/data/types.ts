@@ -132,7 +132,12 @@ export interface Aher {
   completado: boolean
   responsable?: string
   origen?: { citaId: Id; puntoId: Id }
+  /** En la Agenda: sin valor es una tarea; «nota» es una anotación del día y «data» una fecha del curso (decisión 0020). */
+  clase?: 'nota' | 'data'
 }
+
+/** Tareas de verdad: las anotaciones y fechas del curso de la Agenda no cuentan como Ahèrs. */
+export const esTarea = (a: Aher) => !a.clase
 
 export function citaRealizada(cita: Registro) {
   return cita.realizada ?? !cita.programada
