@@ -68,6 +68,10 @@ export function Pendents() {
                       </Link>
                     </li>
                   ))}
+                </ul>
+              )}
+            </details>
+          ))}
         </div>
         <SectionTitle count={pendientes.length}>{t.acuerdos}</SectionTitle>
         <Card>
@@ -81,10 +85,6 @@ export function Pendents() {
         </Card>
 
         <div className="mt-5 space-y-2">
-                </ul>
-              )}
-            </details>
-          ))}
 
           {otrasTareas.length + delegadas.length > 0 && (
             <details className="panel-app rounded-2xl border border-line bg-surface">
