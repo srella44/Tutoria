@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../data/store'
 import type { Acuerdo, Aher, Alumno, ContactoFamiliar, EstadoAcuerdo, Profesional, Registro } from '../data/types'
 import { nombreLengua, useI18n } from '../lib/i18n'
-import { Campo, claseInput, claseTextarea, Hoja } from './Hoja'
+import { Campo, claseInput, claseTextarea, Hoja, BotoTreureHora, HoraOpcional } from './Hoja'
 
 const lista = (texto: string) => texto.split(',').map((x) => x.trim()).filter(Boolean)
 
@@ -363,7 +363,7 @@ export function FormAher({ aher, onClose }: { aher: Aher; onClose: () => void })
       onClose={onClose}
       puedeGuardar={texto.trim() !== ''}
       onGuardar={() => {
-        guardarAher({ ...aher, texto: texto.trim(), fecha: fecha || undefined, hora: fecha && hora ? hora : undefined })
+        guardarAher({ ...aher, texto: texto.trim(), fecha: fecha || (aher.clase ? aher.fecha : undefined), hora: fecha && hora ? hora : undefined })
         onClose()
       }}
       pie={<BotonConfirmar peligro texto={t.borrar} onConfirmar={() => { borrarAher(aher.id); onClose() }} />}
@@ -372,11 +372,14 @@ export function FormAher({ aher, onClose }: { aher: Aher; onClose: () => void })
         <textarea autoFocus rows={3} value={texto} onChange={(e) => setTexto(e.target.value)} className={claseTextarea} />
       </Campo>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Campo label={t.fechaTarea}>
-          <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={claseInput} />
+        <Campo label={aher.clase === 'nota' || aher.clase === 'data' ? t.dataAgenda : t.fechaTarea}>
+          <span className="flex min-w-0 gap-1">
+            <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={`${claseInput} min-w-0`} />
+            {fecha && !aher.clase && <BotoTreureHora onTreure={() => { setFecha(''); setHora('') }} />}
+          </span>
         </Campo>
         <Campo label={t.horaOpcional}>
-          <input type="time" value={hora} disabled={!fecha} onChange={(e) => setHora(e.target.value)} className={`${claseInput} disabled:opacity-40`} />
+          <HoraOpcional valor={hora} onCanvi={setHora} desactivat={!fecha} />
         </Campo>
       </div>
     </Hoja>

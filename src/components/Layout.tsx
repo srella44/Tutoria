@@ -10,7 +10,8 @@ import { QuickCapture } from './QuickCapture'
 export function Layout() {
   const { t } = useI18n()
   const { curso, modo } = useStore()
-  const [captureOpen, setCaptureOpen] = useState(false)
+  // Registre nau: desde la Agenda llega el día que se está mirando.
+  const [captura, setCaptura] = useState<{ dia?: string } | null>(null)
   // En la pantalla de inicio no hay barra inferior: los botones grandes hacen de menú.
   const enInicio = useLocation().pathname === '/'
 
@@ -31,7 +32,7 @@ export function Layout() {
           </div>
         </NavLink>
         <button
-          onClick={() => setCaptureOpen(true)}
+          onClick={() => setCaptura({})}
           className="mb-6 flex min-h-12 items-center justify-center gap-2 rounded-2xl accion-coral px-3 font-semibold"
         >
           <Plus size={18} /> {t.nuevoRegistro}
@@ -56,7 +57,7 @@ export function Layout() {
       </aside>
 
       <main className={clsx('min-w-0 flex-1 overflow-y-auto md:pb-8', enInicio ? 'pb-8' : 'pb-28')}>
-        <Outlet context={{ abrirCaptura: () => setCaptureOpen(true) }} />
+        <Outlet context={{ abrirCaptura: (o?: { dia?: string }) => setCaptura(o ?? {}) }} />
       </main>
 
       {/* iPhone: barra inferior con el + central */}
@@ -67,7 +68,7 @@ export function Layout() {
           <div className="flex justify-center">
             <button
               aria-label={t.nuevoRegistro}
-              onClick={() => setCaptureOpen(true)}
+              onClick={() => setCaptura({})}
               className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full accion-coral shadow-lg active:scale-95"
             >
               <Plus size={28} />
@@ -79,7 +80,7 @@ export function Layout() {
         </div>
       </nav>
 
-      {captureOpen && <QuickCapture onClose={() => setCaptureOpen(false)} />}
+      {captura && <QuickCapture dia={captura.dia} onClose={() => setCaptura(null)} />}
     </div>
   )
 }

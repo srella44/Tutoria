@@ -164,7 +164,7 @@ export function Inicio() {
       </Link>
 
       <button
-        onClick={abrirCaptura}
+        onClick={() => abrirCaptura()}
         className="accion-coral mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl text-lg font-bold shadow-sm active:scale-[0.99]"
       >
         <Plus size={24} aria-hidden /> {t.nuevoRegistro}

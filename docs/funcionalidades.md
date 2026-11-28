@@ -17,7 +17,7 @@ El engranaje de arriba a la derecha abre la **consola de ajustes** (`/ajustes`),
 | Sección | Ruta | Qué hace hoy |
 | --- | --- | --- |
 | Inici / Inicio | `/` | Logo, saludo y fecha; tira **Aué** con lo de hoy (amassades y Claustre programados, Ahèrs con fecha de hoy y, si está conectado, eventos de Google Calendar), botón Registre nau y cuatro botones: Alumnat, Amassades, Claustre y Seguiment (aviso rojo si hay Ahèrs vencidos) |
-| Agenda | `/agenda` | Une Aué y Seguiment (decisión 0020). Vista de semana o de mes con marcas por color (fechas del curso, amassades, Ahèrs, nòtes, observaciones, Google). Lista del día con Ahèrs marcables al momento. Botón «Anotar» para apuntar en el día una Nòta, un Ahèr o una Data deth cors, con hora opcional; se editan o borran tocándolas. Al pie, los Pendents (Ahèrs, incidencias, Te escoti, actas sin firmar y tareas de otros). `/uei` y `/seguimiento` llevan aquí |
+| Agenda | `/agenda` | Une Aué y Seguiment (decisión 0020). Vista de semana o de mes con marcas por color (fechas del curso, amassades, Ahèrs, nòtes, observaciones, Google). Lista del día con Ahèrs marcables al momento. Botón + junto al día que abre el Registre nau con ese día; lo apuntado se edita o borra tocándolo. Vista **Apunts**: filtro por tipo (Nòtes por defecto), buscador, ★ fijados arriba, grupos por semana (las dos últimas abiertas, el resto plegado, meses antiguos juntos) y tres por grupo con «Veir mès». «↺ Tornar a aué» cuando se mira otro día. Flechas de mes, selector de mes al tocar el título y semana anterior/siguiente. Al pie, los Pendents (Ahèrs, incidencias, Te escoti, actas sin firmar y tareas de otros). `/uei` y `/seguimiento` llevan aquí |
 | Alumnat / Alumnado | `/alumnado` | Cuadrícula o lista del alumnado activo del curso en el orden elegido (modo **Ordenar**: flechas para subir y bajar y atajos por nombre, apellidos o número de lista; el orden se usa en toda la app), búsqueda, **Alumne nau** (nombre, apellidos, nacimiento, grupo, información relevante; un grupo nuevo se añade al curso), filtro de archivados y acceso a Profesionales |
 | Importar alumnat | `/importar` | Desde Alumnat (icono de subir) o la lista vacía. Lee Excel (.xlsx) o CSV en el navegador, sin enviar el fichero a ningún sitio. Encuentra la fila de cabeceras y reconoce columnas en aranés, castellano o catalán: número, «Nòm e cognòms» (o nombre y apellidos separados), nacimiento, localidad, grupo, autorización de imagen y correo y teléfono de tutor/tutriz 1 y 2. Vista previa con flechas para separar nombre y apellidos, casillas para excluir filas, aviso de duplicados y de contactos que conviene revisar (texto que no es un correo, correo sin @). Crea los alumnos y, si se quiere, un contacto por tutor (el 1 como preferente) |
 | Professionaus / Profesionales | `/profesionales` | Lista de profesionales (nombre, rol, servicio, contacto) con alta, edición y borrado |
@@ -69,9 +69,12 @@ Desde las notas de un punto de Claustre o Cicle se puede crear un Ahèr con resp
 
 ## Captura rápida
 
-Botón `+` (central en iPhone, lateral en iPad/ordenador, y en cada ficha con el alumno preseleccionado):
-escribir primero, buscar y elegir uno o varios alumnos, elegir el tipo (observación, incidencia, comunicación) y desplegar las frases frecuentes si se necesitan.
-El registro aparece al instante en la cronología y, si es incidencia, en «Aué» y «Seguimiento».
+**Registre nau** (`+` central en iPhone, lateral en iPad/ordenador; decisión 0021): todo lo que se apunta entra por aquí.
+Primero el tipo, en dos grupos: **Alumnat** (Observacion, Incidéncia, Comunicacion) y **Agenda** (Nòta, Ahèr, Data deth cors); arriba se puede cambiar de tipo sin volver atrás.
+- Alumnado: lista de clase ordenada por número, buscador por nombre o número de lista, elegidos como etiquetas, fecha y hora («ara» por defecto, editables), texto y frases frecuentes.
+- Agenda: texto, día y hora opcional (con botón para quitarla); un Ahèr puede quedar sin fecha.
+- Recuerda el último tipo usado. Desde la ficha de un alumno entra en Observacion con él marcado; desde la Agenda trae el día que se está mirando.
+El registro aparece al instante en la cronología, en la Agenda y, si es incidencia, en Pendents.
 
 ## Google Calendar
 

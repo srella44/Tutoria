@@ -49,7 +49,7 @@ PWA para un solo usuario, en `tutoria.pretzhet.app`, sin cuotas.
 src/
   App.tsx              rutas
   components/          Layout (barra inferior / lateral), Ajustes, QuickCapture, RegistroItem, ui
-  pages/               Inicio (botones), Agenda (calendario + Pendents), Alumnado, AlumnoFicha, Reuniones, Reunion (modo reunión)
+  pages/               Inicio (botones), Agenda (calendario, Apunts y Pendents), Alumnado, AlumnoFicha, Reuniones, Reunion (modo reunión)
   data/types.ts        modelo de datos
   data/demo.ts         alumnado ficticio (fechas relativas a hoy)
   data/store.tsx       estado y ciclo de sincronización

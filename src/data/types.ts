@@ -93,6 +93,8 @@ export interface Registro {
   titulo?: string
   alumnosOtrosCursos?: { nombre: string; curso: string }[]
   programada?: boolean // reunión futura
+  /** Fijado arriba en Agenda › Apunts. */
+  fixat?: boolean
 }
 
 export type EstadoAcuerdo = 'pendiente' | 'seguimiento' | 'completado'
@@ -134,6 +136,8 @@ export interface Aher {
   origen?: { citaId: Id; puntoId: Id }
   /** En la Agenda: sin valor es una tarea; «nota» es una anotación del día y «data» una fecha del curso (decisión 0020). */
   clase?: 'nota' | 'data'
+  /** Fijado arriba en Agenda › Apunts. */
+  fixat?: boolean
 }
 
 /** Tareas de verdad: las anotaciones y fechas del curso de la Agenda no cuentan como Ahèrs. */

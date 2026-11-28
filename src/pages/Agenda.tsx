@@ -1,11 +1,10 @@
 // Agenda: une el antiguo Aué (calendario) y Seguiment (lo pendiente). Semana o mes arriba, lo del día debajo,
 // botón «Anotar» para apuntar en el día (nota, Ahèr o fecha del curso) y, al pie, los Pendents (decisión 0020).
-import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Flag, Handshake, ListChecks, Pencil, Plus, StickyNote } from 'lucide-react'
+import { CalendarDays, ChevronDown, RotateCcw, ChevronLeft, ChevronRight, Flag, Handshake, ListChecks, Pencil, Plus, StickyNote } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import { ControlGoogleCalendar } from '../components/ControlGoogleCalendar'
 import { FormAher } from '../components/Formularios'
-import { Campo, claseInput, Hoja } from '../components/Hoja'
 import { RegistroItem } from '../components/RegistroItem'
 import { Card, PageHeader, SectionTitle } from '../components/ui'
 import { useStore } from '../data/store'
@@ -15,6 +14,7 @@ import { diaLocal, fechaCorta, hora, mesYAnyo, semanaAbreviada } from '../lib/fe
 import { listarMesGoogle, type EventoGoogle } from '../lib/googleCalendar'
 import { useGoogleCalendar } from '../lib/GoogleCalendarProvider'
 import { useI18n } from '../lib/i18n'
+import { Apunts } from './Apunts'
 import { Pendents } from './Pendents'
 
 const amassades: readonly TipoRegistro[] = tiposAmassada
@@ -30,8 +30,8 @@ export function Agenda() {
   const { conexion, revisarError } = useGoogleCalendar()
   const [hoy] = useState(() => diaLocal(new Date()))
   const [seleccion, setSeleccion] = useState(hoy)
-  const [vista, setVista] = useState<'setmana' | 'mes'>('setmana')
-  const [anotant, setAnotant] = useState(false)
+  const [vista, setVista] = useState<'setmana' | 'mes' | 'apunts'>('setmana')
+  const { abrirCaptura } = useOutletContext<{ abrirCaptura: (o?: { dia?: string }) => void }>()
   const [editant, setEditant] = useState<Aher>()
   const clauMes = seleccion.slice(0, 7)
   const mes = useMemo(() => { const [y, m] = clauMes.split('-').map(Number); return new Date(y, m - 1, 1) }, [clauMes])
@@ -111,6 +111,7 @@ export function Agenda() {
           <section className="cal-mes overflow-hidden rounded-[1.75rem] border border-line bg-surface">
             <header className="cal-cabecera flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
               {/* Tocar el título abre el selector de mes del sistema (en el iPhone, la rueda de mes y año). */}
+              {vista !== 'apunts' && <>
               <label className="relative flex min-w-0 cursor-pointer items-center gap-1.5">
                 <h2 className="min-w-0 text-xl font-bold tracking-tight capitalize sm:text-2xl" aria-live="polite">{titol}</h2>
                 <ChevronDown size={18} className="shrink-0 text-muted" aria-hidden />
@@ -119,7 +120,9 @@ export function Agenda() {
                   className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
               </label>
               <div className="flex shrink-0 items-center gap-1">
-                <button onClick={() => setSeleccion(hoy)} className="cal-control min-h-11 rounded-full px-3 text-sm font-semibold">{t.hoy}</button>
+                {seleccion !== hoy && (
+                  <button onClick={() => setSeleccion(hoy)} className="cal-control flex min-h-11 items-center gap-1 rounded-full px-3 text-sm font-semibold"><RotateCcw size={15} aria-hidden />{t.tornarAue}</button>
+                )}
                 <button onClick={() => moure(-1)} aria-label={t.mesAnterior} className="cal-control grid size-11 place-items-center rounded-full">
                   <ChevronLeft size={20} aria-hidden />
                 </button>
@@ -127,6 +130,7 @@ export function Agenda() {
                   <ChevronRight size={20} aria-hidden />
                 </button>
               </div>
+              </>}
               {vista === 'setmana' && (
                 <div className="grid w-full grid-cols-2 gap-2 text-sm font-semibold">
                   <button onClick={() => setSeleccion(sumarDies(seleccion, -7))} aria-label={t.setmanaAnterior} className="flex min-h-11 items-center justify-center gap-1 rounded-xl border border-line text-accent hover:bg-bg">
@@ -137,17 +141,17 @@ export function Agenda() {
                   </button>
                 </div>
               )}
-              <div role="tablist" className="grid w-full grid-cols-2 gap-1 rounded-xl bg-bg p-1">
-                {(['setmana', 'mes'] as const).map((v) => (
+              <div role="tablist" className="grid w-full grid-cols-3 gap-1 rounded-xl bg-bg p-1">
+                {(['setmana', 'mes', 'apunts'] as const).map((v) => (
                   <button key={v} role="tab" aria-selected={vista === v} onClick={() => setVista(v)}
                     className={`min-h-10 rounded-lg text-sm font-semibold ${vista === v ? 'bg-accent text-on-accent' : 'text-muted'}`}>
-                    {v === 'setmana' ? t.vistaSetmana : t.vistaMes}
+                    {v === 'setmana' ? t.vistaSetmana : v === 'mes' ? t.vistaMes : t.vistaApunts}
                   </button>
                 ))}
               </div>
             </header>
 
-            <div className="px-2 pb-3 sm:px-4 sm:pb-4">
+            {vista === 'apunts' ? <div className="px-3 pb-4 sm:px-5"><Apunts onEditar={setEditant} /></div> : <div className="px-2 pb-3 sm:px-4 sm:pb-4">
               <div className="grid grid-cols-7 gap-1 text-center">
                 {semanaAbreviada(lang).map((d) => <span key={d} className="pb-2 text-xs font-semibold text-muted capitalize">{d}</span>)}
                 {vista === 'setmana' ? setmana.map((fecha) => {
@@ -180,23 +184,23 @@ export function Agenda() {
               <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 px-1 pt-2 text-xs font-medium text-muted">
                 {marcas.map(({ id, label }) => <li key={id} className="flex items-center gap-1.5"><span className="cal-punto" data-marca={id} aria-hidden />{label}</li>)}
               </ul>
-            </div>
+            </div>}
           </section>
 
-          <section aria-labelledby="agenda-dia" className="self-start">
+          {vista !== 'apunts' && <section aria-labelledby="agenda-dia" className="self-start">
             <div className="cal-agenda-cabecera flex items-center gap-3 px-4 py-4">
               <span aria-hidden className="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-soft font-bold text-accent">{Number(seleccion.slice(-2))}</span>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-muted">{t.agenda}</p>
                 <h2 id="agenda-dia" className="text-lg font-bold capitalize" aria-live="polite">{fechaCorta(seleccion, lang)}</h2>
               </div>
-              <button onClick={() => setAnotant(true)} className="flex min-h-11 items-center gap-1.5 rounded-full accion-coral px-4 text-sm font-semibold">
-                <Plus size={18} aria-hidden />{t.anotar}
+              <button onClick={() => abrirCaptura({ dia: seleccion })} aria-label={t.anotarEn} className="grid size-11 place-items-center rounded-full accion-coral">
+                <Plus size={20} aria-hidden />
               </button>
             </div>
             <Card className="overflow-hidden">
               {totalDia === 0 ? (
-                <button onClick={() => setAnotant(true)} className="grid w-full justify-items-center gap-2 px-4 py-8 text-center text-sm text-muted">
+                <button onClick={() => abrirCaptura({ dia: seleccion })} className="grid w-full justify-items-center gap-2 px-4 py-8 text-center text-sm text-muted">
                   <span className="grid size-11 place-items-center rounded-2xl bg-accent-soft text-accent"><CalendarDays size={20} aria-hidden /></span>
                   {t.arrenAnotat}
                 </button>
@@ -269,7 +273,7 @@ export function Agenda() {
                 </ul>
               )}
             </Card>
-          </section>
+          </section>}
         </div>
 
         <div className="mt-6">
@@ -279,51 +283,7 @@ export function Agenda() {
       </div>
 
 
-      {anotant && <HojaAnotar dia={seleccion} onClose={() => setAnotant(false)} />}
-      {editant && <FormAher aher={editant} onClose={() => setEditant(undefined)} />}
+            {editant && <FormAher aher={editant} onClose={() => setEditant(undefined)} />}
     </>
-  )
-}
-
-/** Anotar en un día: nota, Ahèr (con fecha o sin ella) o fecha del curso. */
-function HojaAnotar({ dia, onClose }: { dia: string; onClose: () => void }) {
-  const { t, lang } = useI18n()
-  const { addAher } = useStore()
-  const [clase, setClase] = useState<'nota' | 'aher' | 'data'>('nota')
-  const [texto, setTexto] = useState('')
-  const [fecha, setFecha] = useState(dia)
-  const [horaNova, setHoraNova] = useState('')
-  const opcions = [
-    { id: 'nota' as const, label: t.notaAgenda, icon: StickyNote },
-    { id: 'aher' as const, label: t.acuerdos, icon: ListChecks },
-    { id: 'data' as const, label: t.dataCors, icon: Flag },
-  ]
-  return (
-    <Hoja titulo={`${t.anotarEn} ${fechaCorta(dia, lang)}`} onClose={onClose} puedeGuardar={texto.trim() !== '' && (clase === 'aher' || fecha !== '')}
-      onGuardar={() => {
-        addAher(texto.trim(), fecha || undefined, { ...(fecha && horaNova ? { hora: horaNova } : {}), ...(clase === 'aher' ? {} : { clase }) })
-        onClose()
-      }}>
-      <div className="grid grid-cols-3 gap-2" role="radiogroup">
-        {opcions.map(({ id, label, icon: Icon }) => (
-          <button key={id} type="button" role="radio" aria-checked={clase === id} onClick={() => { setClase(id); if (id !== 'aher' && !fecha) setFecha(dia) }}
-            className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl border text-sm font-semibold ${clase === id ? 'border-accent bg-accent-soft text-accent' : 'border-line bg-surface text-ink'}`}>
-            <Icon size={20} aria-hidden />{label}
-          </button>
-        ))}
-      </div>
-      <Campo label={t.texto}>
-        <textarea autoFocus rows={3} value={texto} onChange={(e) => setTexto(e.target.value)} className="w-full rounded-xl border border-line bg-bg p-3 text-base outline-none focus:border-accent" />
-      </Campo>
-      <div className="grid grid-cols-2 gap-3">
-        <Campo label={clase === 'aher' ? t.fechaTarea : t.dataAgenda}>
-          <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={claseInput} />
-        </Campo>
-        <Campo label={t.horaOpcional}>
-          <input type="time" value={horaNova} disabled={!fecha} onChange={(e) => setHoraNova(e.target.value)} className={`${claseInput} disabled:opacity-40`} />
-        </Campo>
-      </div>
-      {clase === 'aher' && fecha && <button type="button" onClick={() => { setFecha(''); setHoraNova('') }} className="text-sm font-semibold text-accent">{t.sensaData}</button>}
-    </Hoja>
   )
 }

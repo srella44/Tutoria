@@ -83,3 +83,26 @@ export function Campo({ label, children, ayuda }: { label: string; children: Rea
 
 export const claseInput = 'h-11 w-full rounded-xl border border-line bg-bg px-3 text-base outline-none focus:border-accent'
 export const claseTextarea = 'w-full rounded-xl border border-line bg-bg p-3 text-base outline-none focus:border-accent'
+
+/** Botón para vaciar una hora opcional (en el iPhone el selector de hora no deja dejarla en blanco). */
+export function BotoTreureHora({ onTreure }: { onTreure: () => void }) {
+  const { t } = useI18n()
+  return (
+    <button type="button" onClick={onTreure} aria-label={t.treureHora} title={t.treureHora}
+      className="grid size-11 shrink-0 place-items-center rounded-xl border border-line bg-surface text-muted hover:bg-bg">
+      <X size={18} aria-hidden />
+    </button>
+  )
+}
+
+/** Hora opcional con su botón para quitarla. */
+export function HoraOpcional({ valor, onCanvi, desactivat }: { valor: string; onCanvi: (v: string) => void; desactivat?: boolean }) {
+  const { t } = useI18n()
+  return (
+    <span className="flex min-w-0 gap-1">
+      <input type="time" value={valor} disabled={desactivat} onChange={(e) => onCanvi(e.target.value)} aria-label={t.horaOpcional}
+        className={`${claseInput} min-w-0 disabled:opacity-40`} />
+      {valor && !desactivat && <BotoTreureHora onTreure={() => onCanvi('')} />}
+    </span>
+  )
+}
