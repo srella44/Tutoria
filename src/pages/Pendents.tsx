@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FormAcuerdo, FormAher } from '../components/Formularios'
 import { RegistroItem } from '../components/RegistroItem'
-import { Card, Empty, SectionTitle } from '../components/ui'
+import { Empty } from '../components/ui'
 import { useStore } from '../data/store'
 import { esTarea, type Acuerdo, type Aher } from '../data/types'
 import { diasDesdeHoy, fechaCorta } from '../lib/fechas'
@@ -15,11 +15,6 @@ export function Pendents() {
   const { ahers, toggleAher, acuerdos, registros } = useStore()
   const [aherEditando, setAherEditando] = useState<Aher>()
   const [acuerdoEditando, setAcuerdoEditando] = useState<Acuerdo>()
-  const pendientes = ahers.filter((a) => esTarea(a) && !a.completado && !a.responsable).sort((a, b) => {
-    if (a.fecha && b.fecha) return a.fecha.localeCompare(b.fecha) || (a.hora ?? '').localeCompare(b.hora ?? '')
-    return Number(Boolean(b.fecha)) - Number(Boolean(a.fecha))
-  })
-  const completadas = ahers.filter((a) => esTarea(a) && a.completado && !a.responsable)
   const otrasTareas = acuerdos.filter((a) => a.responsable !== 'Tutor' && a.estado !== 'completado')
   const delegadas = ahers.filter((a) => esTarea(a) && a.responsable)
   const grupos = [
@@ -73,18 +68,7 @@ export function Pendents() {
             </details>
           ))}
         </div>
-        <SectionTitle count={pendientes.length}>{t.acuerdos}</SectionTitle>
-        <Card>
-          {pendientes.length > 0 ? <ul>{pendientes.map(tarea)}</ul> : <Empty>{t.nadaPendiente}</Empty>}
-          {completadas.length > 0 && (
-            <details className="border-t border-line">
-              <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">{t.completadas} · {completadas.length}</summary>
-              <ul>{completadas.map(tarea)}</ul>
-            </details>
-          )}
-        </Card>
-
-        <div className="mt-5 space-y-2">
+        <div className="space-y-2">
 
           {otrasTareas.length + delegadas.length > 0 && (
             <details className="panel-app rounded-2xl border border-line bg-surface">

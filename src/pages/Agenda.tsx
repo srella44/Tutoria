@@ -30,7 +30,7 @@ export function Agenda() {
   const { conexion, revisarError } = useGoogleCalendar()
   const [hoy] = useState(() => diaLocal(new Date()))
   const [seleccion, setSeleccion] = useState(hoy)
-  const [vista, setVista] = useState<'setmana' | 'mes' | 'apunts'>('setmana')
+  const [vista, setVista] = useState<'setmana' | 'mes'>('setmana')
   const { abrirCaptura } = useOutletContext<{ abrirCaptura: (o?: { dia?: string }) => void }>()
   const [editant, setEditant] = useState<Aher>()
   const clauMes = seleccion.slice(0, 7)
@@ -111,8 +111,7 @@ export function Agenda() {
           <section className="cal-mes overflow-hidden rounded-[1.75rem] border border-line bg-surface">
             <header className="cal-cabecera flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
               {/* Tocar el título abre el selector de mes del sistema (en el iPhone, la rueda de mes y año). */}
-              {vista !== 'apunts' && <>
-              <label className="relative flex min-w-0 cursor-pointer items-center gap-1.5">
+                            <label className="relative flex min-w-0 cursor-pointer items-center gap-1.5">
                 <h2 className="min-w-0 text-xl font-bold tracking-tight capitalize sm:text-2xl" aria-live="polite">{titol}</h2>
                 <ChevronDown size={18} className="shrink-0 text-muted" aria-hidden />
                 <input type="month" value={clauMes} aria-label={t.triarMes}
@@ -130,7 +129,6 @@ export function Agenda() {
                   <ChevronRight size={20} aria-hidden />
                 </button>
               </div>
-              </>}
               {vista === 'setmana' && (
                 <div className="grid w-full grid-cols-2 gap-2 text-sm font-semibold">
                   <button onClick={() => setSeleccion(sumarDies(seleccion, -7))} aria-label={t.setmanaAnterior} className="flex min-h-11 items-center justify-center gap-1 rounded-xl border border-line text-accent hover:bg-bg">
@@ -141,17 +139,17 @@ export function Agenda() {
                   </button>
                 </div>
               )}
-              <div role="tablist" className="grid w-full grid-cols-3 gap-1 rounded-xl bg-bg p-1">
-                {(['setmana', 'mes', 'apunts'] as const).map((v) => (
+              <div role="tablist" className="grid w-full grid-cols-2 gap-1 rounded-xl bg-bg p-1">
+                {(['setmana', 'mes'] as const).map((v) => (
                   <button key={v} role="tab" aria-selected={vista === v} onClick={() => setVista(v)}
                     className={`min-h-10 rounded-lg text-sm font-semibold ${vista === v ? 'bg-accent text-on-accent' : 'text-muted'}`}>
-                    {v === 'setmana' ? t.vistaSetmana : v === 'mes' ? t.vistaMes : t.vistaApunts}
+                    {v === 'setmana' ? t.vistaSetmana : t.vistaMes}
                   </button>
                 ))}
               </div>
             </header>
 
-            {vista === 'apunts' ? <div className="px-3 pb-4 sm:px-5"><Apunts onEditar={setEditant} /></div> : <div className="px-2 pb-3 sm:px-4 sm:pb-4">
+            <div className="px-2 pb-3 sm:px-4 sm:pb-4">
               <div className="grid grid-cols-7 gap-1 text-center">
                 {semanaAbreviada(lang).map((d) => <span key={d} className="pb-2 text-xs font-semibold text-muted capitalize">{d}</span>)}
                 {vista === 'setmana' ? setmana.map((fecha) => {
@@ -184,10 +182,10 @@ export function Agenda() {
               <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 px-1 pt-2 text-xs font-medium text-muted">
                 {marcas.map(({ id, label }) => <li key={id} className="flex items-center gap-1.5"><span className="cal-punto" data-marca={id} aria-hidden />{label}</li>)}
               </ul>
-            </div>}
+            </div>
           </section>
 
-          {vista !== 'apunts' && <section aria-labelledby="agenda-dia" className="self-start">
+          <section aria-labelledby="agenda-dia" className="self-start">
             <div className="cal-agenda-cabecera flex items-center gap-3 px-4 py-4">
               <span aria-hidden className="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-soft font-bold text-accent">{Number(seleccion.slice(-2))}</span>
               <div className="min-w-0 flex-1">
@@ -273,13 +271,19 @@ export function Agenda() {
                 </ul>
               )}
             </Card>
-          </section>}
+          </section>
         </div>
 
         <div className="mt-6">
           <SectionTitle>{t.herSeguiment}</SectionTitle>
           <Pendents />
         </div>
+
+        {/* Anotacions: la línea del tiempo de notas, Ahèrs, fechas y registros, en su propio espacio (decisión 0023). */}
+        <section className="mt-6">
+          <SectionTitle>{t.anotacions}</SectionTitle>
+          <Card><div className="p-3 sm:p-4"><Apunts onEditar={setEditant} /></div></Card>
+        </section>
       </div>
 
 

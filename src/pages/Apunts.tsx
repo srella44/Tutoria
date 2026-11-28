@@ -17,8 +17,8 @@ const aData = (s: string) => { const [y, m, d] = s.split('-').map(Number); retur
 
 export function Apunts({ onEditar }: { onEditar: (a: Aher) => void }) {
   const { t, lang, tipo } = useI18n()
-  const { ahers, registros, alumnos, guardarAher, guardarRegistro } = useStore()
-  const [filtre, setFiltre] = useState<Filtre>('nota')
+  const { ahers, registros, alumnos, guardarAher, guardarRegistro, toggleAher } = useStore()
+  const [filtre, setFiltre] = useState<Filtre>('tot')
   const [cerca, setCerca] = useState('')
   const [mesos, setMesos] = useState(1)
   const q = cerca.trim().toLocaleLowerCase()
@@ -60,8 +60,8 @@ export function Apunts({ onEditar }: { onEditar: (a: Aher) => void }) {
     else guardarRegistro({ ...x.registre, fixat: !x.fixat })
   }
   const filtres: [Filtre, string][] = [
-    ['nota', t.notaAgenda], ['aher', t.aherUn], ['data', t.dataCors],
-    ['observacion', tipo.observacion], ['incidencia', tipo.incidencia], ['comunicacion', tipo.comunicacion], ['tot', t.filtreTot],
+    ['tot', t.filtreTot], ['nota', t.notaAgenda], ['aher', t.aherUn], ['data', t.dataCors],
+    ['observacion', tipo.observacion], ['incidencia', tipo.incidencia], ['comunicacion', tipo.comunicacion],
   ]
 
   const fila = (x: Apunt) => {
@@ -83,6 +83,10 @@ export function Apunts({ onEditar }: { onEditar: (a: Aher) => void }) {
     const Icona = a.clase === 'data' ? Flag : a.clase === 'nota' ? StickyNote : ListChecks
     return (
       <div key={x.clau} className="flex items-center border-b border-line last:border-0">
+        {!a.clase && (
+          <input type="checkbox" checked={a.completado} onChange={() => toggleAher(a.id)} aria-label={a.texto}
+            className="ml-3 size-6 shrink-0 accent-accent" />
+        )}
         <button type="button" onClick={() => onEditar(a)} className="flex min-h-12 min-w-0 flex-1 items-start gap-3 px-3 py-2.5 text-left hover:bg-bg">
           <span data-marca={a.clase === 'data' ? 'cors' : a.clase === 'nota' ? 'anotacion' : 'tareas'} className="cal-icono-fila"><Icona size={17} aria-hidden /></span>
           <span className="min-w-0 flex-1">
