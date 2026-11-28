@@ -96,13 +96,10 @@ export function Agenda() {
   const inicioSemana = (mes.getDay() + 6) % 7
   const totalDias = new Date(mes.getFullYear(), mes.getMonth() + 1, 0).getDate()
   const diasCuadricula = Math.ceil((inicioSemana + totalDias) / 7) * 7
-  const moure = (salto: number) => {
-    if (vista === 'setmana') setSeleccion(sumarDies(seleccion, salto * 7))
-    else setSeleccion(diaLocal(new Date(mes.getFullYear(), mes.getMonth() + salto, 1)))
-  }
-  const titol = vista === 'setmana'
-    ? `${Number(setmana[0].slice(-2))} – ${fechaCorta(setmana[6], lang)}`
-    : mesYAnyo(mes, lang)
+  // Flechas de arriba: siempre de mes en mes. En la vista de semana hay además la fila de semana anterior y siguiente.
+  const moure = (salto: number) => setSeleccion(diaLocal(new Date(mes.getFullYear(), mes.getMonth() + salto, 1)))
+  const rang = (dl: string) => `${Number(dl.slice(-2))}/${Number(dl.slice(5, 7))} – ${Number(sumarDies(dl, 6).slice(-2))}/${Number(sumarDies(dl, 6).slice(5, 7))}`
+  const titol = mesYAnyo(mes, lang)
 
   return (
     <>
@@ -123,20 +120,20 @@ export function Agenda() {
               </label>
               <div className="flex shrink-0 items-center gap-1">
                 <button onClick={() => setSeleccion(hoy)} className="cal-control min-h-11 rounded-full px-3 text-sm font-semibold">{t.hoy}</button>
-                <button onClick={() => moure(-1)} aria-label={vista === 'setmana' ? t.setmanaAnterior : t.mesAnterior} className="cal-control grid size-11 place-items-center rounded-full">
+                <button onClick={() => moure(-1)} aria-label={t.mesAnterior} className="cal-control grid size-11 place-items-center rounded-full">
                   <ChevronLeft size={20} aria-hidden />
                 </button>
-                <button onClick={() => moure(1)} aria-label={vista === 'setmana' ? t.setmanaSeguenta : t.mesSiguiente} className="cal-control grid size-11 place-items-center rounded-full">
+                <button onClick={() => moure(1)} aria-label={t.mesSiguiente} className="cal-control grid size-11 place-items-center rounded-full">
                   <ChevronRight size={20} aria-hidden />
                 </button>
               </div>
               {vista === 'setmana' && (
-                <div className="flex w-full items-center justify-between gap-2 text-sm font-semibold">
-                  <button onClick={() => setSeleccion(diaLocal(new Date(mes.getFullYear(), mes.getMonth() - 1, 1)))} className="flex min-h-10 items-center gap-1 rounded-full px-2 text-accent hover:bg-bg">
-                    <ChevronLeft size={16} aria-hidden /><span className="capitalize">{mesYAnyo(new Date(mes.getFullYear(), mes.getMonth() - 1, 1), lang)}</span>
+                <div className="grid w-full grid-cols-2 gap-2 text-sm font-semibold">
+                  <button onClick={() => setSeleccion(sumarDies(seleccion, -7))} aria-label={t.setmanaAnterior} className="flex min-h-11 items-center justify-center gap-1 rounded-xl border border-line text-accent hover:bg-bg">
+                    <ChevronLeft size={16} aria-hidden />{rang(sumarDies(dilluns, -7))}
                   </button>
-                  <button onClick={() => setSeleccion(diaLocal(new Date(mes.getFullYear(), mes.getMonth() + 1, 1)))} className="flex min-h-10 items-center gap-1 rounded-full px-2 text-accent hover:bg-bg">
-                    <span className="capitalize">{mesYAnyo(new Date(mes.getFullYear(), mes.getMonth() + 1, 1), lang)}</span><ChevronRight size={16} aria-hidden />
+                  <button onClick={() => setSeleccion(sumarDies(seleccion, 7))} aria-label={t.setmanaSeguenta} className="flex min-h-11 items-center justify-center gap-1 rounded-xl border border-line text-accent hover:bg-bg">
+                    {rang(sumarDies(dilluns, 7))}<ChevronRight size={16} aria-hidden />
                   </button>
                 </div>
               )}
