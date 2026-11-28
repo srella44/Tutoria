@@ -60,6 +60,7 @@ Publicar **Mister** (app de entrenadores, repositorio `srella44/CONVOCATOR-ia`; 
 - [ ] Primera entrada: crear el responsable, la temporada 2026-2027 (U11) y los entrenadores.
 - [ ] Migrar el histórico de cuadernU11: reconectar Zite con la cuenta del club o exportar las tablas a CSV.
 - [ ] En el iPhone: añadir a la pantalla de inicio y comprobar el icono.
+- [ ] Con Google conectado, revisar si Anotacions (Agenda) debe mostrar también las amassades y los eventos de Google de días que no son hoy (decisión 0023).
 
 ## Fase 3 · Reuniones (completada 2026-11-27)
 
