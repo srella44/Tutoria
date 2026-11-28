@@ -2,7 +2,7 @@
 // se ve el mes actual y se cargan los anteriores de uno en uno (decisiones 0021 y 0022).
 import clsx from 'clsx'
 import { ChevronDown, Flag, ListChecks, Search, Star, StickyNote } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { RegistroItem } from '../components/RegistroItem'
 import { useStore } from '../data/store'
 import type { Aher, Registro, TipoRegistro } from '../data/types'
@@ -15,7 +15,8 @@ const REGISTRES: TipoRegistro[] = ['observacion', 'incidencia', 'comunicacion']
 
 const aData = (s: string) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d) }
 
-export function Apunts({ onEditar }: { onEditar: (a: Aher) => void }) {
+// `salt`: al tocar un día del calendario, la línea del tiempo salta a ese día y lo resalta (decisión 0023).
+export function Apunts({ onEditar, salt }: { onEditar: (a: Aher) => void; salt?: { dia: string; n: number } }) {
   const { t, lang, tipo } = useI18n()
   const { ahers, registros, alumnos, guardarAher, guardarRegistro, toggleAher } = useStore()
   const [filtre, setFiltre] = useState<Filtre>('tot')
@@ -53,6 +54,24 @@ export function Apunts({ onEditar }: { onEditar: (a: Aher) => void }) {
     if (ultim && ultim.data === x.data) ultim.items.push(x)
     else dies.push({ data: x.data as string, items: [x] })
   }
+  // Día tocado en el calendario: se muestra aunque no tenga nada, para que se vea dónde ha caído.
+  const diaSalt = salt?.dia
+  if (diaSalt && !q && !dies.some((d) => d.data === diaSalt) && (diaSalt >= limit)) {
+    const pos = dies.findIndex((d) => d.data < diaSalt)
+    dies.splice(pos === -1 ? dies.length : pos, 0, { data: diaSalt, items: [] })
+  }
+  useEffect(() => {
+    if (!salt) return
+    setFiltre('tot')
+    setCerca('')
+    const d = aData(salt.dia)
+    const necessaris = (ara.getFullYear() - d.getFullYear()) * 12 + ara.getMonth() - d.getMonth() + 1
+    setMesos((m) => Math.max(m, necessaris))
+    const id = window.setTimeout(() => document.getElementById(`apunt-${salt.dia}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
+    return () => window.clearTimeout(id)
+    // Solo cuando se toca un día; `ara` cambia en cada render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [salt?.n])
   const nomDia = (d: string) => (d === avui ? t.hoy : fechaCorta(d, lang))
 
   const fixar = (x: Apunt) => {
@@ -125,11 +144,13 @@ export function Apunts({ onEditar }: { onEditar: (a: Aher) => void }) {
         {dies.map((d, i) => {
           const canviMes = i === 0 || dies[i - 1].data.slice(0, 7) !== d.data.slice(0, 7)
           return (
-            <li key={d.data}>
+            <li key={d.data} id={`apunt-${d.data}`} className="scroll-mt-24">
               {canviMes && <p className="-ml-4 mb-2 bg-bg py-1 pl-4 text-xs font-semibold uppercase tracking-wide text-muted capitalize">{mesYAnyo(aData(d.data), lang)}</p>}
               <span aria-hidden className="absolute -left-[7px] mt-1.5 size-3 rounded-full border-2 border-surface bg-accent" />
               <p className="mb-1 text-sm font-semibold capitalize">{nomDia(d.data)}</p>
-              <div className="overflow-hidden rounded-2xl border border-line bg-surface">{d.items.map(fila)}</div>
+              <div className={clsx('overflow-hidden rounded-2xl border bg-surface', d.data === diaSalt ? 'border-accent ring-2 ring-accent/30' : 'border-line')}>
+                {d.items.length > 0 ? d.items.map(fila) : <p className="px-3 py-3 text-sm text-muted">{t.arrenAnotat}</p>}
+              </div>
             </li>
           )
         })}

@@ -18,3 +18,8 @@ Un solo sitio para consultar lo anotado, separado del calendario. Los Ahèrs pen
 - Se quita el «+» de la cabecera del día en la Agenda: se registraba igual con el «+» de la barra.
 - El «+» de la barra, estando en la Agenda, toma como fecha el día que se mira (si no es hoy).
 - Dentro de Registre nau, el cambio de tipo usa las mismas seis teclas de la primera pantalla (3 + 3) en pequeño, en lugar de la fila de botones deslizable.
+
+## Ampliación (28/11/2026): fuera el recuadro del día
+- Se quita el recuadro con lo del día seleccionado: lo de hoy ya está en Aué (Inicio) y lo anotado, en Anotacions.
+- Tocar un día en la semana o el mes lleva a Anotacions a ese día (filtro Todo, carga los meses necesarios) y lo resalta; si no hay nada, se ve «Arren anotat».
+- Las amassades de otros días se consultan en Amassades; las marcas del calendario siguen indicando qué hay cada día.

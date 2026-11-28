@@ -273,7 +273,7 @@ button.cal-dia:hover {
 }
 
 @media (min-width: 1280px) {
-  .cal-layout { grid-template-columns: minmax(0, 1.75fr) minmax(16rem, 1fr); }
+  .cal-layout { grid-template-columns: minmax(0, 1fr); }
   .cal-dia { min-height: 4.65rem; }
   .cal-marcas { flex-wrap: wrap; row-gap: 0.15rem; }
   .cal-marca {

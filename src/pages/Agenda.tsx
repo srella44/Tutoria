@@ -1,16 +1,15 @@
-// Agenda: une el antiguo Aué (calendario) y Seguiment (lo pendiente). Semana o mes arriba, lo del día debajo,
-// botón «Anotar» para apuntar en el día (nota, Ahèr o fecha del curso) y, al pie, los Pendents (decisión 0020).
-import { CalendarDays, ChevronDown, RotateCcw, ChevronLeft, ChevronRight, Flag, Handshake, ListChecks, Pencil, StickyNote } from 'lucide-react'
+// Agenda: semana o mes arriba; debajo Anotacions (la línea del tiempo) y Hèr seguiment (decisiones 0020 y 0023).
+// Lo de hoy se ve en Aué, en Inicio; tocar un día lleva a Anotacions, a ese día. Se anota con el «+» de la barra.
+import { CalendarDays, ChevronDown, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useOutletContext } from 'react-router-dom'
+import { useOutletContext } from 'react-router-dom'
 import { ControlGoogleCalendar } from '../components/ControlGoogleCalendar'
 import { FormAher } from '../components/Formularios'
-import { RegistroItem } from '../components/RegistroItem'
 import { Card, PageHeader, SectionTitle } from '../components/ui'
 import { useStore } from '../data/store'
-import { citaRealizada, esClaustre, esTarea, tiposAmassada, type Aher, type TipoRegistro } from '../data/types'
+import { esClaustre, esTarea, tiposAmassada, type Aher, type TipoRegistro } from '../data/types'
 import { ocurreEnDia } from '../lib/calendario'
-import { diaLocal, fechaCorta, hora, mesYAnyo, semanaAbreviada } from '../lib/fechas'
+import { diaLocal, fechaCorta, mesYAnyo, semanaAbreviada } from '../lib/fechas'
 import { listarMesGoogle, type EventoGoogle } from '../lib/googleCalendar'
 import { useGoogleCalendar } from '../lib/GoogleCalendarProvider'
 import { useI18n } from '../lib/i18n'
@@ -25,8 +24,8 @@ const sumarDies = (s: string, n: number) => { const d = aData(s); return diaLoca
 type Marca = 'citas' | 'notas' | 'tareas' | 'anotacion' | 'cors' | 'google'
 
 export function Agenda() {
-  const { t, lang, tipo } = useI18n()
-  const { registros, ahers, alumnos, toggleAher } = useStore()
+  const { t, lang } = useI18n()
+  const { registros, ahers } = useStore()
   const { conexion, revisarError } = useGoogleCalendar()
   const [hoy] = useState(() => diaLocal(new Date()))
   const [seleccion, setSeleccion] = useState(hoy)
@@ -60,7 +59,7 @@ export function Agenda() {
     Date.parse(r.fecha) === Date.parse(evento.start.dateTime),
   ))
 
-  // Lo de cada día, en un solo sitio: lo usan las marcas del calendario y la lista del día.
+  // Lo de cada día, en un solo sitio: lo usan las marcas del calendario 
   const delDia = (fecha: string) => {
     const regs = registros.filter((r) => diaLocal(r.fecha) === fecha)
     const meus = ahers.filter((a) => a.fecha === fecha && !a.responsable)
@@ -89,9 +88,6 @@ export function Agenda() {
     })
   }
 
-  const dia = delDia(seleccion)
-  const porHora = (xs: Aher[]) => [...xs].sort((a, b) => (a.hora ?? '').localeCompare(b.hora ?? ''))
-  const totalDia = dia.citas.length + dia.notas.length + dia.tareas.length + dia.anotacion.length + dia.cors.length + dia.google.length
 
   const dilluns = sumarDies(seleccion, -((aData(seleccion).getDay() + 6) % 7))
   const setmana = Array.from({ length: 7 }, (_, i) => sumarDies(dilluns, i))
@@ -99,6 +95,9 @@ export function Agenda() {
   const totalDias = new Date(mes.getFullYear(), mes.getMonth() + 1, 0).getDate()
   const diasCuadricula = Math.ceil((inicioSemana + totalDias) / 7) * 7
   // Flechas de arriba: siempre de mes en mes. En la vista de semana hay además la fila de semana anterior y siguiente.
+  // Tocar un día lleva a Anotacions, a ese día (decisión 0023): lo de hoy se ve en Aué, en Inicio.
+  const [salt, setSalt] = useState<{ dia: string; n: number }>()
+  const tocarDia = (fecha: string) => { setSeleccion(fecha); setSalt((x) => ({ dia: fecha, n: (x?.n ?? 0) + 1 })) }
   const moure = (salto: number) => setSeleccion(diaLocal(new Date(mes.getFullYear(), mes.getMonth() + salto, 1)))
   const rang = (dl: string) => `${Number(dl.slice(-2))}/${Number(dl.slice(5, 7))} – ${Number(sumarDies(dl, 6).slice(-2))}/${Number(sumarDies(dl, 6).slice(5, 7))}`
   const titol = mesYAnyo(mes, lang)
@@ -157,7 +156,7 @@ export function Agenda() {
                 {vista === 'setmana' ? setmana.map((fecha) => {
                   const visibles = comptes(fecha)
                   return (
-                    <button key={fecha} onClick={() => setSeleccion(fecha)} aria-pressed={fecha === seleccion} aria-current={fecha === hoy ? 'date' : undefined}
+                    <button key={fecha} onClick={() => tocarDia(fecha)} aria-pressed={fecha === seleccion} aria-current={fecha === hoy ? 'date' : undefined}
                       aria-label={[fechaCorta(fecha, lang), ...visibles.map(({ label, cantidad }) => `${label} ${cantidad}`)].join(' · ')} className="cal-dia">
                       <span className="cal-numero">{Number(fecha.slice(-2))}</span>
                       <span aria-hidden className="cal-marcas">
@@ -171,7 +170,7 @@ export function Agenda() {
                   if (numero < 1 || numero > totalDias) return <span key={fecha} aria-hidden className="cal-dia cal-fuera">{Number(fecha.slice(-2))}</span>
                   const visibles = comptes(fecha)
                   return (
-                    <button key={fecha} onClick={() => setSeleccion(fecha)} aria-pressed={fecha === seleccion} aria-current={fecha === hoy ? 'date' : undefined}
+                    <button key={fecha} onClick={() => tocarDia(fecha)} aria-pressed={fecha === seleccion} aria-current={fecha === hoy ? 'date' : undefined}
                       aria-label={[fechaCorta(fecha, lang), ...visibles.map(({ label, cantidad }) => `${label} ${cantidad}`)].join(' · ')} className="cal-dia">
                       <span className="cal-numero">{numero}</span>
                       <span aria-hidden className="cal-marcas">
@@ -187,97 +186,13 @@ export function Agenda() {
             </div>
           </section>
 
-          <section aria-labelledby="agenda-dia" className="self-start">
-            <div className="cal-agenda-cabecera flex items-center gap-3 px-4 py-4">
-              <span aria-hidden className="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-soft font-bold text-accent">{Number(seleccion.slice(-2))}</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-muted">{t.agenda}</p>
-                <h2 id="agenda-dia" className="text-lg font-bold capitalize" aria-live="polite">{fechaCorta(seleccion, lang)}</h2>
-              </div>
-            </div>
-            <Card className="overflow-hidden">
-              {totalDia === 0 ? (
-                <p className="grid w-full justify-items-center gap-2 px-4 py-8 text-center text-sm text-muted">
-                  <span className="grid size-11 place-items-center rounded-2xl bg-accent-soft text-accent"><CalendarDays size={20} aria-hidden /></span>
-                  {t.arrenAnotat}
-                </p>
-              ) : (
-                <ul>
-                  {porHora(dia.cors).map((a) => (
-                    <li key={a.id} className="border-b border-line last:border-0">
-                      <button onClick={() => setEditant(a)} className="cal-fila w-full text-left hover:bg-bg">
-                        <span data-marca="cors" className="cal-icono-fila"><Flag size={19} aria-hidden /></span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-xs font-semibold text-muted">{t.dataCors}{a.hora && ` · ${a.hora}`}</span>
-                          <span className="block font-semibold">{a.texto}</span>
-                        </span>
-                        <Pencil size={15} className="shrink-0 text-muted" aria-hidden />
-                      </button>
-                    </li>
-                  ))}
-                  {dia.citas.concat(dia.notas).sort((a, b) => a.fecha.localeCompare(b.fecha)).map((r) => esCita(r) ? (
-                    <li key={r.id} className="border-b border-line last:border-0">
-                      <Link to={`/reunion/${r.id}`} state={{ desdeTutoria: true }} className="cal-fila hover:bg-bg">
-                        <span data-marca="citas" className="cal-icono-fila"><Handshake size={19} aria-hidden /></span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-xs font-semibold text-muted">{hora(r.fecha)} · {citaRealizada(r) ? t.citaHecha : t.pendiente}</span>
-                          <span className="block font-semibold">{r.titulo || tipo[r.tipo]}</span>
-                          {r.alumnoIds.length > 0 && <span className="block text-sm text-muted">{r.alumnoIds.map((id) => alumnos.find((a) => a.id === id)?.nombre).filter(Boolean).join(', ')}</span>}
-                          {r.visibilidad !== 'protegido' && r.texto && <span className="block truncate text-sm text-muted">{r.texto}</span>}
-                        </span>
-                        <ChevronRight size={17} className="shrink-0 text-muted" aria-hidden />
-                      </Link>
-                    </li>
-                  ) : <RegistroItem key={r.id} r={r} />)}
-                  {dia.google.map((evento) => (
-                    <li key={evento.id} className="cal-fila border-b border-line last:border-0">
-                      <span data-marca="google" className="cal-icono-fila"><CalendarDays size={19} aria-hidden /></span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-xs text-muted">
-                          {evento.calendario || 'Google Calendar'}
-                          {evento.start.date && ` · ${t.calTotEthDia}`}
-                          {evento.start.dateTime && diaLocal(evento.start.dateTime) === seleccion && ` · ${hora(evento.start.dateTime)}`}
-                        </span>
-                        <span className="block font-semibold">{evento.summary || t.googleEvento}</span>
-                      </span>
-                    </li>
-                  ))}
-                  {porHora(dia.tareas).map((a) => (
-                    <li key={a.id} className="flex items-center border-b border-line last:border-0">
-                      <label className="cal-fila flex-1 cursor-pointer hover:bg-bg">
-                        <span data-marca="tareas" className="cal-icono-fila"><ListChecks size={19} aria-hidden /></span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-xs text-muted">{t.acuerdos}{a.hora && ` · ${a.hora}`}</span>
-                          <span className={`block font-semibold ${a.completado ? 'text-muted line-through' : ''}`}>{a.texto}</span>
-                        </span>
-                        <input type="checkbox" checked={a.completado} onChange={() => toggleAher(a.id)} className="size-6 shrink-0 accent-accent" aria-label={a.texto} />
-                      </label>
-                      <button onClick={() => setEditant(a)} aria-label={t.editar} className="mr-2 grid size-10 place-items-center rounded-lg text-muted hover:bg-bg"><Pencil size={15} /></button>
-                    </li>
-                  ))}
-                  {porHora(dia.anotacion).map((a) => (
-                    <li key={a.id} className="border-b border-line last:border-0">
-                      <button onClick={() => setEditant(a)} className="cal-fila w-full text-left hover:bg-bg">
-                        <span data-marca="anotacion" className="cal-icono-fila"><StickyNote size={19} aria-hidden /></span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-xs text-muted">{t.notaAgenda}{a.hora && ` · ${a.hora}`}</span>
-                          <span className="block whitespace-pre-wrap font-semibold">{a.texto}</span>
-                        </span>
-                        <Pencil size={15} className="shrink-0 text-muted" aria-hidden />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card>
-          </section>
         </div>
 
 
         {/* Anotacions: la línea del tiempo de notas, Ahèrs, fechas y registros, en su propio espacio (decisión 0023). */}
         <section className="mt-6">
           <SectionTitle>{t.anotacions}</SectionTitle>
-          <Card><div className="p-3 sm:p-4"><Apunts onEditar={setEditant} /></div></Card>
+          <Card><div className="p-3 sm:p-4"><Apunts onEditar={setEditant} salt={salt} /></div></Card>
         </section>
 
         <div className="mt-6">
